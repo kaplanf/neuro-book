@@ -292,6 +292,8 @@ h1{font-size:1.5rem;margin:0 0 4px;font-weight:600;letter-spacing:.2px;}
 
           <!-- generic cue layer -->
           <g id="cueLayer1"></g>
+          <!-- persistent scenario+stage state badge -->
+          <g id="stateBadge1" transform="translate(560,14)"></g>
         </svg>
       </div>
       <div class="panel">
@@ -429,6 +431,8 @@ h1{font-size:1.5rem;margin:0 0 4px;font-weight:600;letter-spacing:.2px;}
           </g>
 
           <g id="cueLayer2"></g>
+          <!-- persistent scenario+stage state badge -->
+          <g id="stateBadge2" transform="translate(500,14)"></g>
         </svg>
       </div>
       <div class="panel">
@@ -459,6 +463,10 @@ h1{font-size:1.5rem;margin:0 0 4px;font-weight:600;letter-spacing:.2px;}
     <div class="legend-grid" id="legendColors"></div>
     <div class="legend-sep"></div>
     <div class="legend-grid" id="legendCues"></div>
+    <div class="legend-sep"></div>
+    <p style="margin:2px 0 0;font-size:.8rem;color:var(--dim);">
+      Top-of-diagram badge = state identity: the colored swatch matches the active scenario chip; the dot track marks the current stage among all stages (filled = passed, ringed = current, hollow = ahead).
+    </p>
   </div>
   <p class="footnote">
     Schematic, not to scale — the synaptic cleft (~20nm) is shown far larger than the terminal/soma for legibility; vesicle and receptor counts are illustrative, not literal.
@@ -482,6 +490,17 @@ var SCENARIOS = [
   {id:"stress", label:"Stress (chronic)", thesis:"Cortisol first raises then throttles synthesis while sharpening reuptake — demand stays high as supply is deliberately curtailed."},
   {id:"depleted", label:"Depleted (chronic)", thesis:"Every pool runs thin and D2 receptors turn hypersensitive — small signals are over-read, then crash below baseline."}
 ];
+
+/* Matches the chip colors 1:1 -- this is the always-visible visual identity of the
+   active scenario, independent of and in addition to the felt-experience cue layer. */
+var SCENARIO_COLOR = {
+  healthy:"#1a2530", alcohol:"#8a4b12", thc:"#5b3fa0", sleep:"#2a4a6b",
+  gut:"#8a3020", stress:"#946a12", depleted:"#3a3f47"
+};
+var SCENARIO_CODE = {
+  healthy:"HLTH", alcohol:"ETOH", thc:"THC", sleep:"SLEEP",
+  gut:"GUT", stress:"STRESS", depleted:"DEPL"
+};
 
 var CUE_META = {
   "clean":        {color:"#128a63", label:"clean / green-check"},
@@ -785,6 +804,50 @@ function buildCueGlyph(cue, opts){
   return g;
 }
 
+/* Persistent, always-on visual cue for WHICH scenario and WHICH stage is active --
+   distinct from the felt-experience cue layer (which only appears where mapped).
+   A colored swatch (scenario identity, matches the chip color) sits beside a stage
+   progress track (state identity): filled dots = stages already passed, a ringed
+   dot = the current stage, hollow dots = stages ahead. Rebuilt every render so it
+   can never drift out of sync with (scenario, stage). */
+function renderStateBadge(container, scenario, stage, totalStages){
+  while(container.firstChild) container.removeChild(container.firstChild);
+  var color = SCENARIO_COLOR[scenario] || "#1a2530";
+  var code = SCENARIO_CODE[scenario] || scenario.toUpperCase();
+
+  var swatch = svgns("circle");
+  swatch.setAttribute("cx","0"); swatch.setAttribute("cy","0"); swatch.setAttribute("r","6");
+  swatch.setAttribute("fill", color);
+  container.appendChild(swatch);
+
+  var label = svgns("text");
+  label.setAttribute("x","12"); label.setAttribute("y","4");
+  label.setAttribute("class","lbl"); label.setAttribute("fill", color); label.setAttribute("font-weight","700");
+  label.textContent = code;
+  container.appendChild(label);
+
+  var trackStart = 12 + code.length*6.2 + 14;
+  for(var i=0;i<=totalStages;i++){
+    var cx = trackStart + i*13;
+    var dot = svgns("circle");
+    dot.setAttribute("cx", cx); dot.setAttribute("cy","0");
+    if(i===stage){
+      dot.setAttribute("r","4.5"); dot.setAttribute("fill", color);
+      dot.setAttribute("stroke", color); dot.setAttribute("stroke-width","1.5");
+      var ring = svgns("circle");
+      ring.setAttribute("cx", cx); ring.setAttribute("cy","0"); ring.setAttribute("r","7");
+      ring.setAttribute("fill","none"); ring.setAttribute("stroke", color); ring.setAttribute("stroke-width","1.2");
+      container.appendChild(ring);
+    } else if(i<stage){
+      dot.setAttribute("r","3"); dot.setAttribute("fill", color); dot.setAttribute("opacity","0.55");
+    } else {
+      dot.setAttribute("r","3"); dot.setAttribute("fill","none");
+      dot.setAttribute("stroke","var(--faint)"); dot.setAttribute("stroke-width","1");
+    }
+    container.appendChild(dot);
+  }
+}
+
 function renderCueLayer(container, anchors, items, prefix){
   while(container.firstChild) container.removeChild(container.firstChild);
   if(!items) return;
@@ -887,10 +950,13 @@ function renderTab1(){
 
   /* ---- stage-specific visuals ---- */
   if(stage===1){ document.getElementById("synthChain").setAttribute("opacity","1"); }
-  if(stage===3){
-    svg.classList.add("anim-vesicle","anim-burst");
+
+  /* burstCount (cleft-dot count) is a function of (stage, scenario) jointly:
+     regenerated fresh from vis.burstCount at every stage it's visible in, so a
+     scenario switch while parked on stage 4/5 can't leave stale dots behind. */
+  if(stage===3 || stage===4 || stage===5){
+    if(stage===3) svg.classList.add("anim-vesicle","anim-burst");
     var bd = document.getElementById("burstDots");
-    bd.setAttribute("opacity","1");
     while(bd.firstChild) bd.removeChild(bd.firstChild);
     var n = vis.burstCount;
     for(var b=0;b<n;b++){
@@ -899,10 +965,8 @@ function renderTab1(){
       bc.setAttribute("class","burst-dot");
       bd.appendChild(bc);
     }
-  }
-  if(stage===4){
-    var bd2 = document.getElementById("burstDots");
-    bd2.setAttribute("opacity","0.7");
+    var burstOpacity = stage===3 ? "1" : (stage===4 ? "0.7" : "0.35");
+    bd.setAttribute("opacity", burstOpacity);
   }
   if(stage===5){
     document.getElementById("dockGroup").setAttribute("opacity","1");
@@ -919,23 +983,32 @@ function renderTab1(){
   if(stage===6){ document.getElementById("enzymeBox").setAttribute("opacity","1"); }
 
   /* ---- persistent scenario VIS flags (re-applied last) ---- */
+  /* d2Label (the "D2↑↑" upregulation marker) is scenario-level and persists across
+     every stage; d2Scale (the physical enlargement of the receptor shape) is gated to the
+     binding/Reception stage specifically -- these are deliberately NOT the same trigger. */
   var d2rect = document.getElementById("d2receptor");
-  d2rect.setAttribute("transform", vis.d2Enlarged ? "translate(420,215) scale(1.5)" : "translate(420,222) scale(1)");
+  var d2ScaleActive = (stage===5 && vis.d2Enlarged);
+  d2rect.setAttribute("transform", d2ScaleActive ? "translate(420,215) scale(1.5)" : "translate(420,222) scale(1)");
   document.getElementById("d2upLabel").setAttribute("opacity", vis.d2Enlarged ? "1":"0");
 
   document.getElementById("inflamGlow").setAttribute("opacity", vis.inflammation ? "0.16":"0");
 
+  /* brakeState (ON/OFF, opacity, fade) is scenario-level and persists across every stage;
+     the dot-flow ANIMATION is only switched on at the stages where it's the point --
+     Firing (3, the brake being lifted/held is what shapes the burst) and GABA brake (7,
+     the stage that explains the mechanism) -- elsewhere the dots sit static, not flowing. */
   var brakeLabel = document.getElementById("brakeLabel");
   var gabaCell = document.getElementById("gabaCell");
   var gabaAxon = document.getElementById("gabaAxon");
   var gabaDots = document.getElementById("gabaDots");
+  var gabaFlowStage = (stage===3 || stage===7);
   if(vis.brakeOn){
     brakeLabel.textContent = "GABA BRAKE: ON";
     brakeLabel.setAttribute("fill","var(--enzyme)");
     gabaCell.setAttribute("opacity","1");
     gabaAxon.setAttribute("opacity","1");
     gabaDots.setAttribute("opacity","1");
-    svg.classList.add("anim-gaba");
+    svg.classList.toggle("anim-gaba", gabaFlowStage);
   } else {
     brakeLabel.textContent = "GABA BRAKE: OFF";
     brakeLabel.setAttribute("fill","var(--receptor)");
@@ -947,6 +1020,7 @@ function renderTab1(){
 
   /* ---- cue layer (rendered last, after resets) ---- */
   renderCueLayer(document.getElementById("cueLayer1"), ANCHOR1, expItems);
+  renderStateBadge(document.getElementById("stateBadge1"), state.scenario, stage, BASE1.length-1);
 
   document.getElementById("prev1").disabled = stage===0;
   document.getElementById("next1").disabled = stage===BASE1.length-1;
@@ -1025,6 +1099,7 @@ function renderTab2(){
   }
 
   renderCueLayer(document.getElementById("cueLayer2"), ANCHOR2, expItems2);
+  renderStateBadge(document.getElementById("stateBadge2"), state.scenario, stage, BASE2.length-1);
 
   document.getElementById("prev2").disabled = stage===0;
   document.getElementById("next2").disabled = stage===BASE2.length-1;
