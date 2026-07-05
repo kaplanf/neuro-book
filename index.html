@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>Dopamine Synapse &amp; Gut–Brain Axis — Interactive Visualization</title>
+<style>
+:root{
+  --bg:#eef1f4; --paper:#f8fafb; --panel:#fff; --line:#d3dbe2;
+  --ink:#1a2530; --dim:#5b6b7a; --faint:#8a99a8;
+  --dopamine:#e8850c; --gaba:#9b3fd4; --glutamate:#1f8fe0;
+  --enzyme:#128a63; --receptor:#e0295a; --vagus:#2aa17a; --delta:#e0295a;
+  --serif: Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--serif);
+  line-height:1.5;
+}
+.wrap{max-width:1200px;margin:0 auto;padding:22px 24px 60px;}
+h1{font-size:1.5rem;margin:0 0 4px;font-weight:600;letter-spacing:.2px;}
+.subtitle{color:var(--dim);font-size:.95rem;margin:0 0 18px;}
+
+/* focus ring */
+:focus-visible{outline:3px solid var(--glutamate);outline-offset:2px;border-radius:4px;}
+
+/* scenario chips */
+.chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.chip{
+  font-family:var(--mono); font-size:.82rem; padding:8px 14px; border-radius:20px;
+  border:1.5px solid var(--line); background:var(--panel); color:var(--dim);
+  cursor:pointer; transition:background .15s,color .15s,border-color .15s;
+}
+.chip:hover{border-color:var(--faint);}
+.chip[aria-pressed="true"]{
+  background:var(--ink); color:var(--paper); border-color:var(--ink);
+}
+.chip.sc-alcohol[aria-pressed="true"]{background:#8a4b12;border-color:#8a4b12;}
+.chip.sc-thc[aria-pressed="true"]{background:#5b3fa0;border-color:#5b3fa0;}
+.chip.sc-sleep[aria-pressed="true"]{background:#2a4a6b;border-color:#2a4a6b;}
+.chip.sc-gut[aria-pressed="true"]{background:#8a3020;border-color:#8a3020;}
+.chip.sc-stress[aria-pressed="true"]{background:#946a12;border-color:#946a12;}
+.chip.sc-depleted[aria-pressed="true"]{background:#3a3f47;border-color:#3a3f47;}
+
+.banner{
+  font-family:var(--mono); font-size:.92rem; background:var(--panel);
+  border:1px solid var(--line); border-left:5px solid var(--dopamine);
+  padding:12px 16px; border-radius:6px; margin-bottom:20px; color:var(--ink);
+}
+.banner b{color:var(--dopamine);}
+
+/* tabs */
+.tabbar{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:18px;}
+.tabbtn{
+  font-family:var(--serif); font-size:1rem; padding:10px 20px; background:none;
+  border:none; border-bottom:3px solid transparent; color:var(--dim); cursor:pointer;
+  margin-bottom:-2px;
+}
+.tabbtn[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--dopamine);font-weight:600;}
+.tabpanel{display:none;}
+.tabpanel.active{display:block;}
+
+/* layout: svg + side panel */
+.stage-layout{display:grid;grid-template-columns: 1fr 380px; gap:20px; align-items:start;}
+.svgbox{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:10px; position:relative;
+}
+.svgbox svg{width:100%;height:auto;display:block;}
+.panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:18px; min-height:420px; display:flex; flex-direction:column;
+}
+.stagecounter{font-family:var(--mono);font-size:.78rem;color:var(--faint);margin-bottom:6px;}
+.stage-title{font-size:1.15rem;font-weight:600;margin:0 0 10px;color:var(--ink);}
+.stage-body{font-size:.95rem;color:var(--ink);margin:0 0 12px;}
+.mech-row{
+  font-family:var(--mono); font-size:.8rem; background:var(--paper); border:1px solid var(--line);
+  border-radius:5px; padding:8px 10px; color:var(--dim); margin-bottom:10px; word-break:break-word;
+}
+.delta-row{
+  font-family:var(--mono); font-size:.8rem; border-left:4px solid var(--delta);
+  background:#fdf1f1; padding:8px 10px; margin-bottom:10px; color:#7a1c1c; border-radius:0 5px 5px 0;
+}
+.felt-row{
+  font-family:var(--serif); font-style:italic; font-size:.88rem; color:var(--dim);
+  padding-left:14px; position:relative; margin:6px 0;
+}
+.felt-row::before{
+  content:''; position:absolute; left:0; top:.5em; width:8px;height:8px;border-radius:50%;
+  background:var(--dotcolor,#8a99a8);
+}
+.controls{display:flex; gap:8px; margin-top:auto; padding-top:12px; border-top:1px solid var(--line); flex-wrap:wrap; align-items:center;}
+.ctrlbtn{
+  font-family:var(--mono); font-size:.82rem; padding:7px 13px; border-radius:6px;
+  border:1px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer;
+}
+.ctrlbtn:hover{background:#eef1f4;}
+.ctrlbtn:disabled{opacity:.4;cursor:default;}
+.stagecount-badge{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--faint);}
+
+/* svg element helpers */
+.lbl{font-family:var(--mono);fill:var(--dim);font-size:11px;}
+.lbl-big{font-family:var(--mono);fill:var(--ink);font-size:13px;font-weight:600;}
+.dim-line{stroke:var(--line);stroke-width:1;}
+.vesicle-dot{fill:var(--dopamine);}
+.vesicle-dot.empty{fill:none;stroke:var(--faint);stroke-width:1;stroke-dasharray:2 2;}
+.burst-dot{fill:var(--dopamine);}
+.gaba-dot{fill:var(--gaba);}
+.glut-dot{fill:var(--glutamate);}
+.vagus-dot{fill:var(--vagus);}
+.receptor-shape{fill:var(--paper);stroke-width:2;}
+.d1{stroke:var(--enzyme);}
+.d2{stroke:var(--receptor);}
+.brake-label{font-family:var(--mono);font-weight:700;font-size:12px;}
+
+@keyframes veseEmpty{0%{opacity:1;}60%{opacity:.15;}100%{opacity:1;}}
+@keyframes daCross{0%{transform:translateX(0);opacity:0;}15%{opacity:1;}100%{transform:translateX(0px);opacity:1;}}
+@keyframes dockPulse{0%{r:0;opacity:0;}40%{opacity:1;}100%{r:6;opacity:1;}}
+@keyframes gabaFlow{0%{transform:translate(0,0);opacity:0;}20%{opacity:1;}100%{transform:translate(-210px,60px);opacity:0;}}
+@keyframes vagusFlow{0%{offset-distance:0%;opacity:0;}15%{opacity:1;}100%{offset-distance:100%;opacity:0;}}
+@keyframes cuePulse{0%{transform:scale(.85);opacity:.5;}50%{transform:scale(1.12);opacity:1;}100%{transform:scale(1);opacity:.9;}}
+@keyframes flipLightning{0%{opacity:1;}45%{opacity:1;}55%{opacity:0;}100%{opacity:0;}}
+@keyframes flipArrow{0%{opacity:0;}45%{opacity:0;}55%{opacity:1;}100%{opacity:1;}}
+
+.anim-vesicle .vgroup{animation:veseEmpty 1.8s ease-in-out;}
+.anim-burst .burstgroup circle{animation:daCross 1.4s ease-out;}
+.anim-dock .dockdot{animation:dockPulse .9s ease-out forwards;}
+.anim-gaba .gabadot{animation:gabaFlow 1.6s linear infinite;}
+.anim-vagus .vagusdot{offset-path: path(var(--vagus-path)); animation:vagusFlow 2.2s linear infinite;}
+.cueglyph{animation:cuePulse 1.1s ease-out 1;}
+.cueglyph .lightning{animation:flipLightning 2.4s ease-in-out infinite;}
+.cueglyph .arrow{animation:flipArrow 2.4s ease-in-out infinite;}
+
+.reduced-motion .anim-vesicle .vgroup,
+.reduced-motion .anim-burst .burstgroup circle,
+.reduced-motion .anim-dock .dockdot,
+.reduced-motion .anim-gaba .gabadot,
+.reduced-motion .anim-vagus .vagusdot,
+.reduced-motion .cueglyph,
+.reduced-motion .cueglyph .lightning,
+.reduced-motion .cueglyph .arrow{
+  animation:none !important;
+}
+.reduced-motion .cueglyph .lightning{opacity:1;}
+.reduced-motion .cueglyph .arrow{opacity:0;}
+
+/* molecules tab */
+.mol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.mol-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;}
+.mol-card svg{width:100%;height:120px;display:block;background:var(--paper);border-radius:6px;margin-bottom:10px;}
+.mol-name{font-weight:600;margin:0 0 6px;font-size:1rem;}
+.mol-caption{font-size:.86rem;color:var(--dim);margin:0;}
+
+/* legend */
+.legend{
+  margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:16px 20px;font-size:.82rem;color:var(--dim);
+}
+.legend h3{margin:0 0 10px;font-size:.92rem;color:var(--ink);}
+.legend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px;}
+.legend-item{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.78rem;}
+.swatch{width:12px;height:12px;border-radius:3px;flex:none;}
+.legend-sep{grid-column:1/-1;border-top:1px solid var(--line);margin:8px 0 2px;}
+.footnote{margin-top:14px;font-size:.76rem;color:var(--faint);line-height:1.6;}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The Dopaminergic Synapse &amp; Gut–Brain Axis</h1>
+  <p class="subtitle">An interactive tour of dopamine's molecular circuit, the gut's influence on it, and how each mechanistic state actually feels.</p>
+
+  <div class="chiprow" role="group" aria-label="Scenario selector" id="chipRow"></div>
+  <div class="banner" id="banner" role="status"></div>
+
+  <div class="tabbar" role="tablist" aria-label="Sections">
+    <button class="tabbtn" id="tabbtn-1" role="tab" aria-selected="true" aria-controls="tabpanel-1">1 · Circuit Flow</button>
+    <button class="tabbtn" id="tabbtn-2" role="tab" aria-selected="false" aria-controls="tabpanel-2">2 · Gut · Vagus · Brain</button>
+    <button class="tabbtn" id="tabbtn-3" role="tab" aria-selected="false" aria-controls="tabpanel-3">3 · Molecules</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <section class="tabpanel active" id="tabpanel-1" role="tabpanel" aria-labelledby="tabbtn-1">
+    <div class="stage-layout">
+      <div class="svgbox">
+        <svg id="svg1" viewBox="0 0 1160 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="svg1title">
+          <title id="svg1title">Dopaminergic synapse: presynaptic terminal, synaptic cleft, postsynaptic medium spiny neuron, and GABA interneuron</title>
+
+          <circle id="inflamGlow" cx="400" cy="110" r="420" fill="#e0295a" opacity="0"></circle>
+
+          <!-- region labels -->
+          <text x="46" y="24" class="lbl-big">Presynaptic terminal (VTA / SNc axon)</text>
+          <rect x="40" y="30" width="720" height="160" rx="26" fill="#fdf6ec" stroke="var(--line)"></rect>
+
+          <text x="46" y="212" class="lbl">synaptic cleft (~20nm)</text>
+          <rect x="40" y="190" width="720" height="40" fill="#f2f5f7" stroke="var(--line)" stroke-dasharray="3 3"></rect>
+
+          <text x="46" y="244" class="lbl-big">Postsynaptic neuron (medium spiny neuron, striatum)</text>
+          <rect x="40" y="230" width="720" height="330" rx="18" fill="#eef3f6" stroke="var(--line)"></rect>
+
+          <text x="826" y="24" class="lbl-big">GABA interneuron</text>
+          <rect x="820" y="30" width="320" height="590" rx="18" fill="#f7f0fb" stroke="var(--line)"></rect>
+
+          <!-- vesicles group -->
+          <g id="vesicleGroup" class="vgroup">
+            <text x="80" y="55" class="lbl">vesicle pools</text>
+          </g>
+
+          <!-- synthesis chain (stage 1) -->
+          <g id="synthChain" opacity="0">
+            <text x="410" y="70" class="lbl">SYNTHESIS CHAIN</text>
+            <text x="410" y="95" class="lbl-big" fill="#128a63">Tyr</text>
+            <text x="452" y="90" class="lbl">— TH —&gt;</text>
+            <text x="520" y="95" class="lbl-big" fill="#128a63">L-DOPA</text>
+            <text x="600" y="90" class="lbl">— AADC —&gt;</text>
+            <text x="690" y="95" class="lbl-big" fill="var(--dopamine)">DA</text>
+            <text x="410" y="120" class="lbl">TH needs Fe²⁺ · BH₄ · O₂ (rate-limiting)</text>
+          </g>
+
+          <!-- VMAT2 pump icon -->
+          <g id="vmat2icon" transform="translate(420,150)">
+            <rect x="0" y="0" width="60" height="26" rx="6" fill="#fff" stroke="var(--enzyme)" stroke-width="2"></rect>
+            <text x="30" y="17" text-anchor="middle" class="lbl" fill="var(--enzyme)">VMAT2</text>
+          </g>
+
+          <!-- DAT pump icon near membrane -->
+          <g id="daticon" transform="translate(600,178)">
+            <rect x="0" y="0" width="46" height="22" rx="5" fill="#fff" stroke="var(--enzyme)" stroke-width="2"></rect>
+            <text x="23" y="15" text-anchor="middle" class="lbl" fill="var(--enzyme)">DAT</text>
+          </g>
+
+          <!-- enzyme box for MAO-B/COMT (stage 6) -->
+          <g id="enzymeBox" opacity="0" transform="translate(500,260)">
+            <rect x="0" y="0" width="150" height="46" rx="6" fill="#fff" stroke="var(--enzyme)" stroke-width="2"></rect>
+            <text x="75" y="18" text-anchor="middle" class="lbl-big" fill="var(--enzyme)">MAO-B / COMT</text>
+            <text x="75" y="36" text-anchor="middle" class="lbl">DA → DOPAC → HVA</text>
+          </g>
+
+          <!-- burst dots crossing cleft (stage 3/4) -->
+          <g id="burstDots" class="burstgroup" opacity="0"></g>
+
+          <!-- membrane line -->
+          <path d="M40,230 Q400,214 760,230" fill="none" class="dim-line" stroke-width="2"></path>
+
+          <!-- D1 / D2 receptors -->
+          <g id="d1receptor" transform="translate(200,222)">
+            <rect x="0" y="0" width="30" height="26" class="receptor-shape d1" rx="4"></rect>
+            <text x="15" y="-8" text-anchor="middle" class="lbl" fill="var(--enzyme)">D1</text>
+          </g>
+          <g id="d2receptor" transform="translate(420,222)">
+            <rect x="0" y="0" width="30" height="26" class="receptor-shape d2" rx="4"></rect>
+            <text x="15" y="-8" text-anchor="middle" class="lbl" fill="var(--receptor)">D2</text>
+          </g>
+          <text id="d2upLabel" x="420" y="270" class="lbl" fill="var(--receptor)" font-weight="700" opacity="0">D2↑↑</text>
+
+          <g id="dockGroup" class="anim-dock" opacity="0"></g>
+
+          <!-- MSN cell body -->
+          <circle cx="330" cy="420" r="70" fill="#e4ecf1" stroke="var(--line)"></circle>
+          <text x="330" y="425" text-anchor="middle" class="lbl">MSN soma</text>
+
+          <!-- glutamate excess dots (gut scenario, stage 5) -->
+          <g id="glutExcess" opacity="0">
+            <circle class="glut-dot" cx="300" cy="360" r="4"></circle>
+            <circle class="glut-dot" cx="320" cy="345" r="4"></circle>
+            <circle class="glut-dot" cx="345" cy="365" r="4"></circle>
+            <circle class="glut-dot" cx="360" cy="340" r="4"></circle>
+            <text x="380" y="355" class="lbl" fill="var(--glutamate)">glutamate excess (NMDA)</text>
+          </g>
+
+          <!-- GABA interneuron -->
+          <circle id="gabaCell" cx="980" cy="90" r="40" fill="#f0e4fb" stroke="var(--gaba)" stroke-width="2"></circle>
+          <text x="980" y="95" text-anchor="middle" class="lbl" fill="var(--gaba)">GABA cell</text>
+          <path id="gabaAxon" d="M960,125 C900,190 830,150 790,150" fill="none" stroke="var(--gaba)" stroke-width="2.5"></path>
+          <circle cx="790" cy="150" r="8" fill="var(--gaba)"></circle>
+          <text x="700" y="140" text-anchor="middle" class="lbl" fill="var(--gaba)">axon terminal → presynaptic</text>
+          <g id="gabaDots" class="anim-gaba" transform="translate(950,150)">
+            <circle class="gaba-dot" cx="0" cy="0" r="4"></circle>
+            <circle class="gaba-dot" cx="30" cy="-10" r="4" style="animation-delay:.3s"></circle>
+            <circle class="gaba-dot" cx="60" cy="-20" r="4" style="animation-delay:.6s"></circle>
+            <circle class="gaba-dot" cx="90" cy="-25" r="4" style="animation-delay:.9s"></circle>
+          </g>
+          <text id="brakeLabel" x="900" y="230" text-anchor="middle" class="brake-label" fill="var(--enzyme)">GABA BRAKE: ON</text>
+
+          <!-- autonomic badge -->
+          <g id="autonomicAnchor" transform="translate(1080,560)"></g>
+
+          <!-- generic cue layer -->
+          <g id="cueLayer1"></g>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="stagecounter" id="stagecounter1">STAGE 0 / 7</div>
+        <h2 class="stage-title" id="title1"></h2>
+        <p class="stage-body" id="body1"></p>
+        <div class="mech-row" id="mech1"></div>
+        <div id="delta1"></div>
+        <div id="felt1"></div>
+        <div class="controls">
+          <button class="ctrlbtn" id="prev1">◀ Prev</button>
+          <button class="ctrlbtn" id="play1">▶ Play</button>
+          <button class="ctrlbtn" id="next1">Next ▶</button>
+          <button class="ctrlbtn" id="reset1">Reset</button>
+          <span class="stagecount-badge" id="badge1"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 2 -->
+  <section class="tabpanel" id="tabpanel-2" role="tabpanel" aria-labelledby="tabbtn-2">
+    <div class="stage-layout">
+      <div class="svgbox">
+        <svg id="svg2" viewBox="0 0 1160 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="svg2title">
+          <title id="svg2title">Gut–vagus–brain axis: intestinal barrier, microbiome, vagus nerve, and brainstem/limbic targets</title>
+
+          <text x="36" y="24" class="lbl-big">Gut</text>
+          <rect x="30" y="30" width="300" height="560" rx="16" fill="#fbf5ee" stroke="var(--line)"></rect>
+
+          <text x="366" y="24" class="lbl-big">Vagus nerve</text>
+          <rect x="360" y="30" width="400" height="560" rx="16" fill="#f2f8f5" stroke="var(--line)"></rect>
+
+          <text x="796" y="24" class="lbl-big">Brain (NTS + targets)</text>
+          <rect x="790" y="30" width="340" height="560" rx="16" fill="#eef1f8" stroke="var(--line)"></rect>
+
+          <!-- LPS leak glow -->
+          <circle id="lpsGlow" cx="180" cy="215" r="150" fill="#e0295a" opacity="0"></circle>
+
+          <!-- gut lumen + microbiome -->
+          <text x="120" y="65" class="lbl">lumen</text>
+          <g id="microbiomeDots">
+            <circle class="vagus-dot" cx="90" cy="90" r="5"></circle>
+            <circle class="vagus-dot" cx="120" cy="105" r="5"></circle>
+            <circle class="vagus-dot" cx="150" cy="85" r="5"></circle>
+            <circle class="vagus-dot" cx="180" cy="100" r="5"></circle>
+            <circle class="vagus-dot" cx="210" cy="88" r="5"></circle>
+            <circle class="vagus-dot" cx="240" cy="102" r="5"></circle>
+            <circle class="vagus-dot" cx="270" cy="92" r="5"></circle>
+            <circle class="vagus-dot" cx="105" cy="120" r="5"></circle>
+            <circle class="vagus-dot" cx="200" cy="122" r="5"></circle>
+          </g>
+
+          <!-- epithelial barrier: enterocyte column -->
+          <text x="70" y="165" class="lbl">epithelial barrier</text>
+          <g id="epithelium">
+            <rect x="60" y="172" width="38" height="46" fill="#fff" stroke="var(--vagus)" stroke-width="1.5"></rect>
+            <rect x="98" y="172" width="38" height="46" fill="#fff" stroke="var(--vagus)" stroke-width="1.5"></rect>
+            <rect x="136" y="172" width="38" height="46" fill="#fff" stroke="var(--vagus)" stroke-width="1.5"></rect>
+            <rect x="174" y="172" width="38" height="46" fill="#eaf7f1" stroke="var(--vagus)" stroke-width="1.5"></rect>
+            <rect x="212" y="172" width="38" height="46" fill="#fff" stroke="var(--vagus)" stroke-width="1.5"></rect>
+            <rect x="250" y="172" width="38" height="46" fill="#fff" stroke="var(--vagus)" stroke-width="1.5"></rect>
+          </g>
+          <text x="178" y="230" text-anchor="middle" class="lbl" fill="var(--vagus)">EC cell</text>
+          <g id="junctionTicks">
+            <line x1="98" y1="172" x2="98" y2="218" class="tj"></line>
+            <line x1="136" y1="172" x2="136" y2="218" class="tj"></line>
+            <line x1="174" y1="172" x2="174" y2="218" class="tj"></line>
+            <line x1="212" y1="172" x2="212" y2="218" class="tj"></line>
+            <line x1="250" y1="172" x2="250" y2="218" class="tj"></line>
+          </g>
+          <text id="barrierStatusLabel" x="178" y="250" text-anchor="middle" class="brake-label" fill="var(--vagus)">BARRIER: SEALED</text>
+
+          <!-- gut serotonin / EC cell label area -->
+          <g id="ecSerotonin" opacity="0">
+            <text x="70" y="280" class="lbl">EC cells → ~95% body 5-HT (motility, local)</text>
+          </g>
+
+          <!-- lamina propria / cytokines -->
+          <g id="cytokineZone" opacity="0">
+            <text x="70" y="330" class="lbl" fill="var(--receptor)">cytokines (lamina propria)</text>
+            <circle class="glut-dot" cx="90" cy="345" r="4" fill="var(--receptor)"></circle>
+            <circle class="glut-dot" cx="115" cy="355" r="4" fill="var(--receptor)"></circle>
+            <circle class="glut-dot" cx="140" cy="345" r="4" fill="var(--receptor)"></circle>
+            <circle class="glut-dot" cx="165" cy="358" r="4" fill="var(--receptor)"></circle>
+          </g>
+
+          <!-- vagus path -->
+          <path id="vagusPath" d="M300,250 C420,260 500,270 560,280 C640,290 720,295 800,300" fill="none" stroke="var(--vagus)" stroke-width="3"></path>
+          <text x="420" y="240" class="lbl" fill="var(--vagus)">vagus (~80% afferent)</text>
+          <g id="vagusDots" class="anim-vagus">
+            <circle class="vagus-dot vagusdot" cx="0" cy="0" r="5"></circle>
+            <circle class="vagus-dot vagusdot" cx="0" cy="0" r="5" style="animation-delay:.5s"></circle>
+            <circle class="vagus-dot vagusdot" cx="0" cy="0" r="5" style="animation-delay:1s"></circle>
+          </g>
+          <text id="vagalToneLabel" x="560" y="330" text-anchor="middle" class="brake-label" fill="var(--vagus)" opacity="0">VAGAL TONE: LOW</text>
+
+          <!-- NTS hub -->
+          <ellipse cx="860" cy="300" rx="62" ry="42" fill="#fff" stroke="var(--ink)" stroke-width="2"></ellipse>
+          <text x="860" y="296" text-anchor="middle" class="lbl-big">NTS</text>
+          <text x="860" y="312" text-anchor="middle" class="lbl">integration hub</text>
+
+          <!-- fan lines to 5 nodes -->
+          <g id="ntsFan" stroke="var(--ink)" stroke-width="1.5" fill="none">
+            <path d="M910,280 C960,220 1000,150 1040,80"></path>
+            <path d="M918,290 C960,250 1000,220 1040,190"></path>
+            <path d="M922,300 L1040,300"></path>
+            <path d="M918,312 C960,350 1000,380 1040,410"></path>
+            <path d="M910,322 C960,390 1000,460 1040,520"></path>
+          </g>
+          <g id="nodeRaphe" transform="translate(1040,80)">
+            <circle r="26" fill="#fff" stroke="var(--dopamine)" stroke-width="2"></circle>
+            <text y="-4" text-anchor="middle" class="lbl">Raphe</text>
+            <text y="10" text-anchor="middle" class="lbl">5-HT</text>
+          </g>
+          <g id="nodeVTA" transform="translate(1040,190)">
+            <circle r="26" fill="#fff" stroke="var(--dopamine)" stroke-width="2"></circle>
+            <text y="-4" text-anchor="middle" class="lbl">VTA</text>
+            <text y="10" text-anchor="middle" class="lbl">DA</text>
+          </g>
+          <g id="nodeLC" transform="translate(1040,300)">
+            <circle r="26" fill="#fff" stroke="var(--dopamine)" stroke-width="2"></circle>
+            <text y="-4" text-anchor="middle" class="lbl">LC</text>
+            <text y="10" text-anchor="middle" class="lbl">NE</text>
+          </g>
+          <g id="nodeHPA" transform="translate(1040,410)">
+            <circle r="26" fill="#fff" stroke="var(--dopamine)" stroke-width="2"></circle>
+            <text y="-4" text-anchor="middle" class="lbl">Hypoth.</text>
+            <text y="10" text-anchor="middle" class="lbl">HPA</text>
+          </g>
+          <g id="nodeAmyg" transform="translate(1040,520)">
+            <circle r="26" fill="#fff" stroke="var(--receptor)" stroke-width="2"></circle>
+            <text y="-4" text-anchor="middle" class="lbl">Amygdala</text>
+            <text y="10" text-anchor="middle" class="lbl">threat</text>
+          </g>
+
+          <g id="cueLayer2"></g>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="stagecounter" id="stagecounter2">STAGE 0 / 6</div>
+        <h2 class="stage-title" id="title2"></h2>
+        <p class="stage-body" id="body2"></p>
+        <div class="mech-row" id="mech2"></div>
+        <div id="delta2"></div>
+        <div id="felt2"></div>
+        <div class="controls">
+          <button class="ctrlbtn" id="prev2">◀ Prev</button>
+          <button class="ctrlbtn" id="play2">▶ Play</button>
+          <button class="ctrlbtn" id="next2">Next ▶</button>
+          <button class="ctrlbtn" id="reset2">Reset</button>
+          <span class="stagecount-badge" id="badge2"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3 -->
+  <section class="tabpanel" id="tabpanel-3" role="tabpanel" aria-labelledby="tabbtn-3">
+    <div class="mol-grid" id="molGrid"></div>
+  </section>
+
+  <div class="legend">
+    <h3>Legend</h3>
+    <div class="legend-grid" id="legendColors"></div>
+    <div class="legend-sep"></div>
+    <div class="legend-grid" id="legendCues"></div>
+  </div>
+  <p class="footnote">
+    Schematic, not to scale — the synaptic cleft (~20nm) is shown far larger than the terminal/soma for legibility; vesicle and receptor counts are illustrative, not literal.
+    Abbreviations: TH = tyrosine hydroxylase · AADC = aromatic L-amino acid decarboxylase · VMAT2 = vesicular monoamine transporter 2 · DAT = dopamine transporter ·
+    NTS = nucleus tractus solitarius · LC = locus coeruleus · SCFA = short-chain fatty acid.
+  </p>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================= DATA MODEL ============================= */
+
+var SCENARIOS = [
+  {id:"healthy", label:"Healthy", thesis:"A balanced circuit: synthesis, storage, firing, and clearance stay in proportion, and the GABA brake keeps output tuned to demand."},
+  {id:"alcohol", label:"Alcohol", thesis:"Ethanol silences the GABA brake and reverses vesicular storage — a bigger burst now, drained stores and rebound brake later."},
+  {id:"thc", label:"THC", thesis:"THC lifts the same GABA brake through CB1 instead of GABA-A, and chronic use blunts the endocannabinoid buffer between uses."},
+  {id:"sleep", label:"Sleep (no SWS)", thesis:"Without slow-wave sleep, ATP-hungry vesicle refill and glymphatic clearance both stall — the day starts half-empty."},
+  {id:"gut", label:"Gut (inflammation)", thesis:"Gut inflammation diverts dopamine's own precursors upstream and adds glutamate excess downstream — starved and overstimulated at once."},
+  {id:"stress", label:"Stress (chronic)", thesis:"Cortisol first raises then throttles synthesis while sharpening reuptake — demand stays high as supply is deliberately curtailed."},
+  {id:"depleted", label:"Depleted (chronic)", thesis:"Every pool runs thin and D2 receptors turn hypersensitive — small signals are over-read, then crash below baseline."}
+];
+
+var CUE_META = {
+  "clean":        {color:"#128a63", label:"clean / green-check"},
+  "anhedonia":    {color:"#8a99a8", label:"anhedonia — hollow circle"},
+  "wanting":      {color:"#e8850c", label:"wanting-without-action — spark + gate"},
+  "anxiety":      {color:"#e0295a", label:"anxiety/agitation — jagged lines"},
+  "bodyalert":    {color:"#e8850c", label:"body-alert (arousal half)"},
+  "autonomic":    {color:"#9b3fd4", label:"body-alert-then-shutdown"},
+  "cravingcrash": {color:"#e0295a", label:"craving-then-crash — spike/trough"},
+  "flatfoggy":    {color:"#8a99a8", label:"flat/foggy cognition — dashed cloud"},
+  "irritable":    {color:"#e0295a", label:"irritable/thin-filter — cracked line"},
+  "restless":     {color:"#1f8fe0", label:"restless-inert — spinning anchor"},
+  "gutunease":    {color:"#a9713f", label:"gut-unease — wavy arc"}
+};
+
+/* ---------- TAB 1: Circuit Flow ---------- */
+
+var BASE1 = [
+  {id:0, title:"Overview", body:"The dopaminergic synapse at rest — a presynaptic VTA/substantia nigra terminal releasing onto a postsynaptic medium spiny neuron in the striatum, modulated by a local GABA interneuron. Follow synthesis, storage, firing, release, reception, and clearance as one continuous cycle.", mech:"VTA/SNc → striatum · circuit idle"},
+  {id:1, title:"Synthesis", body:"Tyrosine is hydroxylated to L-DOPA by tyrosine hydroxylase (TH), the rate-limiting step, dependent on iron (Fe²⁺), the cofactor BH₄, and oxygen. Aromatic L-amino acid decarboxylase (AADC) then converts L-DOPA to dopamine.", mech:"Tyr —TH(Fe²⁺,BH₄,O₂)→ L-DOPA —AADC→ DA"},
+  {id:2, title:"Storage", body:"VMAT2 pumps cytoplasmic dopamine into synaptic vesicles against its gradient, powered by a vesicular H⁺-ATPase. Vesicles form three functional pools: a small readily-releasable pool, a recycling pool, and a large reserve. Any dopamine left free in the cytoplasm oxidizes into reactive quinones that damage the terminal.", mech:"DA + H⁺-ATPase gradient —VMAT2→ vesicle · free DA → quinones (toxic)"},
+  {id:3, title:"Firing", body:"An action potential invades the terminal, opening voltage-gated Ca²⁺ channels. The resulting Ca²⁺ influx triggers SNARE-complex fusion of docked vesicles with the membrane, releasing a phasic burst of dopamine into the cleft.", mech:"AP → Ca²⁺ influx → SNARE fusion → phasic burst"},
+  {id:4, title:"Release", body:"Dopamine diffuses across the ~20nm synaptic cleft in milliseconds. What the postsynaptic neuron reads is the sharp transient of concentration, not any steady-state average.", mech:"DA diffusion, ~20nm cleft · signal = Δ[DA]/Δt, not mean [DA]"},
+  {id:5, title:"Reception", body:"Dopamine docks on two receptor families with opposite logic: D1 couples to Gs, raising cAMP — a 'go' signal. D2 couples to Gi, lowering cAMP — a 'no-go' signal. D2 autoreceptors on the presynaptic terminal itself sense released dopamine and slow further firing.", mech:"D1–Gs–↑cAMP('go') · D2–Gi–↓cAMP('no-go') · D2-autoreceptor → ↓firing"},
+  {id:6, title:"Clearance", body:"The dopamine transporter (DAT) pulls dopamine back into the presynaptic terminal — the dominant clearance route in striatum, where DAT is dense. MAO-B and COMT metabolize remaining dopamine to DOPAC and then HVA; this enzymatic route dominates in prefrontal cortex, where DAT is sparse.", mech:"DA —DAT(striatum)→ terminal · DA —MAO-B/COMT(PFC)→ DOPAC → HVA"},
+  {id:7, title:"GABA brake", body:"A local GABA interneuron releases GABA onto the presynaptic terminal, hyperpolarizing it and damping further firing. Net dopamine output is the balance of excitatory glutamate drive against this inhibitory GABA brake.", mech:"GABA → GABA-B/A → hyperpolarize terminal · net firing = glutamate − GABA"}
+];
+
+var PATCH1 = {
+  alcohol: {
+    3:{title:"Firing — brake lifted", body:"Ethanol potentiates GABA-A receptors on the interneuron itself, silencing the interneuron's own output and lifting its brake on the presynaptic terminal. With less GABA restraining it, the terminal fires a larger, disinhibited burst.", mech:"EtOH → GABA-A(interneuron) → ↓interneuron firing → ↓GABA→disinhibition→↑DA burst", delta:"△ Same Ca²⁺/SNARE machinery — the burst is bigger only because the brake is gone."},
+    2:{title:"Storage — vesicles drained", body:"Congener-rich drinks (wine, dark spirits) carry tyramine, a trace amine that enters the terminal and reverses VMAT2, pumping vesicular dopamine back into the cytoplasm and out via DAT reversal. Stores drain faster than synthesis can refill them.", mech:"tyramine → VMAT2 reversal → vesicular DA → cytoplasm → depletion", delta:"△ This is a pump running backwards, not a synthesis problem."},
+    7:{title:"GABA brake — rebound overcompensation", body:"With repeated silencing, the interneuron upregulates its own excitability to compensate. Between drinking episodes — or in withdrawal — this rebounds as an over-strong brake, felt as tolerance and withdrawal hyperexcitability.", mech:"chronic EtOH → interneuron compensatory ↑excitability → rebound brake (withdrawal)", delta:"△ Tolerance lives in this interneuron, not in the dopamine neuron itself."}
+  },
+  thc: {
+    3:{title:"Firing — CB1 lifts the same brake", body:"THC binds CB1 receptors on the GABA interneuron's axon terminal, suppressing GABA release onto the presynaptic dopamine terminal — a different receptor than alcohol's, but the same net effect: the brake lifts and firing rises.", mech:"THC → CB1(interneuron terminal) → ↓GABA release → disinhibition → ↑DA firing", delta:"△ Different lock (CB1, not GABA-A) — same disinhibition mechanism as alcohol."},
+    7:{title:"GABA brake — CB1 downregulation", body:"With chronic use, CB1 receptors downregulate and endogenous anandamide tone blunts. The endocannabinoid system's normal job — buffering the interneuron's response to stress — runs below baseline between uses.", mech:"chronic THC → ↓CB1 density, ↓anandamide tone → weakened stress buffering", delta:"△ The brake itself becomes less responsive, not just less used."},
+    6:{title:"Clearance — central pathway intact, gut slowed", body:"DAT and MAO-B/COMT clearance in the striatum and PFC are largely unaffected by THC. But enteric CB1 receptors in the gut slow motility — a peripheral clearance-adjacent effect that shows up in the gut–vagus axis, not here.", mech:"central DA clearance ≈ unchanged · enteric CB1 → ↓gut motility (see Gut·Vagus·Brain)", delta:"△ Cross-reference: the gut slowdown is a separate CB1 pool, not this synapse."}
+  },
+  sleep: {
+    2:{title:"Storage — SWS-dependent refill skipped", body:"Vesicular refilling via VMAT2 is ATP-hungry, and much of that resupply happens during slow-wave sleep (SWS). Without adequate SWS, vesicles are under-loaded overnight — the day starts with reserve pools already thin.", mech:"no SWS → ↓ATP-driven VMAT2 refill → under-loaded vesicles at waking", delta:"△ The deficit is set overnight, before the first firing event of the day."},
+    3:{title:"Firing — thin pools, weak burst", body:"The same action potential arrives, the same Ca²⁺ and SNARE machinery engage — but with fewer loaded vesicles available, the burst that reaches the cleft is smaller. The command is normal; the output is not.", mech:"normal AP/Ca²⁺ signal + thin vesicle pool → ↓burst amplitude", delta:"△ Not a firing-circuit problem — a fuel problem inherited from the night before."},
+    6:{title:"Clearance — glymphatic lag", body:"Glymphatic clearance of metabolic waste is itself SWS-dependent. Without sufficient SWS, oxidized dopamine byproducts and other debris are removed more slowly and accumulate, adding oxidative stress to the terminal.", mech:"no SWS → ↓glymphatic flow → oxidized-DA byproduct accumulation → terminal stress", delta:"△ A second overnight cost, separate from the storage deficit above."}
+  },
+  gut: {
+    1:{title:"Synthesis — precursors diverted", body:"Circulating inflammatory cytokines upregulate IDO (indoleamine 2,3-dioxygenase), which diverts tryptophan (and reduces available tyrosine-pathway flux) toward the kynurenine pathway, raising quinolinic acid. Dopamine's own precursor supply drops while demand stays the same.", mech:"cytokines → ↑IDO → tryptophan→kynurenine→quinolinic acid · ↓precursor flux", delta:"△ The synthesis enzymes are fine — their raw material is being rerouted upstream."},
+    5:{title:"Reception — glutamate excess on a low signal", body:"Quinolinic acid, elevated by the kynurenine pathway, is a direct NMDA receptor agonist. It adds excess excitatory glutamate tone onto the postsynaptic neuron, arriving on top of an already-reduced dopaminergic drive — agitation layered on low motivation.", mech:"quinolinic acid → NMDA agonism → ↑glutamate tone + ↓DA drive", delta:"△ Two separate signals colliding on the same neuron: too little 'go', too much noise."},
+    7:{title:"GABA brake — normal circuit, inflamed field", body:"The interneuron itself fires normally — this is not a GABA problem. But the entire terminal sits bathed in circulating cytokines and excess glutamate, destabilized from outside the local circuit rather than within it.", mech:"GABA circuit unchanged · cytokines + glutamate (extrinsic) destabilize terminal", delta:"△ The brake works; the road it's on is damaged."}
+  },
+  stress: {
+    1:{title:"Synthesis — TH downregulated", body:"Cortisol initially raises tyrosine hydroxylase activity, but with chronic exposure downregulates TH expression to limit oxidative byproducts of overdriven synthesis. Synthetic capacity falls just as demand for dopamine stays high.", mech:"chronic cortisol → TH↑ then TH↓ (protective) → ↓synthetic capacity, demand unchanged", delta:"△ The body is deliberately throttling synthesis to prevent oxidative damage — a defensive tradeoff."},
+    2:{title:"Storage — demand outruns supply", body:"Chronic stress drives persistently fast firing, drawing down vesicular stores faster than the now-limited synthesis can replace them. Storage pools run thin not because loading is impaired, but because withdrawal outpaces deposit.", mech:"↑firing rate + ↓synthesis(above) → net vesicle drawdown", delta:"△ A cash-flow problem: withdrawals (firing) exceed deposits (synthesis)."},
+    6:{title:"Clearance — sharpened reuptake strips a thin signal", body:"Cortisol upregulates DAT, sharpening reuptake speed. Against a background of reduced synthesis, this clears dopamine from the cleft faster than the weakened synthesis machinery can replace it, further shortening the signal.", mech:"cortisol → ↑DAT density/activity → faster clearance vs. low synthesis → net signal loss", delta:"△ Same clearance machinery, turned up — costly only because supply is already low."}
+  },
+  depleted: {
+    2:{title:"Storage — running on fumes", body:"After sustained drawdown across the pathway above, all three vesicle pools — readily-releasable, recycling, and reserve — sit low. Replenishment is slow, and each firing event draws from an already-thin reserve.", mech:"readily-releasable, recycling, reserve pools all low · slow replenishment", delta:"△ This is the cumulative end-state, not a new mechanism — synthesis and storage deficits compounding."},
+    3:{title:"Firing — weak burst", body:"The firing command itself is intact — Ca²⁺ influx and SNARE fusion proceed normally — but with so few loaded vesicles available, the resulting burst barely rises above baseline.", mech:"normal Ca²⁺/SNARE signal + near-empty pools → burst ≈ baseline", delta:"△ Intent and output have decoupled — the circuit tries, output doesn't follow."},
+    5:{title:"Reception — hypersensitive D2, craving-crash", body:"Chronic low dopamine drives D2 receptors to upregulate and become hypersensitive. A small burst is over-read as a large signal, producing a brief craving spike that is not sustained — followed by a crash below baseline once the burst clears.", mech:"chronic ↓DA → D2 upregulation/hypersensitivity → small burst over-read → spike → crash", delta:"△ The receiver, not the sender, has become the unstable part of the circuit."},
+    6:{title:"Clearance — autoreceptors shut it down early", body:"Upregulated D2 autoreceptors on the presynaptic terminal detect even the small amount of dopamine released and prematurely dampen further firing — a protective reflex that, in this state, deepens the very shortfall it is reacting to.", mech:"↑D2-autoreceptor sensitivity → premature ↓firing → deepens depletion", delta:"△ A feedback loop turned pathological: the safety brake now worsens the deficit."}
+  }
+};
+
+var VIS1 = {
+  healthy:  {brakeOn:true,  vesicleFill:1.00, burstCount:9, d2Enlarged:false, inflammation:false, glutExcess:false},
+  alcohol:  {brakeOn:false, vesicleFill:0.55, burstCount:8, d2Enlarged:false, inflammation:false, glutExcess:false},
+  thc:      {brakeOn:false, vesicleFill:1.00, burstCount:7, d2Enlarged:false, inflammation:false, glutExcess:false},
+  sleep:    {brakeOn:true,  vesicleFill:0.35, burstCount:5, d2Enlarged:false, inflammation:false, glutExcess:false},
+  gut:      {brakeOn:true,  vesicleFill:1.00, burstCount:9, d2Enlarged:false, inflammation:true,  glutExcess:true},
+  stress:   {brakeOn:true,  vesicleFill:0.50, burstCount:6, d2Enlarged:false, inflammation:false, glutExcess:false},
+  depleted: {brakeOn:true,  vesicleFill:0.28, burstCount:4, d2Enlarged:true,  inflammation:false, glutExcess:false}
+};
+
+/* anchors used by cue layer (tab 1) */
+var ANCHOR1 = {
+  presynaptic:{x:300,y:110}, cleft:{x:300,y:210},
+  postD1:{x:230,y:260}, postD2:{x:430,y:260}, postGeneral:{x:330,y:470},
+  gaba:{x:980,y:150}, autonomic:{x:1080,y:560}
+};
+
+var EXP1 = {
+  healthy: { 5:[{cue:"clean", anchor:"postGeneral", felt:"signal read cleanly — motivation available."}] },
+  alcohol: {
+    3:[{cue:"bodyalert", anchor:"presynaptic", felt:"brief lift, artificial ease — the disinhibited burst that lets you start."}],
+    7:[{cue:"cravingcrash", anchor:"gaba", felt:"the loosening that later rebounds into next-day flatness."},
+       {cue:"autonomic", anchor:"autonomic", felt:"the switch — suddenly need to lie down, mind blank while the body was still revved.", variant:"flip"}]
+  },
+  thc: {
+    3:[{cue:"wanting", anchor:"presynaptic", felt:"the edge comes off; starting feels possible.", prominent:false}],
+    7:[{cue:"anhedonia", anchor:"gaba", felt:"between uses the buffer is gone — blunted, less shielded from stress."}]
+  },
+  sleep: {
+    3:[{cue:"flatfoggy", anchor:"postGeneral", felt:"awake but underpowered — the morning you can't get going."}],
+    6:[{cue:"flatfoggy", anchor:"postGeneral", felt:"residue not cleared — heavy, unrefreshed."}]
+  },
+  gut: {
+    1:[{cue:"anhedonia", anchor:"postGeneral", felt:"precursors stolen — the low, joyless baseline."}],
+    5:[{cue:"anxiety", anchor:"postGeneral", felt:"wired and irritable on top of flat — glutamate excess with no drive."}]
+  },
+  stress: {
+    1:[{cue:"restless", anchor:"presynaptic", felt:"running hot but producing little — tired-but-wired."}],
+    6:[{cue:"anxiety", anchor:"postGeneral", felt:"scarce signal stripped fast — depleted yet on edge."},
+       {cue:"autonomic", anchor:"autonomic", felt:"the switch — suddenly need to lie down, mind blank while the body was still revved.", variant:"flip"}]
+  },
+  depleted: {
+    3:[{cue:"wanting", anchor:"cleft", felt:"you want it, the command fires, nothing moves — decision made, execution blocked.", prominent:true}],
+    5:[{cue:"cravingcrash", anchor:"postD2", felt:"small hits over-read — brief spike, then below-baseline crash."}],
+    6:[{cue:"anhedonia", anchor:"postGeneral", felt:"the neuron silences itself early — the flat that deepens itself."},
+       {cue:"autonomic", anchor:"autonomic", felt:"the switch — suddenly need to lie down, mind blank while the body was still revved.", variant:"flip"}]
+  }
+};
+
+/* ---------- TAB 2: Gut · Vagus · Brain ---------- */
+
+var BASE2 = [
+  {id:0, title:"Overview", body:"The gut–brain axis at rest. Microbial metabolites and gut hormones are sensed by vagal afferents — about 80% of vagus nerve fibers carry signal upward, from gut to brain — and relayed through the nucleus tractus solitarius (NTS) to targets that shape mood, arousal, and threat response.", mech:"gut → vagus(~80% afferent) → NTS → raphe/VTA/LC/hypothalamus/amygdala"},
+  {id:1, title:"Barrier", body:"The intestinal epithelium is sealed by tight junctions — claudin, occludin, and ZO-1 proteins — that hold enterocytes together and control what passes from the gut lumen into the body.", mech:"claudin/occludin/ZO-1 → sealed paracellular junctions"},
+  {id:2, title:"Microbes", body:"Gut microbes ferment dietary fiber into short-chain fatty acids (SCFAs) like butyrate, and metabolize tryptophan into indoles. Butyrate crosses the blood-brain barrier, raises BDNF, and calms microglial activation.", mech:"fiber → microbial fermentation → SCFA(butyrate) · Trp → indoles · butyrate → ↑BDNF, ↓microglial activation"},
+  {id:3, title:"Gut serotonin", body:"Enterochromaffin cells in the gut lining produce roughly 95% of the body's serotonin, primarily to regulate motility. This serotonin does not cross the blood-brain barrier — the gut shapes brain serotonin indirectly, through the precursors and signals it supplies.", mech:"EC cells → ~95% body 5-HT (motility) · gut 5-HT ∤ BBB → indirect precursor-level influence only"},
+  {id:4, title:"Vagus", body:"Microbial metabolites and local serotonin activate vagal afferent fibers, generating an ascending neural signal — distinct from, and faster than, any hormonal route.", mech:"metabolites + 5-HT → vagal afferent activation → ascending signal"},
+  {id:5, title:"NTS", body:"The nucleus tractus solitarius (NTS) in the brainstem is the first integration hub for this ascending signal, before it is distributed onward.", mech:"vagal afferents → NTS (integration hub)"},
+  {id:6, title:"Targets", body:"From the NTS, signal reaches five downstream targets: the raphe nuclei (serotonin), VTA (dopamine tone), locus coeruleus (norepinephrine/arousal), hypothalamus (HPA axis/cortisol), and amygdala (threat gain).", mech:"NTS → raphe(5-HT) · VTA(DA tone) · LC(NE/arousal) · hypothalamus(HPA) · amygdala(threat gain)"}
+];
+
+var PATCH2 = {
+  alcohol: {
+    1:{title:"Barrier — acetaldehyde pries it open", body:"Ethanol's metabolite acetaldehyde activates myosin light-chain kinase (MLCK) in enterocytes, contracting the perijunctional actomyosin ring and prying tight junctions open within hours. Lipopolysaccharide (LPS) from gram-negative bacteria translocates through the gap.", mech:"acetaldehyde → ↑MLCK → actomyosin contraction → junction gap → LPS translocation", delta:"△ This is a mechanical opening of the barrier, measured in hours — not a slow dietary drift."},
+    6:{title:"Targets — LPS destabilizes the whole axis", body:"Translocated LPS binds TLR4 on immune cells, triggering cytokine release that upregulates IDO and steals tryptophan from serotonin/dopamine synthesis brain-wide. The vagal signal itself becomes unreliable against this inflammatory backdrop.", mech:"LPS → TLR4 → cytokines → ↑IDO → ↓tryptophan availability · destabilized vagal signal", delta:"△ The barrier breach upstream is now a brain-wide biochemical problem, not a local gut issue."}
+  },
+  thc: {
+    3:{title:"Gut serotonin — motility slowed", body:"Enteric CB1 receptors, activated by THC, slow gut motility and dampen enterochromaffin cell signaling — the same receptor class acting peripherally that also quiets the GABA interneuron centrally.", mech:"THC → enteric CB1 → ↓motility, ↓EC cell signaling", delta:"△ Same drug, same receptor family, different tissue — peripheral echo of the central CB1 effect."},
+    4:{title:"Vagus — altered gut traffic changes the signal", body:"With motility and local serotonin signaling altered, the pattern of vagal afferent activity shifts — a different ascending signal than the one a normally-moving gut would send.", mech:"altered gut motility/5-HT signaling → shifted vagal afferent pattern", delta:"△ Not a vagal-tone deficit — a change in the input the vagus is faithfully reporting."}
+  },
+  gut: {
+    1:{title:"Barrier — leaky gut", body:"Dysbiosis and local cytokine exposure loosen tight junctions directly — the central event of this scenario. Claudin/occludin/ZO-1 complexes weaken, and the paracellular gap widens chronically, not just transiently.", mech:"dysbiosis + cytokines → tight-junction breakdown → chronic paracellular leak", delta:"△ This is the scenario's root lesion — everything downstream follows from this breach."},
+    2:{title:"Microbes — narrowed, under-producing", body:"A narrowed microbiome produces fewer SCFAs, mis-routes tryptophan away from healthy indole production, and yields less butyrate — less BBB-crossing anti-inflammatory signal reaching the brain.", mech:"↓microbial diversity → ↓SCFA/butyrate, mis-routed Trp → ↓anti-inflammatory signal to brain", delta:"△ The ecosystem that normally protects the barrier and brain is itself the casualty here."},
+    6:{title:"Targets — inflamed signal brain-wide", body:"Circulating cytokines upregulate IDO everywhere, starving serotonin and dopamine synthesis and raising quinolinic acid. Amygdala threat-gain rises while HPA drive stays elevated — a brain-wide inflammatory signature, not a single-target effect.", mech:"cytokines → ↑IDO(brain-wide) → ↓5-HT/DA precursors, ↑quinolinic acid · ↑amygdala gain, ↑HPA drive", delta:"△ The five targets don't respond independently here — inflammation touches all of them at once."}
+  },
+  sleep: {
+    4:{title:"Vagus — tone drops with lost SWS", body:"Vagal tone (measurable as heart-rate variability) drops without adequate slow-wave sleep. A healthy gut can still be sending calm, 'safe' signals — but they arrive attenuated, as if through a quieter line.", mech:"no SWS → ↓vagal tone/HRV → attenuated afferent signal amplitude", delta:"△ The gut's message is unchanged; the transmission strength carrying it is not."},
+    6:{title:"Targets — under-modulated", body:"With a weaker vagal input arriving at the NTS, downstream modulation of raphe, VTA, LC, hypothalamus, and amygdala is all reduced in proportion — a uniform under-drive rather than a single broken target.", mech:"weak vagal input → NTS under-modulates all five downstream targets", delta:"△ Uniform attenuation, not selective damage to any one target."}
+  },
+  stress: {
+    4:{title:"Vagus — sympathetic dominance suppresses tone", body:"Chronic stress shifts autonomic balance toward sympathetic dominance, actively suppressing vagal (parasympathetic) tone rather than merely failing to engage it.", mech:"chronic stress → sympathetic dominance → active vagal tone suppression", delta:"△ Active suppression, not passive neglect — the sympathetic branch is doing this."},
+    6:{title:"Targets — self-reinforcing threat loop", body:"Cortisol sensitizes the amygdala, raising its threat gain. Amygdala output itself further biases autonomic balance away from the vagus — a loop where stress lowers vagal tone, and low vagal tone increases reactivity to the next stressor.", mech:"cortisol → ↑amygdala sensitization → ↑threat gain → ↓vagal tone → ↑reactivity (loop)", delta:"△ This loop is self-reinforcing — each pass makes the next stressor land harder."}
+  },
+  depleted: {
+    2:{title:"Microbes — monotony narrows the ecosystem", body:"A restricted, repetitive diet narrows microbial diversity over time, favoring gas-producing overgrowth species and cutting output of SCFAs and tryptophan-pathway precursors that would otherwise support brain chemistry.", mech:"monotonous diet → ↓microbial diversity, ↑gas-producing overgrowth → ↓SCFA/precursor output", delta:"△ A slow dietary drift, not an acute insult — this took repetition to establish."},
+    6:{title:"Targets — feeding the depletion", body:"Low SCFA output, weakened vagal signaling, and low-grade inflammation together fail to support raphe, VTA, and hypothalamic function — compounding, rather than causing outright, the chronic dopamine depletion described in the Circuit Flow tab.", mech:"↓SCFA + weak vagus + low-grade inflammation → compounds synaptic depletion (see Circuit Flow)", delta:"△ Cross-reference: this is a contributing current, not the sole source of the depletion."}
+  }
+};
+
+var VIS2 = {
+  healthy:  {barrierOpen:false, lpsGlow:false, vagalToneLow:false, microbiomeDim:false},
+  alcohol:  {barrierOpen:true,  lpsGlow:true,  vagalToneLow:false, microbiomeDim:false},
+  thc:      {barrierOpen:false, lpsGlow:false, vagalToneLow:false, microbiomeDim:false},
+  sleep:    {barrierOpen:false, lpsGlow:false, vagalToneLow:true,  microbiomeDim:false},
+  gut:      {barrierOpen:true,  lpsGlow:true,  vagalToneLow:false, microbiomeDim:true},
+  stress:   {barrierOpen:false, lpsGlow:false, vagalToneLow:true,  microbiomeDim:false},
+  depleted: {barrierOpen:false, lpsGlow:false, vagalToneLow:false, microbiomeDim:true}
+};
+
+var ANCHOR2 = {
+  gutRegion:{x:180,y:250}, vagusMid:{x:560,y:280},
+  nodeRaphe:{x:1040,y:80}, nodeVTA:{x:1040,y:190}, nodeLC:{x:1040,y:300}, nodeHPA:{x:1040,y:410}, nodeAmyg:{x:1040,y:520}
+};
+
+var EXP2 = {
+  alcohol: { 1:[{cue:"gutunease", anchor:"gutRegion", felt:"leak begins — low-grade inflammation felt as unsettled gut."}] },
+  thc:     { 3:[{cue:"gutunease", anchor:"gutRegion", felt:"sluggish, uncoordinated gut — bloating, upward gas."}] },
+  gut:     { 6:[{cue:"irritable", anchor:"nodeAmyg", felt:"inflamed signal reaching the brain — low mood plus short fuse."},
+                {cue:"anhedonia", anchor:"nodeVTA", felt:"inflamed signal reaching the brain — low mood plus short fuse."}] },
+  sleep:   { 4:[{cue:"restless", anchor:"nodeLC", felt:"the calm channel throttled — harder to settle."}] },
+  stress:  { 6:[{cue:"anxiety", anchor:"nodeAmyg", felt:"threat-biased signal — reactive, amygdala turned up."},
+                {cue:"irritable", anchor:"nodeAmyg", felt:"threat-biased signal — reactive, amygdala turned up."}] },
+  depleted:{ 2:[{cue:"anhedonia", anchor:"nodeVTA", felt:"monotony narrows the ecosystem feeding the low baseline."}] }
+};
+
+/* ---------- TAB 3: Molecules ---------- */
+
+var MOLECULES = [
+  {name:"Dopamine", caption:"A catecholamine: a catechol ring (two adjacent -OH groups) attached to an ethylamine tail. The tail carries the amine that receptors read; the ring is what enzymes oxidize and clear.",
+   svg:'<svg viewBox="0 0 160 120"><polygon points="50,30 70,20 90,30 90,50 70,60 50,50" fill="none" stroke="#e8850c" stroke-width="2"/><text x="30" y="26" font-family="monospace" font-size="10" fill="#128a63">HO</text><text x="30" y="56" font-family="monospace" font-size="10" fill="#128a63">HO</text><line x1="90" y1="40" x2="115" y2="40" stroke="#e8850c" stroke-width="2"/><line x1="115" y1="40" x2="130" y2="55" stroke="#e8850c" stroke-width="2"/><text x="130" y="70" font-family="monospace" font-size="10" fill="#1a2530">NH₂</text></svg>'},
+  {name:"Tyrosine", caption:"The starting amino acid: a single ring with one -OH, plus the amino-acid backbone. Tyrosine hydroxylase adds a second -OH to begin the dopamine pathway.",
+   svg:'<svg viewBox="0 0 160 120"><polygon points="40,30 60,20 80,30 80,50 60,60 40,50" fill="none" stroke="#128a63" stroke-width="2"/><text x="18" y="56" font-family="monospace" font-size="10" fill="#128a63">HO</text><line x1="80" y1="40" x2="105" y2="40" stroke="#128a63" stroke-width="2"/><line x1="105" y1="40" x2="120" y2="55" stroke="#128a63" stroke-width="2"/><text x="118" y="30" font-family="monospace" font-size="10" fill="#1a2530">NH₂</text><line x1="120" y1="55" x2="120" y2="80" stroke="#128a63" stroke-width="2"/><text x="106" y="98" font-family="monospace" font-size="10" fill="#1a2530">COOH</text></svg>'},
+  {name:"L-DOPA", caption:"Tyrosine with its second ring -OH already added — a complete catechol — still carrying the full amino-acid backbone AADC will remove.",
+   svg:'<svg viewBox="0 0 160 120"><polygon points="40,30 60,20 80,30 80,50 60,60 40,50" fill="none" stroke="#e8850c" stroke-width="2"/><text x="18" y="26" font-family="monospace" font-size="10" fill="#128a63">HO</text><text x="18" y="56" font-family="monospace" font-size="10" fill="#128a63">HO</text><line x1="80" y1="40" x2="105" y2="40" stroke="#e8850c" stroke-width="2"/><line x1="105" y1="40" x2="120" y2="55" stroke="#e8850c" stroke-width="2"/><text x="118" y="30" font-family="monospace" font-size="10" fill="#1a2530">NH₂</text><line x1="120" y1="55" x2="120" y2="80" stroke="#e8850c" stroke-width="2"/><text x="106" y="98" font-family="monospace" font-size="10" fill="#1a2530">COOH</text></svg>'},
+  {name:"GABA", caption:"A simple 4-carbon chain: an amine group on one end, a carboxylic acid on the other. No ring at all — structurally almost the mirror image of glutamate.",
+   svg:'<svg viewBox="0 0 160 120"><polyline points="25,60 50,40 75,60 100,40 125,60" fill="none" stroke="#9b3fd4" stroke-width="2.5"/><text x="4" y="70" font-family="monospace" font-size="10" fill="#1a2530">H₂N</text><text x="120" y="80" font-family="monospace" font-size="10" fill="#1a2530">COOH</text></svg>'},
+  {name:"Glutamate", caption:"A 5-carbon backbone with acid groups at both ends. The main excitatory signal in the brain — opposite in effect, and nearly opposite in shape, to GABA.",
+   svg:'<svg viewBox="0 0 160 120"><polyline points="18,60 40,42 62,60 84,42 106,60 128,42" fill="none" stroke="#1f8fe0" stroke-width="2.5"/><text x="0" y="80" font-family="monospace" font-size="9" fill="#1a2530">HOOC</text><text x="118" y="30" font-family="monospace" font-size="9" fill="#1a2530">COOH</text><text x="55" y="80" font-family="monospace" font-size="9" fill="#1a2530">NH₂</text></svg>'},
+  {name:"Butyrate", caption:"A 4-carbon short-chain fatty acid (SCFA) made by gut microbes fermenting fiber. Small enough to cross the blood-brain barrier and act as a signal, not just a fuel.",
+   svg:'<svg viewBox="0 0 160 120"><polyline points="30,60 55,42 80,60 105,42" fill="none" stroke="#2aa17a" stroke-width="2.5"/><text x="98" y="30" font-family="monospace" font-size="10" fill="#1a2530">COOH</text></svg>'},
+  {name:"VMAT2", caption:"The vesicular pump that loads dopamine into storage vesicles, powered by a proton gradient. Tyramine (from fermented foods/alcohol) can force it to run backwards, dumping vesicle contents back out.",
+   svg:'<svg viewBox="0 0 160 120"><rect x="55" y="20" width="50" height="80" rx="10" fill="none" stroke="#128a63" stroke-width="2.5"/><line x1="40" y1="30" x2="55" y2="30" stroke="#128a63" stroke-width="2"/><line x1="40" y1="90" x2="55" y2="90" stroke="#128a63" stroke-width="2"/><path d="M65,35 L80,50 L95,35" fill="none" stroke="#e8850c" stroke-width="2"/><path d="M65,85 L80,70 L95,85" fill="none" stroke="#e8850c" stroke-width="2"/><text x="58" y="112" font-family="monospace" font-size="9" fill="#1a2530">H⁺-ATPase</text></svg>'},
+  {name:"DAT", caption:"The membrane transporter that pulls released dopamine back into the presynaptic terminal — the dominant clearance route in the striatum.",
+   svg:'<svg viewBox="0 0 160 120"><rect x="45" y="30" width="70" height="50" rx="12" fill="none" stroke="#128a63" stroke-width="2.5"/><circle cx="30" cy="55" r="6" fill="#e8850c"/><path d="M36,55 L60,55" stroke="#e8850c" stroke-width="2" marker-end="url(#arrhead)"/><defs><marker id="arrhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#e8850c"/></marker></defs><text x="55" y="60" font-family="monospace" font-size="12" fill="#128a63">DAT</text></svg>'},
+  {name:"D1 / D2 receptors", caption:"Seven-pass transmembrane receptors (GPCRs) that snake through the membrane seven times. D1 says 'go' via Gs/cAMP; D2 says 'no-go' via Gi. Chronic low dopamine upregulates D2, making the receiving side more sensitive.",
+   svg:'<svg viewBox="0 0 160 120"><polyline points="20,40 30,60 40,40 50,60 60,40 70,60 80,40 90,60 100,40" fill="none" stroke="#128a63" stroke-width="2.5"/><text x="20" y="30" font-family="monospace" font-size="10" fill="#128a63">D1 (Gs)</text><polyline points="20,90 30,70 40,90 50,70 60,90 70,70 80,90 90,70 100,90" fill="none" stroke="#e0295a" stroke-width="2.5"/><text x="20" y="108" font-family="monospace" font-size="10" fill="#e0295a">D2 (Gi)</text></svg>'},
+  {name:"MAO-B / COMT", caption:"Enzymes that break down free dopamine into DOPAC, then HVA — the metabolic clearance route that dominates where DAT is sparse, like the prefrontal cortex.",
+   svg:'<svg viewBox="0 0 160 120"><rect x="20" y="45" width="50" height="30" rx="6" fill="none" stroke="#128a63" stroke-width="2"/><text x="26" y="64" font-family="monospace" font-size="9" fill="#128a63">MAO-B</text><path d="M70,60 L95,60" stroke="#1a2530" stroke-width="2" marker-end="url(#a2)"/><defs><marker id="a2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#1a2530"/></marker></defs><text x="97" y="45" font-family="monospace" font-size="10" fill="#1a2530">DOPAC</text><path d="M100,50 L100,25 L60,25" stroke="#1a2530" stroke-width="2" marker-end="url(#a2)"/><text x="20" y="20" font-family="monospace" font-size="10" fill="#1a2530">HVA</text></svg>'},
+  {name:"Synaptic vesicle", caption:"A membrane-bound sphere storing roughly 10³–10⁴ dopamine molecules, ready to fuse with the membrane and empty its contents into the cleft on command.",
+   svg:'<svg viewBox="0 0 160 120"><circle cx="80" cy="55" r="40" fill="none" stroke="#1a2530" stroke-width="2"/><circle cx="65" cy="45" r="3" fill="#e8850c"/><circle cx="80" cy="40" r="3" fill="#e8850c"/><circle cx="95" cy="48" r="3" fill="#e8850c"/><circle cx="70" cy="60" r="3" fill="#e8850c"/><circle cx="88" cy="63" r="3" fill="#e8850c"/><circle cx="78" cy="70" r="3" fill="#e8850c"/><text x="45" y="112" font-family="monospace" font-size="9" fill="#1a2530">~10³–10⁴ DA molecules</text></svg>'},
+  {name:"Vagus nerve", caption:"The main gut–brain cable. About 80% of its fibers are afferent — carrying signal from gut to brain, not the other way around.",
+   svg:'<svg viewBox="0 0 160 120"><path d="M20,60 C60,20 100,100 140,60" fill="none" stroke="#2aa17a" stroke-width="3"/><circle cx="45" cy="45" r="4" fill="#2aa17a"/><circle cx="80" cy="70" r="4" fill="#2aa17a"/><circle cx="115" cy="45" r="4" fill="#2aa17a"/><text x="35" y="105" font-family="monospace" font-size="10" fill="#1a2530">~80% afferent</text></svg>'}
+];
+
+/* ============================= STATE ============================= */
+
+var state = {
+  scenario: "healthy",
+  tab: 1,
+  stage1: 0,
+  stage2: 0,
+  playing1: false,
+  playing2: false,
+  timer1: null,
+  timer2: null
+};
+
+var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reducedMotion) document.documentElement.classList.add("reduced-motion");
+window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", function(e){
+  reducedMotion = e.matches;
+  document.documentElement.classList.toggle("reduced-motion", reducedMotion);
+});
+
+/* ============================= CUE GLYPH BUILDER ============================= */
+
+function svgns(tag){ return document.createElementNS("http://www.w3.org/2000/svg", tag); }
+
+function buildCueGlyph(cue, opts){
+  opts = opts || {};
+  var meta = CUE_META[cue] || {color:"#8a99a8"};
+  var g = svgns("g");
+  g.setAttribute("class","cueglyph");
+  var aura = svgns("circle");
+  aura.setAttribute("r","34"); aura.setAttribute("fill",meta.color); aura.setAttribute("opacity","0.14");
+  g.appendChild(aura);
+
+  if(cue==="clean"){
+    var p = svgns("path"); p.setAttribute("d","M-10,0 L-3,8 L12,-10"); p.setAttribute("stroke","#128a63");
+    p.setAttribute("stroke-width","3"); p.setAttribute("fill","none"); g.appendChild(p);
+  } else if(cue==="anhedonia"){
+    var c = svgns("circle"); c.setAttribute("r","12"); c.setAttribute("fill","none");
+    c.setAttribute("stroke","#8a99a8"); c.setAttribute("stroke-width","2.5"); g.appendChild(c);
+  } else if(cue==="wanting"){
+    var s = svgns("path"); s.setAttribute("d","M-4,-14 L2,-2 L-3,-2 L4,14 L-2,0 L3,0 Z");
+    s.setAttribute("fill","#e8850c"); g.appendChild(s);
+    var bar = svgns("rect"); bar.setAttribute("x","-16"); bar.setAttribute("y","-2");
+    bar.setAttribute("width","32"); bar.setAttribute("height","5"); bar.setAttribute("fill","#e0295a");
+    bar.setAttribute("opacity", opts.prominent? "0.95":"0.4");
+    g.appendChild(bar);
+  } else if(cue==="anxiety"){
+    var jag = svgns("path"); jag.setAttribute("d","M-14,-8 L-6,8 L-2,-6 L6,8 L14,-8");
+    jag.setAttribute("stroke","#e0295a"); jag.setAttribute("stroke-width","2.5"); jag.setAttribute("fill","none");
+    g.appendChild(jag);
+  } else if(cue==="bodyalert"){
+    var light0 = svgns("path");
+    light0.setAttribute("d","M-2,-14 L-8,2 L-1,2 L-5,14 L10,-4 L2,-4 Z");
+    light0.setAttribute("fill","#e8850c"); g.appendChild(light0);
+  } else if(cue==="autonomic"){
+    var light = svgns("path"); light.setAttribute("class","lightning");
+    light.setAttribute("d","M-2,-14 L-8,2 L-1,2 L-5,14 L10,-4 L2,-4 Z");
+    light.setAttribute("fill","#e8850c"); g.appendChild(light);
+    var arrow = svgns("path"); arrow.setAttribute("class","arrow");
+    arrow.setAttribute("d","M0,-12 L0,10 M-7,3 L0,10 L7,3");
+    arrow.setAttribute("stroke","#9b3fd4"); arrow.setAttribute("stroke-width","3"); arrow.setAttribute("fill","none");
+    arrow.setAttribute("opacity","0");
+    g.appendChild(arrow);
+    if(reducedMotion){ arrow.setAttribute("opacity","1"); light.setAttribute("opacity","0"); }
+  } else if(cue==="cravingcrash"){
+    var spark = svgns("path"); spark.setAttribute("d","M-16,6 L-6,-10 L2,2 L14,-12");
+    spark.setAttribute("stroke","url(#ccGrad)"); spark.setAttribute("stroke-width","2.5"); spark.setAttribute("fill","none");
+    var defs = svgns("defs"); var grad = svgns("linearGradient"); grad.setAttribute("id","ccGrad");
+    grad.setAttribute("x1","0%"); grad.setAttribute("x2","100%");
+    var st1 = svgns("stop"); st1.setAttribute("offset","0%"); st1.setAttribute("stop-color","#e8850c");
+    var st2 = svgns("stop"); st2.setAttribute("offset","100%"); st2.setAttribute("stop-color","#e0295a");
+    grad.appendChild(st1); grad.appendChild(st2); defs.appendChild(grad); g.appendChild(defs);
+    spark.setAttribute("stroke","#e0295a");
+    g.appendChild(spark);
+  } else if(cue==="flatfoggy"){
+    var cl = svgns("ellipse"); cl.setAttribute("rx","16"); cl.setAttribute("ry","9");
+    cl.setAttribute("fill","none"); cl.setAttribute("stroke","#8a99a8"); cl.setAttribute("stroke-dasharray","3 3");
+    cl.setAttribute("stroke-width","2"); g.appendChild(cl);
+  } else if(cue==="irritable"){
+    var cr = svgns("path"); cr.setAttribute("d","M-14,0 L-4,-3 L0,4 L4,-4 L14,2");
+    cr.setAttribute("stroke","#e0295a"); cr.setAttribute("stroke-width","2"); cr.setAttribute("fill","none");
+    g.appendChild(cr);
+  } else if(cue==="restless"){
+    var spin = svgns("circle"); spin.setAttribute("r","10"); spin.setAttribute("fill","none");
+    spin.setAttribute("stroke","#1f8fe0"); spin.setAttribute("stroke-width","2"); spin.setAttribute("stroke-dasharray","6 4");
+    g.appendChild(spin);
+    var anchor = svgns("path"); anchor.setAttribute("d","M0,10 L0,20 M-6,20 L6,20 M-4,14 Q0,20 4,14");
+    anchor.setAttribute("stroke","#1f8fe0"); anchor.setAttribute("stroke-width","2"); anchor.setAttribute("fill","none");
+    g.appendChild(anchor);
+  } else if(cue==="gutunease"){
+    var wav = svgns("path"); wav.setAttribute("d","M-16,0 Q-8,-10 0,0 T16,0");
+    wav.setAttribute("stroke","#a9713f"); wav.setAttribute("stroke-width","2.5"); wav.setAttribute("fill","none");
+    g.appendChild(wav);
+  }
+  return g;
+}
+
+function renderCueLayer(container, anchors, items, prefix){
+  while(container.firstChild) container.removeChild(container.firstChild);
+  if(!items) return;
+  items.forEach(function(item, i){
+    var a = anchors[item.anchor];
+    if(!a) return;
+    var wrap = svgns("g");
+    wrap.setAttribute("transform","translate("+a.x+","+(a.y - i*46)+")");
+    wrap.appendChild(buildCueGlyph(item.cue, item));
+    container.appendChild(wrap);
+  });
+}
+
+/* ============================= RENDER: CHIPS + BANNER ============================= */
+
+var chipRow = document.getElementById("chipRow");
+SCENARIOS.forEach(function(sc){
+  var btn = document.createElement("button");
+  btn.className = "chip sc-"+sc.id;
+  btn.textContent = sc.label;
+  btn.setAttribute("aria-pressed", sc.id===state.scenario ? "true":"false");
+  btn.addEventListener("click", function(){
+    state.scenario = sc.id;
+    Array.prototype.forEach.call(chipRow.children, function(c){
+      c.setAttribute("aria-pressed", c===btn ? "true":"false");
+    });
+    renderAll();
+  });
+  chipRow.appendChild(btn);
+});
+
+function renderBanner(){
+  var sc = SCENARIOS.filter(function(s){return s.id===state.scenario;})[0];
+  document.getElementById("banner").innerHTML = "<b>"+sc.label+":</b> "+sc.thesis;
+}
+
+/* ============================= TAB 1 RENDER ============================= */
+
+function mergeStage(base, patch){
+  var merged = {};
+  for(var k in base) merged[k]=base[k];
+  if(patch){
+    if(patch.title) merged.title = patch.title;
+    if(patch.body) merged.body = patch.body;
+    if(patch.mech) merged.mech = patch.mech;
+    if(patch.delta) merged.delta = patch.delta;
+  }
+  return merged;
+}
+
+function renderTab1(){
+  var stage = state.stage1;
+  var base = BASE1[stage];
+  var patch = (PATCH1[state.scenario]||{})[stage];
+  var merged = mergeStage(base, patch);
+  var vis = VIS1[state.scenario];
+
+  document.getElementById("stagecounter1").textContent = "STAGE "+stage+" / "+(BASE1.length-1);
+  document.getElementById("title1").textContent = merged.title;
+  document.getElementById("body1").textContent = merged.body;
+  document.getElementById("mech1").textContent = merged.mech;
+  document.getElementById("delta1").innerHTML = merged.delta ? '<div class="delta-row">'+merged.delta+'</div>' : "";
+  var feltHtml = "";
+  var expItems = (EXP1[state.scenario]||{})[stage];
+  if(expItems){
+    var seenFelt1 = [];
+    expItems.forEach(function(it){
+      if(seenFelt1.indexOf(it.felt)!==-1) return;
+      seenFelt1.push(it.felt);
+      var color = (CUE_META[it.cue]||{}).color || "#8a99a8";
+      feltHtml += '<div class="felt-row" style="--dotcolor:'+color+'">felt as: '+it.felt+'</div>';
+    });
+  }
+  document.getElementById("felt1").innerHTML = feltHtml;
+  document.getElementById("badge1").textContent = state.scenario.toUpperCase();
+
+  var svg = document.getElementById("svg1");
+
+  /* ---- reset opacities/states first ---- */
+  document.getElementById("synthChain").setAttribute("opacity", "0");
+  document.getElementById("enzymeBox").setAttribute("opacity", "0");
+  document.getElementById("burstDots").setAttribute("opacity", "0");
+  document.getElementById("dockGroup").setAttribute("opacity", "0");
+  document.getElementById("glutExcess").setAttribute("opacity", "0");
+  document.getElementById("d2upLabel").setAttribute("opacity", "0");
+  svg.classList.remove("anim-vesicle","anim-burst","anim-dock");
+
+  /* ---- vesicle dots (fraction filled) ---- */
+  var vgroup = document.getElementById("vesicleGroup");
+  while(vgroup.children.length>1) vgroup.removeChild(vgroup.lastChild);
+  var totalDots = 12, filled = Math.round(totalDots*vis.vesicleFill);
+  for(var i=0;i<totalDots;i++){
+    var col = i%4, row = Math.floor(i/4);
+    var cx = 90+col*30, cy = 80+row*24;
+    var c = svgns("circle");
+    c.setAttribute("cx",cx); c.setAttribute("cy",cy); c.setAttribute("r","8");
+    c.setAttribute("class", i<filled ? "vesicle-dot" : "vesicle-dot empty");
+    vgroup.appendChild(c);
+  }
+
+  /* ---- stage-specific visuals ---- */
+  if(stage===1){ document.getElementById("synthChain").setAttribute("opacity","1"); }
+  if(stage===3){
+    svg.classList.add("anim-vesicle","anim-burst");
+    var bd = document.getElementById("burstDots");
+    bd.setAttribute("opacity","1");
+    while(bd.firstChild) bd.removeChild(bd.firstChild);
+    var n = vis.burstCount;
+    for(var b=0;b<n;b++){
+      var bc = svgns("circle");
+      bc.setAttribute("cx", 130+ (b%6)*70); bc.setAttribute("cy", 205+Math.floor(b/6)*14); bc.setAttribute("r","5");
+      bc.setAttribute("class","burst-dot");
+      bd.appendChild(bc);
+    }
+  }
+  if(stage===4){
+    var bd2 = document.getElementById("burstDots");
+    bd2.setAttribute("opacity","0.7");
+  }
+  if(stage===5){
+    document.getElementById("dockGroup").setAttribute("opacity","1");
+    svg.classList.add("anim-dock");
+    var dg = document.getElementById("dockGroup");
+    while(dg.firstChild) dg.removeChild(dg.firstChild);
+    var d1dot = svgns("circle"); d1dot.setAttribute("cx","215"); d1dot.setAttribute("cy","222"); d1dot.setAttribute("r","6");
+    d1dot.setAttribute("class","dockdot"); d1dot.setAttribute("fill","var(--dopamine)"); dg.appendChild(d1dot);
+    var d2dot = svgns("circle"); d2dot.setAttribute("cx","435"); d2dot.setAttribute("cy","222");
+    d2dot.setAttribute("r", vis.d2Enlarged ? "9":"6");
+    d2dot.setAttribute("class","dockdot"); d2dot.setAttribute("fill","var(--dopamine)"); dg.appendChild(d2dot);
+    if(vis.glutExcess){ document.getElementById("glutExcess").setAttribute("opacity","1"); }
+  }
+  if(stage===6){ document.getElementById("enzymeBox").setAttribute("opacity","1"); }
+
+  /* ---- persistent scenario VIS flags (re-applied last) ---- */
+  var d2rect = document.getElementById("d2receptor");
+  d2rect.setAttribute("transform", vis.d2Enlarged ? "translate(420,215) scale(1.5)" : "translate(420,222) scale(1)");
+  document.getElementById("d2upLabel").setAttribute("opacity", vis.d2Enlarged ? "1":"0");
+
+  document.getElementById("inflamGlow").setAttribute("opacity", vis.inflammation ? "0.16":"0");
+
+  var brakeLabel = document.getElementById("brakeLabel");
+  var gabaCell = document.getElementById("gabaCell");
+  var gabaAxon = document.getElementById("gabaAxon");
+  var gabaDots = document.getElementById("gabaDots");
+  if(vis.brakeOn){
+    brakeLabel.textContent = "GABA BRAKE: ON";
+    brakeLabel.setAttribute("fill","var(--enzyme)");
+    gabaCell.setAttribute("opacity","1");
+    gabaAxon.setAttribute("opacity","1");
+    gabaDots.setAttribute("opacity","1");
+    svg.classList.add("anim-gaba");
+  } else {
+    brakeLabel.textContent = "GABA BRAKE: OFF";
+    brakeLabel.setAttribute("fill","var(--receptor)");
+    gabaCell.setAttribute("opacity","0.4");
+    gabaAxon.setAttribute("opacity","0.25");
+    gabaDots.setAttribute("opacity","0");
+    svg.classList.remove("anim-gaba");
+  }
+
+  /* ---- cue layer (rendered last, after resets) ---- */
+  renderCueLayer(document.getElementById("cueLayer1"), ANCHOR1, expItems);
+
+  document.getElementById("prev1").disabled = stage===0;
+  document.getElementById("next1").disabled = stage===BASE1.length-1;
+}
+
+/* ============================= TAB 2 RENDER ============================= */
+
+function renderTab2(){
+  var stage = state.stage2;
+  var base = BASE2[stage];
+  var patch = (PATCH2[state.scenario]||{})[stage];
+  var merged = mergeStage(base, patch);
+  var vis = VIS2[state.scenario];
+
+  document.getElementById("stagecounter2").textContent = "STAGE "+stage+" / "+(BASE2.length-1);
+  document.getElementById("title2").textContent = merged.title;
+  document.getElementById("body2").textContent = merged.body;
+  document.getElementById("mech2").textContent = merged.mech;
+  document.getElementById("delta2").innerHTML = merged.delta ? '<div class="delta-row">'+merged.delta+'</div>' : "";
+  var feltHtml2 = "";
+  var expItems2 = (EXP2[state.scenario]||{})[stage];
+  if(expItems2){
+    var seenFelt2 = [];
+    expItems2.forEach(function(it){
+      if(seenFelt2.indexOf(it.felt)!==-1) return;
+      seenFelt2.push(it.felt);
+      var color = (CUE_META[it.cue]||{}).color || "#8a99a8";
+      feltHtml2 += '<div class="felt-row" style="--dotcolor:'+color+'">felt as: '+it.felt+'</div>';
+    });
+  }
+  document.getElementById("felt2").innerHTML = feltHtml2;
+  document.getElementById("badge2").textContent = state.scenario.toUpperCase();
+
+  var svg = document.getElementById("svg2");
+
+  /* reset */
+  document.getElementById("ecSerotonin").setAttribute("opacity","0");
+  document.getElementById("cytokineZone").setAttribute("opacity","0");
+  svg.classList.remove("anim-vagus");
+
+  if(stage===3){ document.getElementById("ecSerotonin").setAttribute("opacity","1"); }
+  if(stage>=4){ svg.classList.add("anim-vagus"); }
+  if(stage===6 && (state.scenario==="gut" || state.scenario==="alcohol")){
+    document.getElementById("cytokineZone").setAttribute("opacity","1");
+  }
+
+  /* persistent VIS */
+  document.getElementById("lpsGlow").setAttribute("opacity", vis.lpsGlow ? "0.14":"0");
+  document.getElementById("microbiomeDots").setAttribute("opacity", vis.microbiomeDim ? "0.3":"1");
+
+  var barrierLabel = document.getElementById("barrierStatusLabel");
+  var ticks = document.getElementById("junctionTicks").querySelectorAll("line");
+  if(vis.barrierOpen){
+    barrierLabel.textContent = "BARRIER: LEAKING";
+    barrierLabel.setAttribute("fill","var(--receptor)");
+    ticks.forEach(function(t){ t.setAttribute("stroke","var(--receptor)"); t.setAttribute("stroke-dasharray","3 4"); t.setAttribute("stroke-width","2"); });
+  } else {
+    barrierLabel.textContent = "BARRIER: SEALED";
+    barrierLabel.setAttribute("fill","var(--vagus)");
+    ticks.forEach(function(t){ t.setAttribute("stroke","var(--vagus)"); t.setAttribute("stroke-dasharray","none"); t.setAttribute("stroke-width","2"); });
+  }
+
+  var vagalLabel = document.getElementById("vagalToneLabel");
+  var vagusPathEl = document.getElementById("vagusPath");
+  var vagusDotsEl = document.getElementById("vagusDots");
+  if(vis.vagalToneLow){
+    vagalLabel.setAttribute("opacity","1");
+    vagusPathEl.setAttribute("opacity","0.35");
+    vagusDotsEl.setAttribute("opacity","0.2");
+    svg.classList.remove("anim-vagus");
+  } else {
+    vagalLabel.setAttribute("opacity","0");
+    vagusPathEl.setAttribute("opacity","1");
+    vagusDotsEl.setAttribute("opacity","1");
+    if(stage>=4) svg.classList.add("anim-vagus");
+  }
+
+  renderCueLayer(document.getElementById("cueLayer2"), ANCHOR2, expItems2);
+
+  document.getElementById("prev2").disabled = stage===0;
+  document.getElementById("next2").disabled = stage===BASE2.length-1;
+}
+
+/* set vagus dot motion path via CSS var (fallback: simple translate since offset-path support varies) */
+(function initVagusPath(){
+  var d = document.getElementById("vagusPath").getAttribute("d");
+  document.documentElement.style.setProperty("--vagus-path", "'"+d+"'");
+})();
+
+/* ============================= MOLECULES RENDER ============================= */
+
+var molGrid = document.getElementById("molGrid");
+MOLECULES.forEach(function(m){
+  var card = document.createElement("div");
+  card.className = "mol-card";
+  card.innerHTML = m.svg + '<div class="mol-name">'+m.name+'</div><p class="mol-caption">'+m.caption+'</p>';
+  molGrid.appendChild(card);
+});
+
+/* ============================= LEGEND ============================= */
+
+var legendColors = document.getElementById("legendColors");
+var colorList = [
+  ["Dopamine","var(--dopamine)"], ["GABA","var(--gaba)"], ["Glutamate","var(--glutamate)"],
+  ["Enzymes","var(--enzyme)"], ["Receptors","var(--receptor)"], ["Vagus / SCFA","var(--vagus)"],
+  ["Warning / delta","var(--delta)"]
+];
+colorList.forEach(function(item){
+  var el = document.createElement("div"); el.className="legend-item";
+  el.innerHTML = '<span class="swatch" style="background:'+item[1]+'"></span>'+item[0];
+  legendColors.appendChild(el);
+});
+var legendCues = document.getElementById("legendCues");
+Object.keys(CUE_META).forEach(function(key){
+  var m = CUE_META[key];
+  var el = document.createElement("div"); el.className="legend-item";
+  el.innerHTML = '<span class="swatch" style="background:'+m.color+'"></span>'+m.label;
+  legendCues.appendChild(el);
+});
+
+/* ============================= CONTROLS ============================= */
+
+function stopPlay1(){ if(state.timer1){ clearInterval(state.timer1); state.timer1=null; } state.playing1=false; document.getElementById("play1").textContent="▶ Play"; }
+function stopPlay2(){ if(state.timer2){ clearInterval(state.timer2); state.timer2=null; } state.playing2=false; document.getElementById("play2").textContent="▶ Play"; }
+
+function goStage1(n){
+  state.stage1 = Math.max(0, Math.min(BASE1.length-1, n));
+  renderTab1();
+}
+function goStage2(n){
+  state.stage2 = Math.max(0, Math.min(BASE2.length-1, n));
+  renderTab2();
+}
+
+document.getElementById("prev1").addEventListener("click", function(){ stopPlay1(); goStage1(state.stage1-1); });
+document.getElementById("next1").addEventListener("click", function(){ stopPlay1(); goStage1(state.stage1+1); });
+document.getElementById("reset1").addEventListener("click", function(){ stopPlay1(); goStage1(0); });
+document.getElementById("play1").addEventListener("click", function(){
+  if(state.playing1){ stopPlay1(); return; }
+  state.playing1 = true; document.getElementById("play1").textContent = "⏸ Pause";
+  state.timer1 = setInterval(function(){
+    var n = state.stage1+1;
+    if(n>BASE1.length-1) n=0;
+    goStage1(n);
+  }, 3500);
+});
+
+document.getElementById("prev2").addEventListener("click", function(){ stopPlay2(); goStage2(state.stage2-1); });
+document.getElementById("next2").addEventListener("click", function(){ stopPlay2(); goStage2(state.stage2+1); });
+document.getElementById("reset2").addEventListener("click", function(){ stopPlay2(); goStage2(0); });
+document.getElementById("play2").addEventListener("click", function(){
+  if(state.playing2){ stopPlay2(); return; }
+  state.playing2 = true; document.getElementById("play2").textContent = "⏸ Pause";
+  state.timer2 = setInterval(function(){
+    var n = state.stage2+1;
+    if(n>BASE2.length-1) n=0;
+    goStage2(n);
+  }, 3500);
+});
+
+/* ============================= TABS ============================= */
+
+function setTab(n){
+  state.tab = n;
+  for(var i=1;i<=3;i++){
+    document.getElementById("tabbtn-"+i).setAttribute("aria-selected", i===n ? "true":"false");
+    document.getElementById("tabpanel-"+i).classList.toggle("active", i===n);
+  }
+}
+document.getElementById("tabbtn-1").addEventListener("click", function(){ setTab(1); });
+document.getElementById("tabbtn-2").addEventListener("click", function(){ setTab(2); });
+document.getElementById("tabbtn-3").addEventListener("click", function(){ setTab(3); });
+
+/* ============================= KEYBOARD NAV ============================= */
+
+document.addEventListener("keydown", function(e){
+  var tag = (document.activeElement && document.activeElement.tagName) || "";
+  if(tag==="BUTTON" && (e.key===" "||e.key==="Spacebar")){
+    /* let button activate normally except our play buttons already handle click via Enter/Space */
+  }
+  if(e.key==="ArrowRight"){
+    if(state.tab===1){ stopPlay1(); goStage1(state.stage1+1); e.preventDefault(); }
+    else if(state.tab===2){ stopPlay2(); goStage2(state.stage2+1); e.preventDefault(); }
+  } else if(e.key==="ArrowLeft"){
+    if(state.tab===1){ stopPlay1(); goStage1(state.stage1-1); e.preventDefault(); }
+    else if(state.tab===2){ stopPlay2(); goStage2(state.stage2-1); e.preventDefault(); }
+  } else if(e.code==="Space" || e.key===" "){
+    if(tag==="BUTTON" || tag==="INPUT") return;
+    if(state.tab===1){ document.getElementById("play1").click(); e.preventDefault(); }
+    else if(state.tab===2){ document.getElementById("play2").click(); e.preventDefault(); }
+  }
+});
+
+/* ============================= INIT ============================= */
+
+function renderAll(){
+  renderBanner();
+  renderTab1();
+  renderTab2();
+}
+renderAll();
+
+})();
+</script>
+</body>
+</html>
