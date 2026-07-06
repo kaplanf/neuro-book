@@ -92,6 +92,45 @@
   .resetbtn:hover{border-color:var(--recep);color:var(--recep)}
   .stackhint{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.04em}
 
+  /* ---------- profile (sex / cycle) ---------- */
+  .profilewrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+  .pfield{display:flex;flex-direction:column;gap:6px}
+  .pfield .plbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--hair);border-radius:9px;padding:2px;gap:2px;flex-wrap:wrap}
+  .seg button{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--dim);background:transparent;border:none;
+    border-radius:7px;padding:7px 12px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .seg button:hover{color:var(--ink)}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+  .seg.tint button[aria-pressed="true"]{background:var(--sc,#e0568f);color:#fff}
+  .pnote{font-family:var(--serif);font-style:italic;font-size:12.5px;color:var(--dim);margin-top:9px;line-height:1.45;min-height:2px}
+  .pill-toggle{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--dim);cursor:pointer;margin-top:4px}
+  .pill-toggle input{accent-color:#e0568f}
+
+  /* ---------- fine-tune (dose per active influence) ---------- */
+  .finetune{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .finetune:empty{margin-top:0}
+  .ftrow{display:flex;flex-direction:column;gap:6px;background:var(--panel-2);border:1px solid var(--hair);border-radius:11px;padding:11px 13px;
+    border-left:3px solid var(--fc,var(--da));animation:fade .3s ease}
+  .ftrow .fttop{display:flex;align-items:center;gap:8px}
+  .ftrow .ftname{font-size:13.5px;color:var(--ink)}
+  .ftrow .ftone{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--dim);line-height:1.4}
+  .ftopts{display:flex;flex-wrap:wrap;gap:5px}
+  .ftopt{font-family:var(--mono);font-size:10.5px;letter-spacing:.01em;color:var(--dim);background:var(--panel);
+    border:1px solid var(--hair);border-radius:7px;padding:6px 10px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .ftopt:hover{border-color:var(--fc);color:var(--ink)}
+  .ftopt[aria-pressed="true"]{background:color-mix(in srgb,var(--fc) 18%,var(--panel));border-color:var(--fc);color:var(--ink)}
+
+  /* ---------- flow readiness ---------- */
+  .flowrow{margin:16px 0 2px;padding:14px 15px;border:1px solid var(--hair);border-radius:12px;
+    background:linear-gradient(120deg,color-mix(in srgb,var(--enz) 6%,var(--panel)),var(--panel))}
+  .flowhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .flowlbl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .flowstate{font-family:var(--serif);font-size:15px;transition:color .4s}
+  .flowtrack{position:relative;height:9px;border-radius:6px;background:var(--hair-2);overflow:visible}
+  .flowfill{position:absolute;left:0;top:0;bottom:0;border-radius:6px;transition:width .7s cubic-bezier(.34,1.3,.5,1),background .4s}
+  .flowmark{position:absolute;right:0;top:-19px;font-family:var(--mono);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .flowwhy{font-family:var(--serif);font-style:italic;font-size:12.5px;color:var(--dim);margin-top:10px;line-height:1.45}
+
   /* ---------- state of mind ---------- */
   .mind{background:var(--panel);border:1px solid var(--hair);border-radius:16px;padding:22px 22px 20px;box-shadow:var(--shadow)}
   .mind .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
@@ -214,6 +253,9 @@
   footer b{color:var(--dim)}
 
   /* ---------- concept library ---------- */
+  .learnlabel{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:6px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--hair)}
+  .learnlabel .ll-n{color:var(--da);font-weight:600}
+  .libintro{color:var(--dim);font-size:14.5px;max-width:70ch;margin-bottom:16px}
   .libbar{display:flex;flex-direction:column;gap:14px;margin-bottom:16px;position:sticky;top:96px;z-index:20;
     background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);padding:8px 0 12px}
   .searchwrap{position:relative;max-width:440px}
@@ -247,6 +289,9 @@
     padding:7px 10px;border-radius:7px;background:var(--panel-2);border:1px dashed var(--hair);display:flex;align-items:center;gap:7px}
   .ccard .cscn b{color:var(--ink);font-weight:600}
   .ccard .cscn .go{color:var(--da);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .ccard .cuse{font-size:12.5px;color:var(--dim);line-height:1.5;margin-bottom:11px;padding:9px 11px;border-radius:8px;
+    background:color-mix(in srgb,var(--enz) 7%,var(--panel-2));border:1px solid var(--hair-2)}
+  .ccard .cuse .ul{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--enz);margin-bottom:4px}
   .libempty{font-family:var(--mono);font-size:13px;color:var(--faint);padding:40px 0;text-align:center}
 
   /* cross-link highlight flash on diagram element */
@@ -301,8 +346,11 @@
   <p class="sub">These aren't mutually exclusive — a bad night's sleep, two drinks and a stressful week stack. Combine them and the model composes the result, in molecules and in mood.</p>
   <div class="deskgrid">
     <div class="influences">
-      <div class="cap">Influences — combinable</div>
+      <div class="cap">Who — your baseline body</div>
+      <div class="profilewrap" id="profileWrap"></div>
+      <div class="cap" style="margin-top:20px">Lifestyle — combinable, each with a dose</div>
       <div class="togglewrap" id="toggleWrap"></div>
+      <div class="finetune" id="fineTune"></div>
       <div class="deskfoot">
         <button class="resetbtn" id="clearBtn">↺ Clear all (healthy)</button>
         <span class="stackhint" id="stackHint">nothing active — baseline</span>
@@ -313,6 +361,11 @@
       <div class="moodword mono" id="moodWord">Available</div>
       <div class="felt" id="feltLine">Balanced and available — motivation on tap, mood level, mind clear.</div>
       <div class="meters" id="meters"></div>
+      <div class="flowrow">
+        <div class="flowhead"><span class="flowlbl">Flow readiness</span><span class="flowstate" id="flowState">flow within reach</span></div>
+        <div class="flowtrack"><span class="flowfill" id="flowFill"></span><span class="flowmark" id="flowVal">–</span></div>
+        <div class="flowwhy" id="flowWhy">the dopamine–noradrenaline–focus ensemble is close to balanced.</div>
+      </div>
       <div class="vamap">
         <div class="vabox" id="vaBox">
           <span class="ax axh"></span><span class="ax axv"></span>
@@ -334,9 +387,8 @@
   <button class="tab" role="tab" data-view="circuit" aria-selected="true"><span class="ti">01</span>Circuit flow</button>
   <button class="tab" role="tab" data-view="synapse3d" aria-selected="false"><span class="ti">02</span>3D synapse</button>
   <button class="tab" role="tab" data-view="gut" aria-selected="false"><span class="ti">03</span>Gut · vagus · brain</button>
-  <button class="tab" role="tab" data-view="concepts" aria-selected="false"><span class="ti">04</span>Concepts</button>
-  <button class="tab" role="tab" data-view="library" aria-selected="false"><span class="ti">05</span>Concept library</button>
-  <button class="tab" role="tab" data-view="molecules" aria-selected="false"><span class="ti">06</span>Molecules</button>
+  <button class="tab" role="tab" data-view="concepts" aria-selected="false"><span class="ti">04</span>Concepts &amp; library</button>
+  <button class="tab" role="tab" data-view="molecules" aria-selected="false"><span class="ti">05</span>Molecules</button>
 </div></div></div>
 
 <main class="wrap">
@@ -400,7 +452,7 @@
       <button id="gPrevBtn">‹ Prev</button>
       <button id="gNextBtn">Next ›</button>
       <button id="gResetBtn">Reset</button>
-      <div class="steplabel">Stage <b id="gStepNo">0</b> / 6 — <span id="gStepName">overview</span></div>
+      <div class="steplabel">Stage <b id="gStepNo">0</b> / 9 — <span id="gStepName">overview</span></div>
     </div>
     <div class="plate">
       <div class="banner" id="gBanner"></div>
@@ -420,9 +472,10 @@
   <!-- ===== CONCEPTS ===== -->
   <section class="view" id="view-concepts" role="tabpanel">
     <div class="viewhead">
-      <h3>The bigger ideas</h3>
-      <p>The circuit is the mechanism. These are what it's <em>for</em> — how a brain learns what to want, decides whether to act on it, and rebuilds itself around whatever you repeat.</p>
+      <h3>Learn the ideas</h3>
+      <p>The circuit is the mechanism — these are what it's <em>for</em>. Start with the three interactive deep-dives, then browse the full library below: every concept is a card you can search, filter, and click through to the diagrams.</p>
     </div>
+    <div class="learnlabel"><span class="ll-n">Start here</span> · three ideas you can play with</div>
 
     <article class="concept">
       <div class="chead">
@@ -490,14 +543,10 @@
         </div>
       </div>
     </article>
-  </section>
 
-  <!-- ===== CONCEPT LIBRARY ===== -->
-  <section class="view" id="view-library" role="tabpanel">
-    <div class="viewhead">
-      <h3>Concept library</h3>
-      <p>The full map — synthesis, receptors, volition, the gut, stress, substances, supplements, foods, hormones, sleep. Filter by category or search; click a <span style="color:var(--da)">coloured molecular tag</span> to jump to it in the diagrams.</p>
-    </div>
+    <!-- unified library -->
+    <div class="learnlabel" style="margin-top:34px"><span class="ll-n">Browse all</span> · the complete concept library</div>
+    <p class="libintro">Every idea behind this app — 100+ concepts across 15 categories, from synthesis to the gut to hormones. Filter by category or search by any word or molecule; click a <span style="color:var(--da)">coloured molecular tag</span> to jump to it in the diagrams, or a scenario link to load that state.</p>
     <div class="libbar">
       <div class="searchwrap">
         <span class="sicon" aria-hidden="true">⌕</span>
@@ -545,8 +594,53 @@
      ============================================================ */
   const BASE=[     {name:"overview",title:"A working synapse, at rest",text:"Dopamine neurons stay quiet until an action potential arrives. Around them sits the machinery to build, store, release, read and clear dopamine — under a GABA interneuron brake.",mech:"",on:[]},     {name:"synthesis",title:"1 · Synthesis — tyrosine to dopamine",text:"Tyrosine → L-DOPA by tyrosine hydroxylase (TH), the rate-limiting step needing iron, BH₄ and oxygen. AADC then yields dopamine.",mech:"Tyr → L-DOPA → DA · rate-limited by TH",on:["gSynthesis"]},     {name:"storage",title:"2 · Storage — VMAT2 fills the vesicles",text:"Free cytoplasmic dopamine oxidizes into toxic quinones, so VMAT2 pumps it into vesicles using a proton gradient — an ATP cost. Vesicles wait in reserve, recycling and readily-releasable pools.",mech:"VMAT2 + H⁺-ATPase → loading (ATP-dependent)",on:["gVesicles"]},     {name:"firing",title:"3 · Firing — an action potential triggers fusion",text:"The neuron fires, Ca²⁺ floods in, SNARE proteins fuse a docked vesicle, and dopamine empties into the cleft as a phasic burst. Whether firing happens is set by glutamate against GABA.",mech:"depolarization → Ca²⁺ → SNARE fusion → exocytosis",on:["gVesicles","fusionSite","apSpark"]},     {name:"release",title:"4 · Release — dopamine crosses the cleft",text:"Dopamine diffuses across the ~20 nm gap. The message is the brief high-concentration pulse — the transient, not the average — read before clearance.",mech:"diffusion across cleft · the phasic signal",on:["fusionSite"]},     {name:"binding",title:"5 · Reception — D1 and D2 read the signal",text:"D1 (Gs) raises cAMP → 'go'. D2 (Gi) lowers it → 'no-go'. D2 autoreceptors on the sender also sense release and tell it to slow.",mech:"D1 (Gs,↑cAMP,go) · D2 (Gi,↓cAMP,no-go)",on:["gRecep","autorecGroup"]},     {name:"clearance",title:"6 · Clearance — reuptake and degradation",text:"DAT pumps dopamine back for repackaging — dominant in the striatum. The rest is broken down by MAO-B and COMT to DOPAC and HVA.",mech:"DAT reuptake + MAO-B/COMT → DOPAC → HVA",on:["datGroup","gDegrade","autorecGroup"]},     {name:"gaba",title:"7 · The brake — GABA gates the firing",text:"A GABA interneuron releases onto the dopamine terminal, hyperpolarizing it and suppressing firing.",mech:"GABA → GABA-R → hyperpolarization → ↓ firing",on:["gGaba","gabaRecep","fusionSite"]}   ];
   const PATCH={     healthy:{},     alcohol:{       firing:{text:"Alcohol silences the GABA interneuron, so its brake lifts and the dopamine neuron fires when it otherwise wouldn't — a bigger, disinhibited burst crosses the cleft.",mech:"↓GABA → disinhibition → ↑ firing probability",delta:"Brake OFF → exaggerated phasic release"},       storage:{text:"Wine carries tyramine, which enters the terminal and reverses VMAT2 — dumping vesicular dopamine straight into the cytoplasm and out, draining stores faster than they refill.",mech:"tyramine → VMAT2 reversal → store depletion",delta:"Vesicular stores dumped by tyramine"},       gaba:{text:"This is the core mechanism: ethanol enhances GABA elsewhere but silences these specific VTA interneurons. Repeated silencing makes them over-compensate — more inhibition at baseline, the rebound behind tolerance and withdrawal.",mech:"chronic disinhibition → GABA rebound → tolerance",delta:"Brake silenced now; over-tightens later"}     },     thc:{       firing:{text:"THC activates CB1 receptors on the same GABA interneurons, silencing them — a different receptor, the same lifted brake and disinhibited dopamine burst.",mech:"CB1 → ↓GABA → disinhibited firing",delta:"CB1-mediated disinhibition of release"},       gaba:{text:"CB1 activation suppresses the GABA brake. Chronic THC downregulates CB1 and blunts the brain's own anandamide, so between uses the stress-buffering and inhibitory balance sit below baseline.",mech:"CB1 agonism → brake off; chronic → CB1 downreg",delta:"Brake off now; endocannabinoid tone depleted later"},       clearance:{text:"DAT and enzymatic clearance run normally, but enteric CB1 elsewhere slows gut motility — the systemic signature of THC that shows up in the gut–vagus panel.",mech:"central clearance intact · enteric CB1 slows gut",delta:"Gut motility braked (see gut panel)"}     },     sleep:{       storage:{text:"Vesicle refilling is slow-wave-sleep dependent and ATP-hungry. Without SWS, VMAT2 can't reload the pools overnight — the terminal starts the day with half-empty vesicles and a drained reserve.",mech:"no SWS → low ATP → VMAT2 under-loads vesicles",delta:"Vesicles under-refilled — no overnight recovery"},       firing:{text:"The action potential fires, but there's little to release — a thin burst from half-empty vesicles. Same signal command, weaker output.",mech:"depleted pools → small phasic burst",delta:"Weak burst — little cargo to release"},       clearance:{text:"Clearance proceeds normally, but glymphatic waste removal (also SWS-dependent) lags, letting oxidized dopamine byproducts accumulate and stress the neuron.",mech:"DAT/enzymes normal · glymphatic clearance impaired",delta:"Waste byproducts accumulate without SWS"}     },     gut:{       synthesis:{text:"Inflammatory cytokines upregulate IDO, diverting tryptophan into the kynurenine pathway. Precursor supply for monoamines drops and neurotoxic quinolinic acid rises — synthesis is starved from upstream.",mech:"cytokines → IDO → tryptophan stolen to kynurenine",delta:"Precursors diverted; quinolinic acid ↑"},       binding:{text:"Quinolinic acid is an NMDA agonist. Excess glutamatergic excitation reaches the postsynaptic neuron alongside the dopamine signal — the molecular basis of agitation layered on low drive.",mech:"quinolinic acid → NMDA overactivation → excitotoxicity",delta:"NMDA excitotoxicity → agitation with low drive"},       gaba:{text:"The dopamine circuit fires normally at the brake, but the whole terminal sits in an inflamed field — cytokines and glutamate excess destabilize signaling from outside the synapse.",mech:"neuroinflammatory field destabilizes the circuit",delta:"Inflammatory field around the terminal"}     },     stress:{       synthesis:{text:"Sustained cortisol first drives TH transcription up, then — to protect the neuron from oxidative overload — downregulates it. Synthesis capacity falls even as demand stays high.",mech:"chronic cortisol → TH downregulated",delta:"TH downregulated by chronic cortisol"},       storage:{text:"Cortisol keeps the neuron firing at elevated rates, so vesicular demand outruns what synthesis can refill. Stores thin under constant draw.",mech:"↑ firing demand > synthesis → stores thin",delta:"Demand outruns synthesis — pools thin"},       clearance:{text:"Cortisol raises DAT expression, sharpening reuptake — useful acutely, but combined with low synthesis it strips the synapse of dopamine faster than it can be replaced.",mech:"cortisol → ↑DAT → faster clearance of a scarce signal",delta:"Faster reuptake of an already-scarce signal"}     },     depleted:{       storage:{text:"Every pool — readily-releasable, recycling, reserve — is drawn down. The terminal runs on fumes; each release takes longer to replenish.",mech:"all vesicle pools depleted",delta:"Vesicles depleted across all pools"},       firing:{text:"A weak burst from thin vesicles. The command fires but the output barely registers above baseline.",mech:"thin pools → minimal phasic output",delta:"Minimal burst — running on reserve"},       binding:{text:"D2 receptors are upregulated and hypersensitive from chronic low signal. The small burst is over-read — a disproportionate craving spike followed by a crash below baseline. The receiver is unstable.",mech:"D2 ↑↑ hypersensitive → over-read → craving + crash",delta:"D2 upregulated — small signal over-read → crash"},       clearance:{text:"Upregulated D2 autoreceptors on the sender detect the little dopamine that's released and prematurely shut down firing — the depletion deepens its own hole.",mech:"D2 autoreceptor ↑ → premature self-inhibition",delta:"Autoreceptors ↑ → neuron self-inhibits early"}     }   };
-  const GBASE=[     {name:"overview",title:"The gut–vagus–brain loop",text:"Gut bacteria don't ship neurotransmitters to the brain. They control precursor supply, barrier integrity, and — via the vagus — the signaling tone that decides whether the brain can make and regulate its own.",mech:""},     {name:"barrier",title:"1 · The barrier — enterocytes and tight junctions",text:"A single layer of enterocytes, sealed by tight junctions (claudin, occludin, ZO-1), separates gut contents from the bloodstream. Intact seals keep bacterial products out.",mech:"tight junctions sealed → no LPS translocation"},     {name:"microbes",title:"2 · Microbial metabolites — SCFAs and tryptophan",text:"A diverse microbiome ferments fiber into short-chain fatty acids (butyrate) and metabolizes tryptophan into beneficial indoles. Butyrate feeds enterocytes and crosses into the brain to raise BDNF and calm microglia.",mech:"fiber → SCFAs (butyrate) · tryptophan → indoles"},     {name:"serotonin",title:"3 · Gut serotonin — local, not brain-bound",text:"Enterochromaffin cells make 95% of the body's serotonin. It runs motility and secretion but doesn't cross the blood-brain barrier — the gut shapes brain serotonin by controlling precursor supply, not by shipping the molecule.",mech:"EC cells → 5-HT (local: motility, vagal signaling)"},     {name:"vagus",title:"4 · The vagus — the hardwire",text:"Bacterial metabolites and gut serotonin activate receptors on vagal nerve endings. The signal travels up the vagus (80% afferent) to the brainstem — neural, not bloodstream.",mech:"metabolites → vagal afferents → electrical signal up"},     {name:"nts",title:"5 · NTS — the integration hub",text:"Vagal afferents terminate in the nucleus tractus solitarius, one of the most connected structures in the brain. It reads the gut's state and relays it onward.",mech:"vagus → NTS (brainstem integration)"},     {name:"targets",title:"6 · Targets — raphe, VTA, LC, hypothalamus, amygdala",text:"From the NTS, gut signals modulate serotonin firing (raphe), dopamine tone (VTA), noradrenergic arousal (LC), the cortisol axis (hypothalamus) and threat gain (amygdala). A calm gut sends 'safe' signals that steady all five.",mech:"NTS → raphe · VTA · LC · hypothalamus · amygdala"}   ];
-  const GPATCH={     healthy:{},     alcohol:{       barrier:{text:"Ethanol's metabolite acetaldehyde activates MLCK, prying apart tight junctions within hours. The barrier leaks — bacterial LPS begins translocating into the blood.",mech:"acetaldehyde → MLCK → junctions open → LPS leak",delta:"Tight junctions opened by acetaldehyde"},       targets:{text:"Translocated LPS triggers TLR4 → inflammatory cytokines → IDO, stealing tryptophan from serotonin. The vagus also carries a destabilized signal, so raphe and HPA outputs swing.",mech:"LPS → TLR4 → cytokines → IDO; vagal signal destabilized",delta:"LPS-driven inflammation reaches the brain"}     },     thc:{       serotonin:{text:"Enteric CB1 activation slows motility and dampens enterochromaffin signaling — the gut's serotonin-driven contractions become sluggish and uncoordinated.",mech:"CB1 → ↓ motility, ↓ EC signaling",delta:"Enteric CB1 brakes gut motility"},       vagus:{text:"Altered gut motility and CB1 tone change the traffic the vagus carries — the gut→brain signal shifts, part of why chronic THC reshapes mood and stress reactivity.",mech:"CB1-altered gut → shifted vagal traffic",delta:"Vagal signal altered by enteric CB1"}     },     gut:{       barrier:{text:"Inflammation and dysbiosis degrade the tight junctions directly. The barrier becomes leaky — the central event of the whole cascade.",mech:"dysbiosis + cytokines → junction breakdown",delta:"Barrier compromised — leaky gut"},       microbes:{text:"A narrowed, dysbiotic microbiome produces fewer SCFAs and diverts tryptophan toward inflammatory metabolites instead of beneficial indoles — less butyrate to calm microglia.",mech:"dysbiosis → ↓SCFAs, tryptophan mis-routed",delta:"SCFA production collapses; less butyrate"},       targets:{text:"Cytokines from the leaky gut activate IDO brain-wide, starving serotonin synthesis and generating quinolinic acid. The vagus carries a chronic 'threat' signal — amygdala gain up, HPA overactive.",mech:"LPS → cytokines → IDO; vagus signals threat",delta:"Chronic inflammatory signal → serotonin starved"}     },     sleep:{       vagus:{text:"Vagal tone (measurable as heart-rate variability) drops with sleep loss. Even a healthy gut's 'safe' signals arrive attenuated — the cable is degraded regardless of what the gut sends.",mech:"↓ vagal tone (low HRV) → weak gut→brain signal",delta:"Vagal tone degraded — signal arrives weak"},       targets:{text:"With weak vagal input, the NTS under-modulates its targets — raphe, VTA and amygdala lose the steadying gut signal, amplifying the daytime dysregulation.",mech:"weak vagal input → under-modulated targets",delta:"Targets lose steadying gut input"}     },     stress:{       vagus:{text:"Chronic sympathetic dominance suppresses vagal (parasympathetic) tone. The gut→brain 'safe' channel is throttled while the stress axis runs unopposed.",mech:"sympathetic dominance → ↓ vagal tone",delta:"Vagal brake suppressed by chronic stress"},       targets:{text:"Cortisol sensitizes the amygdala and the NTS relays a threat-biased signal — the loop reinforces itself: stress lowers vagal tone, which raises stress reactivity.",mech:"cortisol → amygdala gain ↑ → self-reinforcing loop",delta:"Self-reinforcing stress ↔ low vagal tone"}     },     depleted:{       microbes:{text:"A monotonous same-meal diet narrows microbial diversity, favoring gas-producing overgrowth and reducing the SCFA and precursor output the brain depends on.",mech:"low diet diversity → narrowed microbiome",delta:"Diet monotony narrows the microbiome"},       targets:{text:"With chronically low SCFAs, weak vagal tone and ongoing low-grade inflammation, the gut feeds the same depletion seen in the synapse — less precursor, more inflammation, unsteady modulation.",mech:"low SCFA + weak vagus + inflammation → feeds depletion",delta:"Gut feeds the synaptic depletion loop"}     }   };
+  const GBASE=[
+  {name:"overview",title:"The gut–vagus–brain loop",text:"Gut bacteria don't ship neurotransmitters to the brain. They control precursor supply, barrier integrity, and — via the vagus — the signaling tone that decides whether the brain can make and regulate its own.",mech:""},
+  {name:"barrier",title:"1 · The barrier — enterocytes and tight junctions",text:"A single layer of enterocytes, sealed by tight junctions (claudin, occludin, ZO-1), separates gut contents from the bloodstream. Intact seals keep bacterial products out — a leak here becomes inflammation everywhere.",mech:"claudin / occludin / ZO-1 sealed → no LPS translocation"},
+  {name:"microbes",title:"2 · Microbial metabolites — SCFAs and tryptophan",text:"A diverse microbiome ferments dietary fiber into short-chain fatty acids and metabolizes tryptophan into beneficial indoles. Diversity is the health signal: a narrow, monotonous diet narrows the ecosystem and everything it produces.",mech:"fiber → SCFAs · tryptophan → indoles · diversity = resilience"},
+  {name:"butyrate",title:"3 · Butyrate — the messenger that crosses over",text:"Butyrate, the star short-chain fatty acid, fuels the enterocytes themselves, drives tight-junction expression (sealing the very barrier that made it), and is small enough to cross the blood–brain barrier — where it raises BDNF and calms microglia by inhibiting HDACs. One molecule doing gut repair and brain maintenance at once.",mech:"butyrate → enterocyte fuel + tight junctions + BBB → ↑BDNF, ↓microglia (HDAC inhibition)"},
+  {name:"serotonin",title:"4 · Gut serotonin — local, not brain-bound",text:"Enterochromaffin cells make ~95% of the body's serotonin. It runs motility and secretion and activates vagal endings — but it does NOT cross the blood–brain barrier. The gut shapes brain serotonin only by controlling the tryptophan supply upstream.",mech:"EC cells → 5-HT (motility + vagal signal) · gut 5-HT ∤ blood–brain barrier"},
+  {name:"vagus",title:"5 · The vagus — the hardwire",text:"Bacterial metabolites and gut serotonin activate receptors on vagal afferent endings. The signal travels up the vagus — ~80% of its fibers run gut→brain — as fast electrical traffic, not slow bloodstream chemistry. The classic proof: cut the vagus and a mood-altering probiotic stops working.",mech:"metabolites + 5-HT → vagal afferents → ascending signal (neural, not humoral)"},
+  {name:"vagaltone",title:"6 · Vagal tone — how loud the line runs",text:"Vagal tone is the strength of that calming channel, read from outside as heart-rate variability (HRV). High tone lets the gut's 'safe' signals arrive with force and holds you in rest-and-digest; low tone means even a healthy gut's messages arrive faint. Raised by slow breathing, exercise and sleep; lowered by alcohol and chronic stress.",mech:"vagal tone ≈ HRV · ↑ breath / exercise / sleep · ↓ alcohol / chronic stress"},
+  {name:"mmc",title:"7 · The cleanup wave (migrating motor complex)",text:"Between meals a wave — the migrating motor complex — sweeps the small intestine clean, but only during fasting and only with parasympathetic (vagal) tone. Constant snacking, sympathetic stress and caffeine suppress it, leaving stasis that lets bacteria overgrow (SIBO) — the mechanistic root of stress-and-grazing bloating.",mech:"fasting + vagal tone → MMC sweep · stress / snacking → stasis → SIBO / bloating"},
+  {name:"nts",title:"8 · NTS — the integration hub",text:"Vagal afferents terminate in the nucleus tractus solitarius, one of the most richly connected nodes in the brainstem. It reads the gut's state, integrates it with other body signals, and relays the verdict onward to the mood and arousal systems.",mech:"vagus → NTS (brainstem integration hub)"},
+  {name:"targets",title:"9 · Targets — raphe, VTA, LC, hypothalamus, amygdala",text:"From the NTS, gut signals modulate serotonin firing (raphe), dopamine tone (VTA), noradrenergic arousal (LC), the cortisol axis (hypothalamus) and threat gain (amygdala). A calm, well-fed gut sends 'safe' signals that steady all five; an inflamed one biases every one toward threat.",mech:"NTS → raphe(5-HT) · VTA(DA) · LC(NE) · hypothalamus(HPA) · amygdala(threat)"}
+];
+  const GPATCH={
+  healthy:{},
+  alcohol:{
+    barrier:{text:"Ethanol's metabolite acetaldehyde activates MLCK, prying apart tight junctions within hours. The barrier leaks — bacterial LPS begins translocating into the blood.",mech:"acetaldehyde → MLCK → junctions open → LPS leak",delta:"Tight junctions opened by acetaldehyde"},
+    butyrate:{text:"With the barrier leaking and repeated exposure narrowing the flora, butyrate output falls just when it's needed most to reseal the junctions — the repair signal fades as the damage grows.",mech:"↓ butyrate → weaker junction repair while barrier is breached",delta:"Less butyrate to reseal the leak"},
+    vagaltone:{text:"Alcohol acutely lowers vagal tone (you can watch HRV drop overnight after drinking) — so even the gut's normal signals reach the brain weaker, on top of the inflammatory noise.",mech:"alcohol → ↓ HRV / vagal tone",delta:"Vagal tone drops after drinking"},
+    targets:{text:"Translocated LPS triggers TLR4 → inflammatory cytokines → IDO, stealing tryptophan from serotonin. The vagus also carries a destabilized signal, so raphe and HPA outputs swing.",mech:"LPS → TLR4 → cytokines → IDO; vagal signal destabilized",delta:"LPS-driven inflammation reaches the brain"}
+  },
+  thc:{
+    serotonin:{text:"Enteric CB1 activation slows motility and dampens enterochromaffin signaling — the gut's serotonin-driven contractions become sluggish and uncoordinated.",mech:"CB1 → ↓ motility, ↓ EC signaling",delta:"Enteric CB1 brakes gut motility"},
+    mmc:{text:"Enteric CB1 slows motility, which blunts the cleanup wave — food and gas linger, giving the bloating and upward pressure (looser lower-esophageal tone) that regular users know well.",mech:"CB1 → ↓ motility → weaker MMC → stasis, bloating, reflux",delta:"Cleanup wave slowed by enteric CB1"},
+    vagus:{text:"Altered gut motility and CB1 tone change the traffic the vagus carries — the gut→brain signal shifts, part of why chronic THC reshapes mood and stress reactivity.",mech:"CB1-altered gut → shifted vagal traffic",delta:"Vagal signal altered by enteric CB1"}
+  },
+  gut:{
+    barrier:{text:"Inflammation and dysbiosis degrade the tight junctions directly. The barrier becomes leaky — the central event of the whole cascade.",mech:"dysbiosis + cytokines → junction breakdown",delta:"Barrier compromised — leaky gut"},
+    microbes:{text:"A narrowed, dysbiotic microbiome produces fewer SCFAs and diverts tryptophan toward inflammatory metabolites instead of beneficial indoles.",mech:"dysbiosis → ↓ SCFAs, tryptophan mis-routed",delta:"SCFA production collapses"},
+    butyrate:{text:"Little butyrate now reaches the brain — so BDNF support fades and microglia, unrestrained, tip into an inflammatory state that amplifies everything downstream. The gut's own anti-inflammatory brake is gone.",mech:"↓ butyrate → ↓ BDNF, microglia activated (no HDAC brake)",delta:"Brain loses its butyrate anti-inflammatory brake"},
+    targets:{text:"Cytokines from the leaky gut activate IDO brain-wide, starving serotonin synthesis and generating quinolinic acid. The vagus carries a chronic 'threat' signal — amygdala gain up, HPA overactive.",mech:"LPS → cytokines → IDO; vagus signals threat",delta:"Chronic inflammatory signal → serotonin starved"}
+  },
+  sleep:{
+    vagaltone:{text:"Vagal tone (heart-rate variability) drops with sleep loss. Even a healthy gut's 'safe' signals arrive attenuated — the cable is degraded regardless of what the gut sends.",mech:"↓ HRV → weak gut→brain signal",delta:"Vagal tone degraded by sleep loss"},
+    vagus:{text:"The vagus is intact but under-driven — the gut's messages travel up a quieter line, so the brain gets a faded read of an otherwise-fine gut.",mech:"low tone → attenuated afferent signal",delta:"Signal arrives faint"},
+    targets:{text:"With weak vagal input, the NTS under-modulates its targets — raphe, VTA and amygdala lose the steadying gut signal, amplifying the daytime dysregulation.",mech:"weak vagal input → under-modulated targets",delta:"Targets lose steadying gut input"}
+  },
+  stress:{
+    vagaltone:{text:"Chronic sympathetic dominance actively suppresses vagal (parasympathetic) tone — this isn't neglect, it's the stress branch clamping the calm branch down. HRV collapses.",mech:"sympathetic dominance → active vagal suppression",delta:"Vagal brake clamped by stress"},
+    mmc:{text:"Sympathetic drive halts the migrating motor complex — the cleanup wave needs rest-and-digest to run. Grazing under stress leaves the small intestine stagnant, feeding overgrowth and bloating.",mech:"sympathetic tone → MMC halted → stasis → SIBO",delta:"Stress stalls the gut's cleanup wave"},
+    targets:{text:"Cortisol sensitizes the amygdala and the NTS relays a threat-biased signal — the loop reinforces itself: stress lowers vagal tone, which raises stress reactivity.",mech:"cortisol → amygdala gain ↑ → self-reinforcing loop",delta:"Self-reinforcing stress ↔ low vagal tone"}
+  },
+  depleted:{
+    microbes:{text:"A monotonous same-meal diet narrows microbial diversity, favoring gas-producing overgrowth and reducing the SCFA and precursor output the brain depends on.",mech:"low diet diversity → narrowed microbiome",delta:"Diet monotony narrows the microbiome"},
+    butyrate:{text:"A narrowed flora makes little butyrate, so the brain loses a key anti-inflammatory, BDNF-raising input — quietly feeding the same low, unsteady baseline seen at the synapse.",mech:"↓ diversity → ↓ butyrate → ↓ BDNF support",delta:"Low butyrate feeds the depletion"},
+    targets:{text:"With chronically low SCFAs, weak vagal tone and ongoing low-grade inflammation, the gut feeds the same depletion seen in the synapse — less precursor, more inflammation, unsteady modulation.",mech:"low SCFA + weak vagus + inflammation → feeds depletion",delta:"Gut feeds the synaptic depletion loop"}
+  }
+};
   const MOL=[     {name:"Dopamine",tag:"neurotransmitter",color:"#e8850c",svg:catechol("NH₂",false),desc:"Catecholamine: catechol ring (two hydroxyls) + ethylamine tail. Built from tyrosine; carries the reward-prediction and motivation signal."},     {name:"Tyrosine",tag:"precursor · amino acid",color:"#128a63",svg:tyrosineSVG(),desc:"Dietary substrate. One ring hydroxyl; TH adds the second to make L-DOPA — the rate-limiting step."},     {name:"L-DOPA",tag:"intermediate",color:"#128a63",svg:catechol("tail",true),desc:"Catechol now complete; AADC removes the carboxyl to yield dopamine. Crosses the blood-brain barrier, unlike dopamine."},     {name:"GABA",tag:"inhibitory transmitter",color:"#9b3fd4",svg:gabaSVG(),desc:"γ-aminobutyric acid — the main inhibitory signal. From the interneuron it hyperpolarizes the dopamine terminal and brakes firing."},     {name:"Glutamate",tag:"excitatory transmitter",color:"#1f8fe0",svg:glutamateSVG(),desc:"Main excitatory signal, opposing GABA. Net firing = glutamate drive − GABA brake."},     {name:"Butyrate (SCFA)",tag:"microbial metabolite",color:"#2aa17a",svg:butyrateSVG(),desc:"Short-chain fatty acid from fiber fermentation. Feeds enterocytes, seals tight junctions, crosses into brain to raise BDNF and calm microglia."},     {name:"VMAT2",tag:"vesicular transporter",color:"#e8850c",svg:transporterSVG("vesicle"),desc:"Pumps cytoplasmic dopamine into vesicles using stored H⁺ energy. Wine tyramine reverses it, dumping stores."},     {name:"DAT",tag:"membrane transporter",color:"#e8850c",svg:transporterSVG("membrane"),desc:"Reuptake pump on the presynaptic membrane. Recaptures released dopamine — fastest way to end the signal in the striatum."},     {name:"D1 / D2 receptors",tag:"GPCRs",color:"#e0295a",svg:receptorSVG(),desc:"Seven-pass GPCRs. D1 (Gs) raises cAMP → 'go'; D2 (Gi) lowers it → 'no-go'. Chronic low signal upregulates D2."},     {name:"MAO-B / COMT",tag:"degradation enzymes",color:"#128a63",svg:enzymeSVG(),desc:"Break dopamine into DOPAC and HVA. Dominant clearance in prefrontal cortex, where reuptake is sparse."},     {name:"Synaptic vesicle",tag:"storage organelle",color:"#e8850c",svg:vesicleSVG(),desc:"Holds ~10³–10⁴ dopamine molecules. Docks and fuses on a firing signal, emptying cargo into the cleft."},     {name:"Vagus nerve",tag:"gut ↔ brain cable",color:"#2aa17a",svg:vagusSVG(),desc:"Longest cranial nerve, ~80% afferent. Carries gut metabolite and serotonin signals up to the NTS — the hardwire behind the gut–brain axis."}   ];
   function catechol(tail,isDopa){return `<svg viewBox="0 0 220 130"><g stroke="#1a2530" stroke-width="1.6" fill="none"><polygon points="70,30 100,30 115,56 100,82 70,82 55,56" fill="#fff"/><line x1="59" y1="49" x2="72" y2="49"/><line x1="59" y1="63" x2="72" y2="63"/><line x1="98" y1="34" x2="98" y2="46"/></g><text x="38" y="40" fill="#e0295a" font-size="12" font-family="monospace">HO</text><text x="38" y="86" fill="#e0295a" font-size="12" font-family="monospace">HO</text><line x1="115" y1="56" x2="145" y2="56" stroke="#1a2530" stroke-width="1.6"/><line x1="145" y1="56" x2="160" y2="42" stroke="#1a2530" stroke-width="1.6"/>${isDopa?'<text x="150" y="46" fill="#9b3fd4" font-size="10" font-family="monospace">CH-NH₂</text><text x="150" y="80" fill="#e0295a" font-size="10" font-family="monospace">COOH</text>':'<text x="163" y="46" fill="#9b3fd4" font-size="11" font-family="monospace">NH₂</text>'}<text x="150" y="112" fill="#8a99a8" font-size="9" font-family="monospace">catechol ${isDopa?'+ amino acid':'+ amine'}</text></svg>`;}   function tyrosineSVG(){return `<svg viewBox="0 0 220 130"><g stroke="#1a2530" stroke-width="1.6" fill="none"><polygon points="70,30 100,30 115,56 100,82 70,82 55,56" fill="#fff"/><line x1="98" y1="34" x2="98" y2="46"/></g><text x="30" y="60" fill="#e0295a" font-size="12" font-family="monospace">HO</text><line x1="55" y1="56" x2="42" y2="56" stroke="#1a2530" stroke-width="1.6"/><line x1="115" y1="56" x2="145" y2="56" stroke="#1a2530" stroke-width="1.6"/><text x="150" y="50" fill="#9b3fd4" font-size="10" font-family="monospace">CH-NH₂</text><text x="150" y="72" fill="#e0295a" font-size="10" font-family="monospace">COOH</text><text x="150" y="112" fill="#8a99a8" font-size="9" font-family="monospace">one OH only</text></svg>`;}   function gabaSVG(){return `<svg viewBox="0 0 220 130"><g font-family="monospace" font-size="13"><text x="20" y="70" fill="#9b3fd4">H₂N</text><line x1="52" y1="65" x2="78" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="78" y1="52" x2="104" y2="65" stroke="#1a2530" stroke-width="1.6"/><line x1="104" y1="65" x2="130" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="130" y1="52" x2="150" y2="65" stroke="#1a2530" stroke-width="1.6"/><text x="150" y="70" fill="#e0295a">COOH</text></g><text x="46" y="105" fill="#8a99a8" font-size="9" font-family="monospace">4-carbon chain · amine + acid</text></svg>`;}   function glutamateSVG(){return `<svg viewBox="0 0 220 130"><g font-family="monospace" font-size="12"><text x="14" y="66" fill="#e0295a">HOOC</text><line x1="54" y1="62" x2="78" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="78" y1="52" x2="100" y2="64" stroke="#1a2530" stroke-width="1.6"/><line x1="100" y1="64" x2="100" y2="86" stroke="#1a2530" stroke-width="1.6"/><text x="86" y="102" fill="#9b3fd4">NH₂</text><line x1="100" y1="64" x2="124" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="124" y1="52" x2="148" y2="64" stroke="#1a2530" stroke-width="1.6"/><text x="150" y="68" fill="#e0295a">COOH</text></g><text x="40" y="118" fill="#8a99a8" font-size="9" font-family="monospace">two acid groups — excitatory</text></svg>`;}   function butyrateSVG(){return `<svg viewBox="0 0 220 130"><g font-family="monospace" font-size="13"><text x="26" y="70" fill="#2aa17a">CH₃</text><line x1="58" y1="65" x2="82" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="82" y1="52" x2="106" y2="65" stroke="#1a2530" stroke-width="1.6"/><line x1="106" y1="65" x2="130" y2="52" stroke="#1a2530" stroke-width="1.6"/><text x="132" y="58" fill="#e0295a">COOH</text></g><text x="42" y="105" fill="#8a99a8" font-size="9" font-family="monospace">4-carbon SCFA · feeds gut + brain</text></svg>`;}   function transporterSVG(where){return `<svg viewBox="0 0 220 130"><rect x="20" y="58" width="180" height="14" fill="#e9eff3" stroke="#c4cfd8"/><rect x="92" y="44" width="36" height="42" rx="7" fill="#e8850c" opacity=".85"/><path d="M110,50 v34" stroke="#fff" stroke-width="2"/><circle cx="110" cy="34" r="6" fill="#e8850c"/><path d="M110,40 l0,6" stroke="#e8850c" stroke-width="2"/><text x="110" y="112" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">pumps DA across ${where==='vesicle'?'vesicle wall':'membrane'}</text></svg>`;}   function receptorSVG(){return `<svg viewBox="0 0 220 130"><rect x="20" y="70" width="180" height="14" fill="#e4efe9" stroke="#c2d2ca"/><g stroke="#e0295a" stroke-width="3" fill="none"><path d="M60,70 q6,-22 12,0 M74,70 q6,-22 12,0 M88,70 q6,-22 12,0"/></g><circle cx="80" cy="46" r="6" fill="#e8850c"/><text x="80" y="104" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">7-pass GPCR · DA docks on top</text></svg>`;}   function enzymeSVG(){return `<svg viewBox="0 0 220 130"><path d="M55,42 q40,-20 70,10 q20,30 -12,45 q-45,20 -68,-10 q-16,-28 10,-45 z" fill="#e2f1ea" stroke="#128a63" stroke-width="1.6"/><circle cx="92" cy="62" r="8" fill="#e8850c"/><text x="150" y="58" fill="#128a63" font-size="11" font-family="monospace">→ DOPAC</text><text x="150" y="76" fill="#128a63" font-size="11" font-family="monospace">→ HVA</text><text x="92" y="115" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">active site cleaves dopamine</text></svg>`;}   function vesicleSVG(){return `<svg viewBox="0 0 220 130"><circle cx="110" cy="62" r="40" fill="none" stroke="#e8850c" stroke-width="1.8"/>${[...Array(8)].map((_,i)=>{const a=i/8*6.283;return `<circle cx="${110+Math.cos(a)*20}" cy="${62+Math.sin(a)*20}" r="5" fill="#e8850c"/>`}).join('')}<rect x="98" y="20" width="24" height="9" rx="2" fill="#e8850c"/><text x="110" y="120" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">~10³–10⁴ DA molecules</text></svg>`;}   function vagusSVG(){return `<svg viewBox="0 0 220 130"><path d="M30,100 C80,40 140,120 190,40" fill="none" stroke="#2aa17a" stroke-width="3"/><circle cx="30" cy="100" r="7" fill="#a9713f"/><circle cx="190" cy="40" r="7" fill="#5b6b7a"/><text x="24" y="120" fill="#a9713f" font-size="9" font-family="monospace">gut</text><text x="176" y="30" fill="#5b6b7a" font-size="9" font-family="monospace">brain</text><text x="70" y="70" fill="#2aa17a" font-size="9" font-family="monospace">80% afferent</text></svg>`;}   function buildMol(){const grid=$('molGrid');MOL.forEach(m=>{const card=document.createElement('div');card.className='molcard';card.innerHTML=`<span class="tag" style="color:${m.color}">${m.tag}</span><h4>${m.name}</h4>${m.svg}<p>${m.desc}</p>`;grid.appendChild(card);});}
   /* ---- categories ---- */
@@ -639,7 +733,19 @@ const ACTORS={
   SWS:{l:"Slow-wave sleep",c:"#3a6ea5"},
   ATP:{l:"ATP",c:"#e8850c"},
   MTHFR:{l:"MTHFR / methylfolate",c:"#128a63"},
-  PPARa:{l:"PPARα",c:"#18b57e"}
+  PPARa:{l:"PPARα",c:"#18b57e"},
+  ghrelin:{l:"Ghrelin",c:"#b07d1a"},
+  orexin:{l:"Orexin",c:"#e8850c"},
+  ketones:{l:"Ketones (BHB)",c:"#18b57e"},
+  folate:{l:"Folate",c:"#128a63"},
+  magnesium:{l:"Magnesium",c:"#3a6ea5"},
+  nitricoxide:{l:"Nitric oxide",c:"#e0295a"},
+  Nrf2:{l:"Nrf2",c:"#18b57e"},
+  theanine:{l:"L-theanine",c:"#2aa17a"},
+  polyphenol:{l:"Polyphenols",c:"#7d4fc0"},
+  autophagy:{l:"Autophagy",c:"#18b57e"},
+  histamine:{l:"Histamine",c:"#e0295a"},
+  prokinetic:{l:"Motility / MMC",c:"#2aa17a"}
 };
 
 /* ---- concepts ---- c = category id, t=term, d=one-liner, m=mechanism, a=[actor keys], s=scenario tie-in ---- */
@@ -758,12 +864,26 @@ const CONCEPTS=[
 {c:11,t:"Beta-caryophyllene (black pepper)",d:"A dietary CB2 agonist — anti-inflammatory endocannabinoid support.",m:"This terpene selectively activates CB2 receptors, adding an anti-inflammatory arm to endocannabinoid-system recovery.",a:["CB1","cytokines"],s:"thc"},
 
 /* 12 · FOODS */
-{c:12,t:"Lamb",d:"A near-complete dopamine-and-androgen food.",m:"Delivers tyrosine, heme iron, B6, B12, creatine and zinc, plus cholesterol/saturated fat for steroidogenesis and the richest L-carnitine (androgen-receptor density). Testosterone in turn upregulates D1/D2 and TH.",a:["tyrosine","iron","testosterone","D1","TH","ATP"]},
-{c:12,t:"Entrecôte (ribeye)",d:"Similar profile, higher in gut-protective carnosine.",m:"Like lamb, but higher carnosine (scavenges acetaldehyde, supports the gut) and creatine; grass-fed adds K2 (Leydig support) and CLA.",a:["tyrosine","iron","testosterone","tightjx"]},
-{c:12,t:"Eggs",d:"Choline, membrane fats and steroid precursors in one package.",m:"Tyrosine plus choline (acetylcholine and HPA support), B6, phosphatidylserine, arachidonic acid (anandamide precursor) and cholesterol (pregnenolone — easing 'pregnenolone steal' under stress).",a:["tyrosine","ACh","cortisol","anandamide"]},
-{c:12,t:"Salad with olive oil",d:"Honest weighting: the oil does most of the work.",m:"Oleic acid → OEA (PPARα, satiety); hydroxytyrosol cools NF-κB; vinegar's acetic acid blunts insulin; pomegranate and carrot fiber add SCFA and cortisol-modulating polyphenols. Vegetables at salad quantities are modest — the olive oil is the high-impact ingredient.",a:["PPARa","cytokines","SCFA","insulin"]},
-{c:12,t:"Kefir",d:"A live delivery vehicle for a vagus-acting strain.",m:"Supplies L. rhamnosus (acts on the vagus→HPA loop) in a fermented matrix that survives stomach acid to reach the gut alive.",a:["microbiome","vagus","HPA"]},
-{c:12,t:"Dark chocolate",d:"A five-pathway low-dose polypharmacy in one food.",m:"Theobromine (smooth, long adenosine antagonism and vasodilation), phenylethylamine, flavanols (NO/BDNF), magnesium, tryptophan and a μ-opioid hit — several gentle levers at once.",a:["adenosine","BDNF","tryptophan","opioid","anandamide"]},
+{c:12,t:"Lamb",d:"A near-complete dopamine-and-androgen food.",m:"Delivers tyrosine, heme iron, B6, B12, creatine and zinc, plus cholesterol/saturated fat for steroidogenesis and the richest L-carnitine (androgen-receptor density). Testosterone in turn upregulates D1/D2 and TH.",a:["tyrosine","iron","testosterone","D1","TH","ATP"],u:"A palm-to-hand-sized portion supplies the synthesis toolkit for the day. As a lunch it favours afternoon drive; pasture-raised is higher in the useful fats. A few times a week, not every meal."},
+{c:12,t:"Entrecôte (ribeye)",d:"Similar profile, higher in gut-protective carnosine.",m:"Like lamb, but higher carnosine (scavenges acetaldehyde, supports the gut) and creatine; grass-fed adds K2 (Leydig support) and CLA.",a:["tyrosine","iron","testosterone","tightjx"],u:"Interchangeable with lamb as a red-meat protein anchor; grass-fed for the K2/CLA. The carnosine makes it a decent choice the day after drinking."},
+{c:12,t:"Eggs",d:"Choline, membrane fats and steroid precursors in one package.",m:"Tyrosine plus choline (acetylcholine and HPA support), B6, phosphatidylserine, arachidonic acid (anandamide precursor) and cholesterol (pregnenolone — easing 'pregnenolone steal' under stress).",a:["tyrosine","ACh","cortisol","anandamide"],u:"2–3 whole eggs at breakfast — the yolk carries the choline and fats, so don't skip it. A strong pairing with a protein-forward morning for focus."},
+{c:12,t:"Salad with olive oil",d:"Honest weighting: the oil does most of the work.",m:"Oleic acid → OEA (PPARα, satiety); hydroxytyrosol cools NF-κB; vinegar's acetic acid blunts insulin; pomegranate and carrot fiber add SCFA and cortisol-modulating polyphenols. Vegetables at salad quantities are modest — the olive oil is the high-impact ingredient.",a:["PPARa","cytokines","SCFA","insulin"],u:"1–2 tbsp of good extra-virgin olive oil is the active dose — pour generously. A splash of vinegar before a carb-heavy meal blunts the glucose spike."},
+{c:12,t:"Kefir",d:"A live delivery vehicle for a vagus-acting strain.",m:"Supplies L. rhamnosus (acts on the vagus→HPA loop) in a fermented matrix that survives stomach acid to reach the gut alive.",a:["microbiome","vagus","HPA"],u:"~100–200 ml daily, ideally with food. Build up slowly if new to fermented dairy; unsweetened, live-culture versions only."},
+{c:12,t:"Dark chocolate",d:"A five-pathway low-dose polypharmacy in one food.",m:"Theobromine (smooth, long adenosine antagonism and vasodilation), phenylethylamine, flavanols (NO/BDNF), magnesium, tryptophan and a μ-opioid hit — several gentle levers at once.",a:["adenosine","BDNF","tryptophan","opioid","anandamide","magnesium"],u:"20–30 g of 80–90% dark chocolate, as an afternoon lift instead of a second coffee. Higher % = more theobromine, less sugar."},
+{c:12,t:"Protein & the tyrosine window",d:"Where your dopamine building blocks actually come from — and when they get in.",m:"Dietary protein supplies tyrosine and (in meat) B6, iron, B12 and creatine — the whole synthesis toolkit. But amino acids compete at the LAT1 gate into the brain, so a big mixed meal blunts any single one getting through.",a:["tyrosine","LAT1","iron","dopamine"],u:"~1.6–2.2 g protein / kg / day for a steady substrate supply. For a focus push, a protein-forward, lower-carb meal favours tyrosine uptake; save heavy carbs for the evening serotonin/wind-down."},
+{c:12,t:"Hunger sharpens focus (ghrelin)",d:"A moderately empty stomach is a pro-dopamine, pro-attention state.",m:"Ghrelin from an empty stomach and orexin both raise VTA dopamine and arousal — an evolved 'go find food' focus. A light hunger is often clearer-headed than a full one; a heavy meal pulls blood to the gut and drops drive.",a:["ghrelin","orexin","VTA","dopamine"],u:"Do your hardest focused work slightly hungry (a few hours after a meal), not right after eating. Don't push into distracting, low-blood-sugar hunger — the window is 'light', not 'starving'."},
+{c:12,t:"Intermittent fasting (time-restricted)",d:"A daily eating window that resets sensitivity and lets the gut clean itself.",m:"A fasting window raises dopamine-receptor sensitivity, triggers mild ketone (BHB) production and BDNF, and — critically — lets the migrating motor complex sweep the small intestine (it only runs when you're not eating), reducing bloating and overgrowth.",a:["ketones","BDNF","prokinetic","dopamine"],u:"Start at 12:12, ease toward 14:10 or 16:8 (e.g. eat 12–8 pm). Keep it consistent; black coffee/water are fine. Not for anyone with a history of disordered eating."},
+{c:12,t:"Longer fasts (18–24h+)",d:"Deeper ketosis and cellular clean-up — a bigger lever, used sparingly.",m:"Extended fasting deepens ketosis (BHB as brain fuel and an HDAC-inhibitor signal), raises BDNF, and drives autophagy — cellular recycling. A well-known clarity/mild-euphoria comes from the ketone-plus-dopamine-sensitivity shift.",a:["ketones","autophagy","BDNF","dopamine"],u:"An occasional 24h fast (e.g. dinner-to-dinner, once a week or fortnight) is plenty for most. Break it gently with protein and fat, not sugar. Skip if underweight, pregnant, or on glucose-lowering meds."},
+{c:12,t:"Leafy greens",d:"The quiet cofactor supply your synthesis enzymes depend on.",m:"Dark greens deliver folate (regenerates BH4 for TH and TPH), magnesium (NMDA/GABA balance, ATP) and dietary nitrate → nitric oxide (blood flow to the brain). Unglamorous, but they unblock the rate-limiting steps.",a:["folate","BH4","magnesium","nitricoxide","TH"],u:"A couple of large handfuls (spinach, rocket, chard) most days — cooked or raw. Pair with fat (olive oil) for absorption. This is a floor, not a peak lever: it prevents deficits rather than pushing highs."},
+{c:12,t:"Cruciferous vegetables",d:"Broccoli-family greens that switch on the cell's own antioxidant defense.",m:"Sulforaphane (highest in broccoli sprouts) activates Nrf2, the master switch for antioxidant and anti-inflammatory genes — indirectly protecting dopamine neurons from the oxidative stress of hard use and inflammation.",a:["Nrf2","cytokines"],u:"Broccoli, cauliflower, cabbage a few times a week; broccoli sprouts are the concentrated form. Light steaming (not boiling to death) preserves the sulforaphane precursor."},
+{c:12,t:"Oily fish",d:"The food form of the anti-inflammation, membrane-fat lever.",m:"Salmon, sardines and mackerel supply EPA (dampens the IFN-γ→IDO tryptophan steal) and DHA (builds the membranes CB1 and receptors sit in). The whole-food route to the omega-3 mechanisms.",a:["IDO","kynurenine","CB1","BDNF"],u:"2–3 servings a week of fatty fish, or ~2 g EPA+DHA daily if supplementing. Small cold-water fish (sardines, anchovies) are lowest in contaminants."},
+{c:12,t:"Berries & deep-pigment fruit",d:"Polyphenols that gently spare dopamine and feed plasticity.",m:"Blueberries and other dark berries carry polyphenols with mild MAO-B inhibition (sparing dopamine) and BDNF-supporting, anti-inflammatory effects — a soft, food-level nudge rather than a drug.",a:["polyphenol","MAOB","BDNF"],u:"A cup of berries most days (fresh or frozen). Low sugar for the sweetness, and they pair well with the fasting-friendly, protein-forward pattern."},
+{c:12,t:"Nuts & seeds",d:"Tyrosine, magnesium and steady fat in a pocketable form.",m:"Almonds, walnuts and pumpkin seeds combine tyrosine, magnesium and slow-burning fat — supporting synthesis substrate and the ATP/NMDA balance without a glucose spike.",a:["tyrosine","magnesium"],u:"A small handful (~30 g) as a snack; walnuts add some plant omega-3. Watch portions — calorie-dense — and prefer unroasted/unsalted."},
+{c:12,t:"Green tea (theanine + caffeine)",d:"Caffeine's focus with the jitter sanded off.",m:"L-theanine raises alpha waves and cortical GABA and blunts caffeine's spike, while the modest caffeine amplifies existing dopamine — together, calm alertness rather than wired arousal.",a:["theanine","adenosine","GABA","dopamine"],u:"1–3 cups through the day; matcha is stronger. A cleaner focus tool than coffee for anxious types — still cut it off ~8 h before bed to protect slow-wave sleep."},
+{c:12,t:"Ginger",d:"A kitchen prokinetic — gets a stalled gut moving.",m:"Ginger speeds gastric emptying and stimulates motility (prokinetic), easing the bloating and stasis that low vagal tone and stress cause — supporting the gut side of the gut-brain loop.",a:["prokinetic","vagus"],u:"Fresh ginger in food, or ~1 g before meals when digestion feels sluggish; ginger tea after eating. Simple, safe, and genuinely useful for post-meal heaviness."},
+{c:12,t:"Cinnamon",d:"A glucose-steadying spice that softens the crash-cortisol cycle.",m:"Cinnamon improves insulin sensitivity and slows gastric emptying, flattening the blood-sugar spike-and-crash that otherwise triggers reactive-hypoglycemia cortisol rebounds.",a:["insulin","cortisol"],u:"½–1 tsp (Ceylon preferred) on oats, coffee or fruit. A small, pleasant lever for smoother energy — not a substitute for the overall carb pattern."},
+{c:12,t:"Saffron",d:"The one spice with real mood data behind it.",m:"Saffron's crocin and safranal show mild serotonergic, reuptake-modulating activity — small trials put it near low-dose SSRIs for mild low mood, with far less baggage.",a:["serotonin","polyphenol"],u:"~30 mg/day of a standardized extract is the studied dose; a few threads steeped in food is gentler and more culinary. Give it several weeks, like any serotonergic lever."},
+{c:12,t:"Fermented foods",d:"Live cultures that feed the vagus-acting side of the microbiome.",m:"Yogurt, kefir, kimchi and sauerkraut deliver live strains (some, like L. rhamnosus, act on the vagus→HPA loop) plus the fermentation's own postbiotics — a food route to the barrier and vagal-tone mechanisms.",a:["microbiome","vagus","SCFA","HPA"],u:"A small daily serving of a live-culture food (look for 'live/active cultures', unpasteurized). Rotate types for diversity; go slow if you bloat at first."},
 
 /* 13 · HORMONAL */
 {c:13,t:"Follicular phase",d:"The high-serotonin, high-drive, novelty-seeking half of the cycle.",m:"Rising estrogen raises TPH2 (serotonin) and D2 sensitivity; testosterone peaks at ovulation, adding dopamine drive. Mood is steadier and appetite for novelty is higher.",a:["estrogen","TPH2","serotonin","D2","testosterone"]},
@@ -807,41 +927,136 @@ const CONCEPTS=[
   ];
   const INF=Object.fromEntries(INFLUENCES.map(i=>[i.id,i]));
 
-  // mind-state baseline + additive deltas (clamped 0..100)
+  // mind-state baseline
   const MIND_BASE={motivation:68,mood:64,agitation:18,focus:74,stability:82};
-  const MIND_DELTA={
-    alcohol:{motivation:12,mood:8,agitation:-6,focus:-18,stability:-34},
-    thc:{motivation:-12,mood:6,agitation:-14,focus:-22,stability:-14},
-    sleep:{motivation:-30,mood:-16,agitation:12,focus:-34,stability:-20},
-    gut:{motivation:-14,mood:-26,agitation:30,focus:-16,stability:-18},
-    stress:{motivation:-6,mood:-22,agitation:42,focus:-22,stability:-28},
-    depleted:{motivation:-44,mood:-34,agitation:12,focus:-24,stability:-42}
-  };
-  // vesicle-fill multiplier per influence (compounding)
-  const VES_FACTOR={alcohol:.62,thc:1,sleep:.42,gut:1,stress:.6,depleted:.34};
   const PRIORITY=["alcohol","thc","gut","stress","sleep","depleted"]; // for step text selection
 
-  const active=new Set();
+  /* ---- dose / pattern variants per influence ----
+     each variant: {id,name, mind:{deltas}, ves(multiplier), brakeOff, d2up, infl, synth, gut(0..1), one} */
+  const VARIANTS={
+    alcohol:{def:"acute",opts:[
+      {id:"wine1",name:"1 glass of wine",mind:{motivation:8,mood:8,agitation:-10,focus:-5,stability:-8},ves:.9,brakeOff:true,gut:.3,
+        one:"mild disinhibition — a small, pleasant loosening; a touch of gut histamine"},
+      {id:"acute",name:"A few drinks",mind:{motivation:12,mood:8,agitation:-6,focus:-18,stability:-30},ves:.62,brakeOff:true,gut:.6,
+        one:"brake lifted, bigger disinhibited burst — and slow-wave sleep suppressed tonight"},
+      {id:"spirits",name:"Spirits / liquor",mind:{motivation:6,mood:2,agitation:0,focus:-24,stability:-40},ves:.5,brakeOff:true,gut:.75,
+        one:"faster, harder hit; steeper crash, worse sleep, more gut insult"},
+      {id:"chronic",name:"Chronic / heavy",mind:{motivation:-8,mood:-16,agitation:20,focus:-22,stability:-44},ves:.4,brakeOff:true,gut:1,synth:true,
+        one:"GABA rebound and tolerance; leaky gut; the brake over-tightens between drinks"}
+    ]},
+    thc:{def:"acute",opts:[
+      {id:"micro",name:"Microdose / occasional",mind:{motivation:-3,mood:6,agitation:-14,focus:-8,stability:-6},ves:1,brakeOff:true,gut:.3,
+        one:"the edge comes off; mild, and the endocannabinoid system recovers between uses"},
+      {id:"acute",name:"Acute high",mind:{motivation:-12,mood:6,agitation:-16,focus:-24,stability:-14},ves:1,brakeOff:true,gut:.6,
+        one:"CB1 lifts the same brake; short-term memory and motivation dip; gut slows"},
+      {id:"chronic",name:"Chronic daily",mind:{motivation:-20,mood:-8,agitation:2,focus:-24,stability:-22},ves:1,brakeOff:true,gut:.7,
+        one:"CB1 downregulates and your own anandamide drops — worse baseline stress-buffering"}
+    ]},
+    sleep:{def:"onenight",opts:[
+      {id:"onenight",name:"One rough night",mind:{motivation:-16,mood:-8,agitation:8,focus:-20,stability:-12},ves:.7,synth:true,
+        one:"one night's under-refill — foggy and slow, but recoverable"},
+      {id:"short",name:"Chronic short sleep",mind:{motivation:-26,mood:-14,agitation:12,focus:-30,stability:-18},ves:.52,synth:true,
+        one:"debt accumulates — stores never fully reload, clearance lags"},
+      {id:"nosws",name:"Deep-sleep deprived",mind:{motivation:-32,mood:-18,agitation:14,focus:-36,stability:-22},ves:.42,synth:true,
+        one:"no slow-wave sleep — the overnight dopamine refill and glymphatic clean-up don't happen"}
+    ]},
+    stress:{def:"chronic",opts:[
+      {id:"acute",name:"Acute stress",mind:{motivation:14,mood:-4,agitation:30,focus:10,stability:-10},ves:.85,
+        one:"cortisol primes dopamine — sharper and driven, for a while (the useful end of stress)"},
+      {id:"chronic",name:"Chronic stress",mind:{motivation:-6,mood:-22,agitation:42,focus:-22,stability:-28},ves:.6,synth:true,
+        one:"sustained cortisol downregulates TH and sharpens reuptake — the alarm fires, the army's depleted"}
+    ]},
+    gut:{def:"inflam",opts:[
+      {id:"mild",name:"Mild irritation",mind:{motivation:-6,mood:-12,agitation:14,focus:-8,stability:-10},ves:1,infl:true,gut:.5,
+        one:"low-grade unsettled gut — a small drag on mood and a shorter fuse"},
+      {id:"inflam",name:"Inflammation / leaky",mind:{motivation:-14,mood:-26,agitation:30,focus:-16,stability:-18},ves:1,infl:true,synth:true,gut:1,
+        one:"cytokines steal tryptophan; quinolinic acid adds glutamate excess — flat plus wired"}
+    ]},
+    depleted:{def:"deep",opts:[
+      {id:"mild",name:"Mildly run-down",mind:{motivation:-24,mood:-18,agitation:8,focus:-14,stability:-22},ves:.5,
+        one:"stores drawn down — low drive, but the receiver still reads straight"},
+      {id:"deep",name:"Chronic depletion",mind:{motivation:-44,mood:-34,agitation:12,focus:-24,stability:-42},ves:.34,d2up:true,synth:true,
+        one:"thin vesicles + hypersensitive D2 + early autoreceptor shutdown — craving then crash"}
+    ]}
+  };
+  function variantOf(id){const v=VARIANTS[id]; const chosen=active.get(id)||v.def; return v.opts.find(o=>o.id===chosen)||v.opts[0];}
+
+  /* ---- biological profile: sex + menstrual phase ---- */
+  const PROFILE_SEX={
+    male:{label:"Male",mind:{},note:""},
+    female:{label:"Female",mind:{mood:-4,stability:-5,agitation:4},
+      note:"~52% lower serotonin synthesis rate — the system sits closer to the deficit line, and swings with the cycle"}
+  };
+  const PHASES=[
+    {id:"none",label:"— (averaged)",mind:{},note:""},
+    {id:"follicular",label:"Follicular",mind:{motivation:6,mood:8,agitation:-6,stability:8,focus:4},
+      note:"estrogen rising → serotonin and D2 sensitivity up; steadier, novelty-seeking"},
+    {id:"ovulation",label:"Ovulation",mind:{motivation:12,mood:12,agitation:-8,stability:10,focus:6},
+      note:"peak — serotonin stability, dopamine drive and testosterone all high at once"},
+    {id:"luteal",label:"Luteal",mind:{motivation:-4,mood:-12,agitation:16,stability:-12,focus:-6},
+      note:"progesterone→allopregnanolone calm, but estrogen and serotonin falling — PMS sensitivity, sugar pull"},
+    {id:"menstruation",label:"Menstruation",mind:{motivation:-14,mood:-20,agitation:14,stability:-18,focus:-8},
+      note:"hormone and serotonin nadir + prostaglandin inflammation → IDO — transiently mirrors depletion"}
+  ];
+  const PHASE=Object.fromEntries(PHASES.map(p=>[p.id,p]));
+  const PILL={mind:{motivation:-8,mood:-4,agitation:-4,stability:5,focus:-2},
+    note:"HPG axis suppressed — flatter, less cyclic drive; anti-androgen and a neurosteroid (allopregnanolone) gap"};
+
+  const active=new Map();   // influence id -> chosen variant id
+  const profile={sex:"male",phase:"none",pill:false};
 
   function clamp(v){return Math.max(0,Math.min(100,v));}
+  function addMind(mind,d){for(const a in d) mind[a]=(mind[a]||0)+d[a];}
 
   function composite(){
-    const ids=[...active];
+    const ids=[...active.keys()];
     const mind={...MIND_BASE};
-    for(const k of ids){const d=MIND_DELTA[k];for(const a in d) mind[a]+=d[a];}
+    // profile first (applies even to healthy)
+    addMind(mind, PROFILE_SEX[profile.sex].mind);
+    if(profile.sex==="female"){
+      if(profile.pill) addMind(mind, PILL.mind);
+      else addMind(mind, (PHASE[profile.phase]||PHASE.none).mind);
+    }
+    let ves=1, brakeOff=false, d2up=false, inflammation=false, synthImpaired=false, gutHit=0;
+    for(const id of ids){
+      const v=variantOf(id);
+      addMind(mind, v.mind);
+      ves*= (v.ves!=null? v.ves : 1);
+      if(v.brakeOff) brakeOff=true;
+      if(v.d2up) d2up=true;
+      if(v.infl) inflammation=true;
+      if(v.synth) synthImpaired=true;
+      gutHit=Math.max(gutHit, v.gut||0);
+    }
     for(const a in mind) mind[a]=clamp(mind[a]);
-    let ves=1; for(const k of ids) ves*=VES_FACTOR[k]||1;
-    const brakeOff = active.has("alcohol")||active.has("thc");
-    const d2up = active.has("depleted");
-    const inflammation = active.has("gut");
-    const synthImpaired = active.has("gut")||active.has("stress")||active.has("sleep");
-    return {ids,mind,ves:Math.max(.12,ves),brakeOff,d2up,inflammation,synthImpaired,
-      dominant: PRIORITY.find(p=>active.has(p)) || "healthy"};
+    // menstruation adds a mild inflammatory / kynurenine note
+    if(profile.sex==="female" && !profile.pill && profile.phase==="menstruation"){ synthImpaired=true; }
+    return {ids,mind,ves:Math.max(.12,ves),brakeOff,d2up,inflammation,synthImpaired,gutHit,
+      dominant: PRIORITY.find(p=>active.has(p)) || "healthy",
+      flow: flowScore(mind)};
+  }
+
+  /* ---- flow readiness: the ensemble, not any single maximum ---- */
+  function flowScore(m){
+    const arousalFit = 100 - Math.abs(m.agitation-46)*1.7; // sweet spot ~46
+    const raw = 0.30*m.focus + 0.28*m.motivation + 0.20*m.stability + 0.22*Math.max(0,arousalFit);
+    return clamp(raw);
+  }
+  function flowLimiter(m){
+    const arousalFit = 100 - Math.abs(m.agitation-46)*1.7;
+    const cand=[
+      [m.focus,"focus won't hold — the representations dissolve"],
+      [m.motivation,"no drive to enter — the pump isn't primed"],
+      [m.stability,"too unstable — the ensemble keeps breaking"],
+      [Math.max(0,arousalFit), m.agitation>60?"over-aroused — too wired to drop in":"under-aroused — not enough activation"]
+    ];
+    cand.sort((a,b)=>a[0]-b[0]);
+    return cand[0][1];
   }
 
   /* ---- mind-state text ---- */
   function moodLabel(m){
-    if(active.size===0) return ["Available","#e8850c"];
+    if(active.size===0 && profile.phase==="none" && !(profile.sex==="female"&&profile.pill)) return ["Available","#e8850c"];
     const hiAr=m.agitation>52, loMood=m.mood<45, hiMood=m.mood>62, loAr=m.agitation<32;
     if(m.stability<40 && m.motivation<40) return ["Crash-prone","#e0295a"];
     if(hiAr&&loMood) return ["Wired & low","#e0295a"];
@@ -852,7 +1067,6 @@ const CONCEPTS=[
     return ["Off-baseline","#1f8fe0"];
   }
   function feltSentence(m){
-    if(active.size===0) return "Balanced and available — motivation on tap, mood level, mind clear.";
     const parts=[];
     if(m.motivation<25) parts.push("the tank reads empty — starting anything feels heavy");
     else if(m.motivation<45) parts.push("hard to get going");
@@ -862,7 +1076,10 @@ const CONCEPTS=[
     else if(m.agitation>54) parts.push("wired and on edge");
     if(m.focus<42) parts.push("thoughts won't hold still");
     if(m.stability<42) parts.push("and it's fragile — small hits over-read, then a crash below where you started");
-    if(!parts.length) parts.push("subtly off baseline, but holding");
+    if(!parts.length){
+      if(active.size===0 && profile.phase==="none" && !profile.pill) return "Balanced and available — motivation on tap, mood level, mind clear.";
+      return "Close to baseline — slightly shifted, but holding steady.";
+    }
     let s=parts.slice(0,3).join(", ");
     return s.charAt(0).toUpperCase()+s.slice(1)+".";
   }
@@ -904,15 +1121,26 @@ const CONCEPTS=[
     const y=6+ (1-m.agitation/100)*88;
     const dot=$("vaDot"); dot.style.left=x+"%"; dot.style.top=y+"%"; dot.style.background=col;
     dot.style.boxShadow="0 0 14px 3px "+col;
-    // active chips
+    // active chips (influence + chosen dose)
     const chips=$("activeChips"); chips.innerHTML="";
     st.ids.forEach(id=>{
-      const inf=INF[id]; const c=document.createElement("span"); c.className="achip";
-      c.style.setProperty("--ac",inf.color); c.textContent=inf.name+" · "+inf.tag;
+      const inf=INF[id], vr=variantOf(id); const c=document.createElement("span"); c.className="achip";
+      c.style.setProperty("--ac",inf.color);
+      c.textContent = (vr.name.toLowerCase()===inf.name.toLowerCase())? inf.name : inf.name+" · "+vr.name;
       chips.appendChild(c);
     });
     $("stackHint").textContent = st.ids.length===0 ? "nothing active — baseline"
       : st.ids.length+" active — compounding";
+    // flow readiness
+    const fs=Math.round(st.flow);
+    const ff=$("flowFill"); if(ff){ ff.style.width=fs+"%";
+      const fcol = fs>66?"#18b57e": fs>40?"#d7a53c":"#e0295a";
+      ff.style.background=fcol;
+      $("flowVal").textContent=fs;
+      $("flowState").textContent = fs>72?"flow within reach": fs>48?"effortful — flow is a stretch": fs>28?"blocked — grinding, not flowing":"offline — the ensemble can't balance";
+      $("flowState").style.color=fcol;
+      $("flowWhy").textContent = fs>72? "the dopamine–noradrenaline–focus ensemble is close to balanced." : flowLimiter(m)+".";
+    }
   }
 
   /* ============================================================
@@ -989,7 +1217,7 @@ const CONCEPTS=[
     // banner
     const b=$("banner");
     if(active.size===0){ b.textContent="Healthy baseline — the circuit running as designed."; b.className="banner show healthy"; }
-    else { b.textContent = CUR.ids.map(id=>INF[id].name.toUpperCase()+" · "+INF[id].one).join("      +      "); b.className="banner show"; }
+    else { b.textContent = CUR.ids.map(id=>{const vr=variantOf(id);return INF[id].name.toUpperCase()+" ("+vr.name+") · "+vr.one;}).join("      +      "); b.className="banner show"; }
     buildSteps();
     render(cur);
     // downstream views that react to state
@@ -1131,14 +1359,16 @@ const CONCEPTS=[
   function gMicro(diverse){$("microLabel").textContent=diverse?"diverse microbiome → SCFAs, indoles":"narrowed microbiome → few SCFAs";
     $("microLabel").style.fill=diverse?"#5f8a45":"#e0295a"; $("microbiome").style.opacity=diverse?1:.4;}
   function applyGutVis(){
+    const menses = profile.sex==="female" && !profile.pill && profile.phase==="menstruation";
     const sealed=!(active.has("alcohol")||active.has("gut"));
-    gJx(sealed); gLps(!sealed && (active.has("alcohol")||active.has("gut")));
+    gJx(sealed); gLps((!sealed && (active.has("alcohol")||active.has("gut"))) || menses);
     let tone=["STRONG signal","#128a63"];
     if(active.has("stress")) tone=["suppressed (sympathetic)","#e0295a"];
     else if(active.has("sleep")) tone=["WEAK (low HRV)","#e0295a"];
     else if(active.has("gut")) tone=["threat-biased","#e0295a"];
     else if(active.has("thc")) tone=["altered (enteric CB1)","#b9690a"];
     else if(active.has("alcohol")) tone=["destabilized","#e0295a"];
+    else if(menses) tone=["prostaglandin-inflamed","#e0295a"];
     gTone(tone[0],tone[1]);
     gMicro(!(active.has("gut")||active.has("depleted")));
   }
@@ -1165,7 +1395,10 @@ const CONCEPTS=[
     $("gCapNum").textContent=i===0?"·":i;$("gCapTitle").textContent=st.title;$("gCapText").textContent=st.text;$("gCapMech").textContent=st.mech||"";
     const d=$("gCapDelta"); if(st.deltas&&st.deltas.length){d.style.display="block";d.innerHTML=st.deltas.map(x=>"△ "+x.d).join("<br>");}else d.style.display="none";
     gVagalDots.forEach(x=>x.setAttribute("opacity","0"));
-    if(["vagus","nts","targets"].includes(st.name)) gTravel();
+    if(["vagus","vagaltone","nts","targets"].includes(st.name)) gTravel();
+    // gentle emphasis for the new stages
+    const emph = {butyrate:"#microbiome", mmc:"#epithelium", vagaltone:"#vagalTone"}[st.name];
+    if(emph){ const el=document.querySelector(emph); if(el && !reduce){ el.classList.remove("xref-flash"); void el.getBoundingClientRect(); el.classList.add("xref-flash"); setTimeout(()=>el.classList.remove("xref-flash"),2400); } }
     $("gPrevBtn").disabled=(i===0);$("gNextBtn").disabled=(i===GSTEPS.length-1);}
   function gNext(){if(gcur<GSTEPS.length-1)gRender(gcur+1);}
   function gPrev(){if(gcur>0)gRender(gcur-1);}
@@ -1544,19 +1777,84 @@ const CONCEPTS=[
     themeBtn.textContent=next==="dark"?"◐ light":"◑ dark";};
   themeBtn.textContent=currentTheme()==="dark"?"◐ light":"◑ dark";
 
-  // influence toggles
+  function refresh(){ const st=composite(); paintMind(st); applyState(); }
+
+  // ---- profile selector (sex / cycle / pill) ----
+  function buildProfile(){
+    const wrap=$("profileWrap"); wrap.innerHTML="";
+    // sex
+    const sexField=document.createElement("div"); sexField.className="pfield";
+    sexField.innerHTML=`<span class="plbl">Sex</span>`;
+    const sexSeg=document.createElement("div"); sexSeg.className="seg";
+    [["male","Male"],["female","Female"]].forEach(([v,l])=>{
+      const b=document.createElement("button"); b.textContent=l; b.setAttribute("aria-pressed", profile.sex===v?"true":"false");
+      b.onclick=()=>{ profile.sex=v; if(v==="male"){profile.phase="none";profile.pill=false;} buildProfile(); refresh(); };
+      sexSeg.appendChild(b);
+    });
+    sexField.appendChild(sexSeg); wrap.appendChild(sexField);
+    // cycle (female only)
+    if(profile.sex==="female"){
+      const cyc=document.createElement("div"); cyc.className="pfield";
+      cyc.innerHTML=`<span class="plbl">Menstrual phase</span>`;
+      const cSeg=document.createElement("div"); cSeg.className="seg tint"; cSeg.style.setProperty("--sc","#e0568f");
+      PHASES.forEach(p=>{
+        const b=document.createElement("button"); b.textContent=p.label; b.setAttribute("aria-pressed", (!profile.pill&&profile.phase===p.id)?"true":"false");
+        if(profile.pill) b.disabled=true, b.style.opacity=".4";
+        b.onclick=()=>{ profile.phase=p.id; buildProfile(); refresh(); };
+        cSeg.appendChild(b);
+      });
+      cyc.appendChild(cSeg);
+      const pill=document.createElement("label"); pill.className="pill-toggle";
+      pill.innerHTML=`<input type="checkbox" id="pillChk" ${profile.pill?"checked":""}> on hormonal contraceptive`;
+      pill.querySelector("input").onchange=e=>{ profile.pill=e.target.checked; buildProfile(); refresh(); };
+      cyc.appendChild(pill);
+      wrap.appendChild(cyc);
+    }
+    // note line
+    const note=document.createElement("div"); note.className="pnote"; note.style.flexBasis="100%";
+    let txt=PROFILE_SEX[profile.sex].note;
+    if(profile.sex==="female"){
+      if(profile.pill) txt=PILL.note;
+      else if(profile.phase!=="none") txt=(txt?txt+" · ":"")+PHASE[profile.phase].note;
+    }
+    note.textContent=txt||""; wrap.appendChild(note);
+  }
+
+  // ---- influence toggles ----
   const tw=$("toggleWrap");
   INFLUENCES.forEach(inf=>{
     const b=document.createElement("button"); b.className="toggle"; b.setAttribute("aria-pressed","false");
     b.style.setProperty("--tc",inf.color); b.dataset.id=inf.id;
     b.innerHTML=`<span class="dot"></span><span class="togglecol"><span class="nm">${inf.name}</span><span class="sub2">${inf.tag}</span></span>`;
     b.onclick=()=>{ if(active.has(inf.id)){active.delete(inf.id);b.setAttribute("aria-pressed","false");}
-      else{active.add(inf.id);b.setAttribute("aria-pressed","true");}
-      const st=composite(); paintMind(st); applyState(); };
+      else{active.set(inf.id, VARIANTS[inf.id].def);b.setAttribute("aria-pressed","true");}
+      buildFineTune(); refresh(); };
     tw.appendChild(b);
   });
+
+  // ---- fine-tune (dose/pattern per active influence) ----
+  function buildFineTune(){
+    const wrap=$("fineTune"); wrap.innerHTML="";
+    INFLUENCES.forEach(inf=>{
+      if(!active.has(inf.id)) return;
+      const V=VARIANTS[inf.id], chosen=active.get(inf.id);
+      const row=document.createElement("div"); row.className="ftrow"; row.style.setProperty("--fc",inf.color);
+      const cur=V.opts.find(o=>o.id===chosen)||V.opts[0];
+      row.innerHTML=`<div class="fttop"><span class="dot" style="width:9px;height:9px;border-radius:50%;background:${inf.color};display:inline-block"></span><span class="ftname">${inf.name}</span></div>
+        <div class="ftopts"></div><div class="ftone">${cur.one}</div>`;
+      const opts=row.querySelector(".ftopts");
+      V.opts.forEach(o=>{
+        const b=document.createElement("button"); b.className="ftopt"; b.textContent=o.name;
+        b.setAttribute("aria-pressed", o.id===chosen?"true":"false");
+        b.onclick=()=>{ active.set(inf.id,o.id); buildFineTune(); refresh(); };
+        opts.appendChild(b);
+      });
+      wrap.appendChild(row);
+    });
+  }
+
   $("clearBtn").onclick=()=>{active.clear(); document.querySelectorAll(".toggle").forEach(t=>t.setAttribute("aria-pressed","false"));
-    const st=composite(); paintMind(st); applyState();};
+    buildFineTune(); refresh();};
 
   // tabs
   let currentView="circuit";
@@ -1625,7 +1923,8 @@ const CONCEPTS=[
       });
       let scn="";
       if(k.s && INF[k.s]){ scn=`<div class="cscn"><b>${INF[k.s].name}</b> · <span class="go" data-scn="${k.s}">see this state →</span></div>`; }
-      el.innerHTML=`<div class="ccat">${cat.name}</div><h4>${k.t}</h4><div class="cdef">${k.d}</div><div class="cmech">${k.m}</div><div class="cactors">${actorsHtml}</div>${scn}`;
+      const useHtml = k.u ? `<div class="cuse"><span class="ul">How to use</span>${k.u}</div>` : "";
+      el.innerHTML=`<div class="ccat">${cat.name}</div><h4>${k.t}</h4><div class="cdef">${k.d}</div><div class="cmech">${k.m}</div>${useHtml}<div class="cactors">${actorsHtml}</div>${scn}`;
       // wire actor links
       el.querySelectorAll(".atag.link").forEach(t=>{
         const go=()=>xref(t.dataset.tab,t.dataset.sel);
@@ -1673,6 +1972,8 @@ const CONCEPTS=[
      INIT
      ============================================================ */
   buildMeters();
+  buildProfile();
+  buildFineTune();
   paintMind(composite());
   applyState();
   render(0);
