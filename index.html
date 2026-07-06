@@ -51,6 +51,12 @@
   .themebtn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim);background:transparent;
     border:1px solid var(--hair);border-radius:999px;padding:6px 13px;cursor:pointer;transition:.2s}
   .themebtn:hover{border-color:var(--da);color:var(--ink)}
+  .navback{position:fixed;left:20px;bottom:20px;z-index:80;display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+    background:var(--da);color:#1a1206;border:none;border-radius:12px;padding:10px 16px;cursor:pointer;
+    box-shadow:0 10px 30px -8px rgba(232,133,12,.6);font-family:var(--serif);font-size:15px;font-weight:600;
+    animation:fade .3s ease;transition:transform .15s,filter .15s}
+  .navback:hover{transform:translateY(-2px);filter:brightness(1.06)}
+  .navback span{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;font-weight:400;opacity:.8}
 
   /* ---------- hero ---------- */
   .hero{position:relative;height:min(78vh,680px);min-height:520px;overflow:hidden;border-bottom:1px solid var(--hair)}
@@ -335,6 +341,7 @@
   <div class="brand"><span class="spark"></span> <span><b>The Chemistry of Wanting</b></span></div>
   <button class="themebtn" id="themeBtn" aria-label="Toggle color theme">◐ theme</button>
 </div>
+<button class="navback" id="navBack" style="display:none" aria-label="Go back to where you were">← Back<span>restore previous state</span></button>
 
 <!-- ============ HERO ============ -->
 <header class="hero">
@@ -1699,7 +1706,7 @@ const CONCEPTS=[
     try{ new ResizeObserver(resize).observe(cv); }catch(e){}
     paintReadouts(); paintChips();
     if(reduce){ pt=.6; draw(); } else raf=requestAnimationFrame(frame);
-    return {react, setStage, play, step };
+    return {react, setStage, play, step, getStage:()=>ph };
   })();
   $("play3d").onclick=()=>synapse3d.play();
   $("prev3d").onclick=()=>synapse3d.step(-1);
@@ -1984,17 +1991,59 @@ const CONCEPTS=[
   }
   document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>switchView(t.dataset.view));
 
-  /* ---- cross-link: jump to a diagram region and flash it ---- */
+  /* ============================================================
+     NAVIGATION STACK — every cross-link is reversible
+     ============================================================ */
+  const navStack=[];
+  function syncToggles(){ document.querySelectorAll(".toggle").forEach(t=>t.setAttribute("aria-pressed", active.has(t.dataset.id)?"true":"false")); }
+  function snapshot(){
+    return { profile:{sex:profile.sex,phase:profile.phase,pill:profile.pill},
+      active:[...active.entries()], view:currentView, cur, gcur,
+      stage3d:(synapse3d.getStage?synapse3d.getStage():0), scroll:window.scrollY };
+  }
+  function restoreSnap(s){
+    profile.sex=s.profile.sex; profile.phase=s.profile.phase; profile.pill=s.profile.pill;
+    active.clear(); s.active.forEach(([id,v])=>active.set(id,v));
+    buildProfile(); buildFineTune(); syncToggles();
+    const st=composite(); paintMind(st); applyState();
+    switchView(s.view);
+    stop(); cur=Math.max(0,Math.min(BASE.length-1,s.cur)); render(cur);
+    gStop(); gcur=Math.max(0,Math.min(GBASE.length-1,s.gcur)); gRender(gcur);
+    if(synapse3d.setStage) synapse3d.setStage(s.stage3d||0);
+    requestAnimationFrame(()=>window.scrollTo({top:s.scroll,behavior:reduce?"auto":"smooth"}));
+  }
+  function updateBackBtn(){ const b=$("navBack"); if(b) b.style.display = navStack.length? "flex":"none"; }
+  function pushNav(){ navStack.push(snapshot()); updateBackBtn(); }
+  function popNav(){ const s=navStack.pop(); if(s) restoreSnap(s); updateBackBtn(); }
+
+  /* ---- cross-link: jump to a diagram region and flash it (reversible) ---- */
   let xrefTimer=null;
-  function xref(tab,sel){
-    if(!tab||!sel) return;
-    switchView(tab);
+  function flashRegion(sel){
     requestAnimationFrame(()=>{
       const el=document.querySelector(sel); if(!el) return;
       const plate=el.closest(".plate")||el; plate.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
-      el.classList.remove("xref-flash"); void el.getBoundingClientRect();
-      el.classList.add("xref-flash");
-      clearTimeout(xrefTimer); xrefTimer=setTimeout(()=>el.classList.remove("xref-flash"),2400);
+      el.classList.remove("xref-flash"); void el.getBoundingClientRect(); el.classList.add("xref-flash");
+      clearTimeout(xrefTimer); xrefTimer=setTimeout(()=>el.classList.remove("xref-flash"),2600);
+    });
+  }
+  function xref(tab,sel){ if(!tab||!sel) return; pushNav(); switchView(tab); flashRegion(sel); }
+
+  /* ---- deep-link into a full state (used by "see this state") ---- */
+  // per-influence signature: [circuit stage index, region to pulse]
+  const SCN_TARGET={ alcohol:[7,"#gGaba"], thc:[7,"#gGaba"], sleep:[2,"#gVesicles"],
+    gut:[5,"#gRecep"], stress:[1,"#gSynthesis"], depleted:[5,"#d2recep"] };
+  function seeState(inflId, variantId){
+    if(!INF[inflId]) return;
+    pushNav();
+    active.clear(); active.set(inflId, variantId||VARIANTS[inflId].def);
+    buildFineTune(); syncToggles();
+    const st=composite(); paintMind(st); applyState();
+    switchView("circuit");
+    const tgt=SCN_TARGET[inflId]||[0,null];
+    stop(); cur=tgt[0]; render(cur);
+    requestAnimationFrame(()=>{
+      $("view-circuit").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+      if(tgt[1]) flashRegion(tgt[1]);
     });
   }
 
@@ -2047,14 +2096,9 @@ const CONCEPTS=[
         t.addEventListener("click",go);
         t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
       });
-      // wire scenario link: activate that influence + jump to circuit
+      // wire scenario link: load that state (reversible)
       const scnBtn=el.querySelector(".cscn .go");
-      if(scnBtn){ scnBtn.addEventListener("click",()=>{
-        const id=scnBtn.dataset.scn;
-        if(!active.has(id)){ active.add(id); const tog=document.querySelector('.toggle[data-id="'+id+'"]'); if(tog) tog.setAttribute("aria-pressed","true"); }
-        paintMind(composite()); applyState(); switchView("circuit");
-        document.querySelector("#view-circuit").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
-      }); }
+      if(scnBtn){ scnBtn.addEventListener("click",()=>seeState(scnBtn.dataset.scn)); }
       return el;
     }
     function rebuild(){
@@ -2069,7 +2113,9 @@ const CONCEPTS=[
   })();
 
   // keyboard
+  $("navBack").onclick=()=>popNav();
   document.addEventListener("keydown",e=>{
+    if(e.key==="Escape" && navStack.length){ popNav(); e.preventDefault(); return; }
     if(e.target.tagName==="BUTTON"||e.target.tagName==="INPUT") return;
     if(currentView==="circuit"){
       if(e.key==="ArrowRight"){stop();next();e.preventDefault();}
