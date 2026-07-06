@@ -210,6 +210,15 @@
   #synapseCanvas{display:block;width:100%;height:auto;cursor:grab}
   #synapseCanvas:active{cursor:grabbing}
   .stage3d .hint3d{position:absolute;bottom:10px;left:14px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:#7a8a9a;pointer-events:none}
+  .stagechips3d{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 12px}
+  .stagechips3d button{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;color:var(--dim);background:var(--panel);
+    border:1px solid var(--hair);border-radius:7px;padding:6px 10px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .stagechips3d button:hover{border-color:var(--da);color:var(--ink)}
+  .stagechips3d button[aria-pressed="true"]{background:var(--da);color:#1a1206;border-color:var(--da);font-weight:600}
+  .stage3d .stagecap3d{position:absolute;bottom:34px;left:14px;right:14px;pointer-events:none;font-family:var(--mono);
+    font-size:12px;line-height:1.5;color:#e9eef4;max-width:80%;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+  .stage3d .stagecap3d b{color:#ffb04d;font-weight:600}
+  .stage3d .stagecap3d small{display:block;color:#a9b6c4;font-size:10.5px;margin-top:2px}
   .stage3d .badge3d{position:absolute;top:12px;right:14px;font-family:var(--mono);font-size:10.5px;color:#9fb0c1;text-align:right;line-height:1.7;pointer-events:none}
   .read3d{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:16px}
   .read3d .card{background:var(--panel);border:1px solid var(--hair);border-radius:10px;padding:13px 15px}
@@ -425,17 +434,20 @@
   <!-- ===== 3D SYNAPSE ===== -->
   <section class="view" id="view-synapse3d" role="tabpanel">
     <div class="viewhead">
-      <h3>Inside the cleft — in three dimensions</h3>
-      <p>A living bouton firing dopamine across the ~20 nm gap to the receptors below, with the GABA interneuron riding the brake from the side. Drag to rotate. Everything you toggle at the desk changes what you see here.</p>
+      <h3>Inside the cleft — the whole lifecycle, in 3D</h3>
+      <p>The full molecular cycle plays out in three dimensions — build, store, fire, cross, read, clear, metabolise, and the oxidation cost of failed packing — with the GABA brake riding in from the side. Play it, or scrub to any stage. Drag to orbit. Everything you toggle at the desk visibly changes it.</p>
     </div>
     <div class="controls">
-      <button class="primary" id="fireBtn">⚡ Fire</button>
-      <button id="autoRotBtn">⟳ Auto-rotate: on</button>
-      <div class="steplabel" id="fireLabel">phasic burst on demand</div>
+      <button class="primary" id="play3d">▶ Play cycle</button>
+      <button id="prev3d">‹ Prev</button>
+      <button id="next3d">Next ›</button>
+      <div class="steplabel" id="stage3dLabel">stage 1 / 9</div>
     </div>
+    <div class="stagechips3d" id="stageChips3d"></div>
     <div class="stage3d">
       <canvas id="synapseCanvas"></canvas>
       <div class="badge3d" id="badge3d"></div>
+      <div class="stagecap3d" id="stageCap3d"></div>
       <div class="hint3d">drag to orbit · scroll-safe</div>
     </div>
     <div class="read3d" id="read3d"></div>
@@ -1502,92 +1514,196 @@ const CONCEPTS=[
     if(reduce){ frame(0); } else raf=requestAnimationFrame(frame);
   })();
 
-  /* ---------- 3D SYNAPSE VIEWER ---------- */
+  /* ---------- 3D SYNAPSE LIFECYCLE ENGINE ---------- */
   const synapse3d=(function(){
-    const cv=$("synapseCanvas"); if(!cv) return {react(){},fire(){}};
+    const cv=$("synapseCanvas"); if(!cv) return {react(){},setStage(){},play(){},step(){}};
     const E=mk3d(cv); const ctx=E.ctx;
-    let ay=0.5, ax=-0.18, autoRot=true, dragging=false, lastX=0,lastY=0;
-    // geometry
-    const preShell=[]; for(let i=0;i<70;i++){const u=Math.random()*2-1,th=Math.random()*7,r=70*Math.cbrt(Math.random());const s=Math.sqrt(1-u*u);preShell.push({x:s*Math.cos(th)*r,y:-150+s*Math.sin(th)*r*.7,z:u*r});}
-    const postDisc=[]; for(let i=0;i<60;i++){const th=Math.random()*7,r=140*Math.sqrt(Math.random());postDisc.push({x:Math.cos(th)*r,y:120+ (Math.random()*10),z:Math.sin(th)*r});}
-    const receptors=[]; for(let i=0;i<9;i++){const th=i/9*7,r=95;receptors.push({x:Math.cos(th)*r,y:112,z:Math.sin(th)*r});}
-    const gabaCell=[]; for(let i=0;i<28;i++){const u=Math.random()*2-1,th=Math.random()*7,r=40*Math.cbrt(Math.random());const s=Math.sqrt(1-u*u);gabaCell.push({x:200+s*Math.cos(th)*r,y:-120+s*Math.sin(th)*r,z:u*r});}
-    let particles=[]; // dopamine crossing
-    let gabaParts=[];
-    function react(){paintReadouts();}
-    function fire(){
-      const n=CUR.ves<.5?5:11;
-      for(let i=0;i<n;i++){particles.push({x:(Math.random()-.5)*40,y:-150,z:(Math.random()-.5)*40, vy:2.6+Math.random()*1.4, t:0, tgt:receptors[(Math.random()*receptors.length)|0]});}
-      if(!CUR.brakeOff){ for(let i=0;i<4;i++) gabaParts.push({t:0}); }
+    let ay=0.5, ax=-0.16, dragging=false, lastX=0,lastY=0;
+
+    // ---- geometry (static point clouds) ----
+    const preShell=[]; for(let i=0;i<64;i++){const u=Math.random()*2-1,th=Math.random()*7,r=76*Math.cbrt(Math.random());const s=Math.sqrt(1-u*u);preShell.push({x:s*Math.cos(th)*r,y:-150+s*Math.sin(th)*r*.72,z:u*r});}
+    const postDisc=[]; for(let i=0;i<56;i++){const th=Math.random()*7,r=140*Math.sqrt(Math.random());postDisc.push({x:Math.cos(th)*r,y:120+(Math.random()*8),z:Math.sin(th)*r});}
+    const recBase=[]; for(let i=0;i<9;i++){const th=i/9*7,r=95;recBase.push({x:Math.cos(th)*r,y:112,z:Math.sin(th)*r, d2:(i%2===0)});}
+    const gabaCell=[]; for(let i=0;i<24;i++){const u=Math.random()*2-1,th=Math.random()*7,r=38*Math.cbrt(Math.random());const s=Math.sqrt(1-u*u);gabaCell.push({x:205+s*Math.cos(th)*r,y:-120+s*Math.sin(th)*r,z:u*r});}
+    const vesCenters=[{x:-34,y:-150,z:-22},{x:32,y:-146,z:16},{x:2,y:-122,z:26},{x:-14,y:-172,z:8}];
+    const datPts=[{x:-58,y:-52,z:0},{x:58,y:-52,z:0}];
+    const enzPts=[{x:-72,y:-96,z:22},{x:74,y:-98,z:-16}];
+    const synthTop={x:0,y:-224,z:0};
+    const relFace={x:0,y:-46,z:0};
+
+    // ---- stages ----
+    const STAGES=[
+      {id:"synthesis",label:"Synthesis",cap:"Tyrosine → L-DOPA → dopamine",sub:"TH is the rate-limiting step (Fe²⁺·BH₄·O₂)"},
+      {id:"storage",label:"Storage",cap:"VMAT2 packs dopamine into vesicles",sub:"H⁺-ATPase gradient · ATP cost · fill tracks your state"},
+      {id:"firing",label:"Firing",cap:"Action potential → Ca²⁺ influx → SNARE fusion",sub:"a docked vesicle fuses with the membrane"},
+      {id:"release",label:"Release",cap:"Dopamine crosses the ~20 nm cleft",sub:"burst size scales with vesicle load and the brake"},
+      {id:"reception",label:"Reception",cap:"Docking on D1 (go) and D2 (no-go)",sub:"D2 enlarges and over-reads under depletion"},
+      {id:"clearance",label:"Clearance",cap:"DAT pumps dopamine back for reuse",sub:"the dominant striatal off-switch"},
+      {id:"metabolism",label:"Metabolism",cap:"MAO-B / COMT → DOPAC → HVA",sub:"leftover dopamine is broken down to byproducts"},
+      {id:"oxidation",label:"Oxidation",cap:"Unpacked dopamine → toxic quinones",sub:"the cost of failed VMAT2 packing — worst when stores are thin"},
+      {id:"brake",label:"GABA brake",cap:"Interneuron GABA gates the firing rate",sub:"lifted by alcohol / THC → disinhibited firing"}
+    ];
+    let ph=3, pt=0, playing=false, lastTs=0;
+
+    // derived state factors
+    function factors(){
+      const ves=CUR.ves;
+      const oxLoad=Math.min(1,(1-ves)*1.05 + (active.has("stress")?.12:0) + (active.has("depleted")?.18:0));
+      const burstN=Math.max(3,Math.min(12,Math.round(ves*(CUR.brakeOff?12:8))));
+      return {ves,oxLoad,burstN,brakeOff:CUR.brakeOff,d2up:CUR.d2up,infl:CUR.inflammation};
     }
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    const l3=(a,b,t)=>({x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),z:lerp(a.z,b.z,t)});
+    const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+    // ---- phase particles: deterministic from (ph,pt,factors) ----
+    function phaseParticles(F){
+      const P=[], id=STAGES[ph].id, e=ease(pt);
+      const DA="#ffc074", DAG="#ffb04d", GRN="#8fd98f", QUIN="#f0426a", BYP="#a9c2d6", GABA="#d9a6f5", CA="#7fdfff";
+      if(id==="synthesis"){
+        for(let i=0;i<3;i++){const tt=Math.min(1,e+ i*0.06); const tgt=vesCenters[i%vesCenters.length];
+          const p=l3({x:synthTop.x+(i-1)*16,y:synthTop.y,z:(i-1)*10}, {x:tgt.x,y:tgt.y+8,z:tgt.z}, tt);
+          const col = tt<.4?GRN : tt<.7?"#cfd06a":DA;  // Tyr→L-DOPA→DA colour shift
+          P.push({p,r:3.6,c:col,glow:DAG,a:1});}
+        // tyrosine entering from top
+        for(let i=0;i<2;i++){P.push({p:{x:(i-.5)*22,y:synthTop.y-18+ (e*20),z:(i-.5)*14},r:3,c:GRN,glow:GRN,a:.9});}
+      } else if(id==="storage"){
+        vesCenters.forEach((v,vi)=>{ const nd=Math.round(F.ves*4); for(let k=0;k<nd;k++){const a=k/4*7+vi; const rr=6+ (1-e)*14;
+          P.push({p:{x:v.x+Math.cos(a)*rr,y:v.y+Math.sin(a)*rr*.7,z:v.z+Math.sin(a+1)*rr},r:2.6,c:DA,glow:DAG,a:.9});}});
+      } else if(id==="firing"){
+        // Ca2+ flash ring at release face + one vesicle moving to face
+        const ca=Math.max(0,1-Math.abs(e-.35)*3); if(ca>0) P.push({p:relFace,r:6+ca*22,c:CA,glow:CA,a:ca*.8,ring:true});
+        const v=vesCenters[0]; const pos=l3(v,relFace,e); P.push({p:pos,r:9,c:DA,glow:DAG,a:1,ring2:true});
+        for(let k=0;k<5;k++){const a=k/5*7; P.push({p:{x:pos.x+Math.cos(a)*7,y:pos.y+Math.sin(a)*5,z:pos.z+Math.sin(a)*7},r:2.4,c:DA,glow:DAG,a:1});}
+      } else if(id==="release"){
+        for(let i=0;i<F.burstN;i++){const tgt=recBase[i%recBase.length]; const tt=Math.min(1,e+ (i%4)*0.05);
+          const p=l3({x:relFace.x+(Math.random()-.5)*20,y:relFace.y,z:(Math.random()-.5)*20}, tgt, tt);
+          P.push({p,r:3.4,c:DA,glow:DAG,a:1});}
+      } else if(id==="reception"){
+        recBase.forEach((rp,i)=>{ if(i>=F.burstN)return; const pr=Math.max(0,1-Math.abs(e-.5)*2.2);
+          P.push({p:{x:rp.x,y:rp.y-4,z:rp.z},r:3.4,c:DA,glow:DAG,a:1});
+          if(pr>0) P.push({p:rp,r:6+pr*10,c:(rp.d2&&F.d2up)?QUIN:"#66d8a6",glow:(rp.d2&&F.d2up)?QUIN:"#66d8a6",a:pr*.7,ring:true});});
+      } else if(id==="clearance"){
+        for(let i=0;i<Math.min(6,F.burstN);i++){const from={x:recBase[i%recBase.length].x*.5,y:40,z:recBase[i%recBase.length].z*.5};
+          const p=l3(from,datPts[i%2],e); P.push({p,r:3,c:DA,glow:DAG,a:1-e*.4});}
+      } else if(id==="metabolism"){
+        enzPts.forEach((en,ei)=>{ // dopamine arriving then byproducts leaving
+          if(e<.5){P.push({p:l3({x:en.x*.4,y:20,z:en.z},en,e*2),r:3.2,c:DA,glow:DAG,a:1});}
+          else{const t2=(e-.5)*2; for(let k=0;k<2;k++){P.push({p:{x:en.x+ (ei? -1:1)*t2*40,y:en.y - t2*24,z:en.z+ (k-.5)*16},r:2,c:BYP,glow:BYP,a:1-t2*.6});}}
+          P.push({p:en,r:7,c:"#18b57e",glow:"#18b57e",a:.5,ring:true});});
+      } else if(id==="oxidation"){
+        const n=Math.round(F.oxLoad*9); for(let i=0;i<n;i++){const a=i/Math.max(1,n)*7, rr=20+ (i%3)*16;
+          const jit=Math.sin((pt*7)+i*2)*4;
+          P.push({p:{x:Math.cos(a)*rr+jit,y:-150+Math.sin(a*1.3)*30,z:Math.sin(a)*rr+jit},r:2.6+ (i%2),c:QUIN,glow:QUIN,a:.55+.4*Math.abs(Math.sin(pt*9+i))});}
+      } else if(id==="brake"){
+        if(!F.brakeOff){ for(let i=0;i<4;i++){const tt=Math.min(1,e+ i*0.12); const p=l3({x:205,y:-120,z:0},{x:40,y:-70,z:0},tt);
+          P.push({p,r:3,c:GABA,glow:GABA,a:1});}}
+        else { // disinhibited: extra dopamine flurry at release face
+          for(let i=0;i<6;i++){const a=i/6*7; P.push({p:{x:relFace.x+Math.cos(a)*(14+e*30),y:relFace.y+Math.sin(pt*6+i)*6,z:relFace.z+Math.sin(a)*(14+e*30)},r:3,c:DA,glow:DAG,a:1-e*.4});}}
+      }
+      return P;
+    }
+
+    function react(){ paintReadouts(); paintChips(); }
     function paintReadouts(){
-      const b=$("badge3d");
-      b.innerHTML = `burst size · <b style="color:#ffb04d">${CUR.ves<.5?"weak":"full"}</b><br>`
-        + `GABA brake · <b style="color:${CUR.brakeOff?'#f0426a':'#66d8a6'}">${CUR.brakeOff?"OFF":"ON"}</b><br>`
-        + `D2 receptors · <b style="color:${CUR.d2up?'#f0426a':'#9fb0c1'}">${CUR.d2up?"↑↑ sensitised":"normal"}</b>`
-        + (CUR.inflammation?`<br>field · <b style="color:#f0426a">inflamed</b>`:"");
-      const r=$("read3d");
-      r.innerHTML=[
-        ["Vesicle load", Math.round(CUR.ves*100)+"%", CUR.ves<.5?"thin — a small phasic burst":"stocked — a full burst"],
-        ["Brake", CUR.brakeOff?"lifted":"engaged", CUR.brakeOff?"nothing restrains firing":"tonic GABA holds the terminal"],
-        ["Receiver", CUR.d2up?"hypersensitive":"steady", CUR.d2up?"small signals over-read → craving/crash":"reads the signal faithfully"],
-        ["Field", CUR.inflammation?"inflamed":"clean", CUR.inflammation?"cytokines + glutamate destabilise from outside":"no inflammatory load"]
+      const F=factors();
+      $("badge3d").innerHTML =
+        `burst · <b style="color:#ffb04d">${F.burstN} ${F.ves<.5?"(weak)":"(full)"}</b><br>`
+        + `brake · <b style="color:${F.brakeOff?'#f0426a':'#66d8a6'}">${F.brakeOff?"OFF":"ON"}</b><br>`
+        + `D2 · <b style="color:${F.d2up?'#f0426a':'#9fb0c1'}">${F.d2up?"↑↑":"normal"}</b><br>`
+        + `oxidation · <b style="color:${F.oxLoad>.5?'#f0426a':'#9fb0c1'}">${Math.round(F.oxLoad*100)}%</b>`
+        + (F.infl?`<br>field · <b style="color:#f0426a">inflamed</b>`:"");
+      const st=STAGES[ph];
+      $("stageCap3d").innerHTML = `<b>${ph+1}. ${st.label}</b> — ${st.cap}<small>${st.sub}</small>`;
+      $("stage3dLabel").textContent = "stage "+(ph+1)+" / 9 — "+st.label.toLowerCase();
+      $("read3d").innerHTML=[
+        ["Vesicle load", Math.round(F.ves*100)+"%", F.ves<.5?"thin — a small phasic burst":"stocked — a full burst"],
+        ["Brake", F.brakeOff?"lifted":"engaged", F.brakeOff?"nothing restrains firing":"tonic GABA holds the terminal"],
+        ["Receiver", F.d2up?"hypersensitive":"steady", F.d2up?"small signals over-read → craving/crash":"reads the signal faithfully"],
+        ["Oxidation cost", Math.round(F.oxLoad*100)+"%", F.oxLoad>.5?"unpacked dopamine → toxic quinones":"packing keeps free dopamine low"]
       ].map(([k,v,s])=>`<div class="card"><div class="k">${k}</div><div class="v">${v} <small>— ${s}</small></div></div>`).join("");
     }
+
     function draw(){
       const cx=E.W*0.5, cy=E.H*0.5, f=620, scale=Math.min(E.W,E.H)/560;
       ctx.clearRect(0,0,E.W,E.H);
-      const items=[];
-      if(CUR.inflammation){const g=ctx.createRadialGradient(cx,cy-60*scale,10,cx,cy-60*scale,220*scale);
+      const F=factors(); const items=[];
+      if(F.infl){const g=ctx.createRadialGradient(cx,cy-60*scale,10,cx,cy-60*scale,230*scale);
         g.addColorStop(0,"rgba(240,66,106,.16)");g.addColorStop(1,"rgba(240,66,106,0)");ctx.fillStyle=g;ctx.fillRect(0,0,E.W,E.H);}
-      // pre bouton glow
+      // pre bouton glow + shell
       {const c=proj(rot({x:0,y:-150,z:0},ay,ax),cx,cy,f,scale);
-        items.push({z:-150,draw:()=>{const g=ctx.createRadialGradient(c.x,c.y,6,c.x,c.y,95*scale);
-          g.addColorStop(0,"rgba(232,133,12,.42)");g.addColorStop(1,"rgba(232,133,12,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,95*scale,0,7);ctx.fill();}});}
-      preShell.forEach(p=>{const rp=rot(p,ay,ax),pt=proj(rp,cx,cy,f,scale);
-        items.push({z:rp.z-150,draw:()=>{ctx.beginPath();ctx.arc(pt.x,pt.y,2.3*pt.s,0,7);ctx.fillStyle="rgba(255,190,110,"+(.3+.4*pt.s)+")";ctx.fill();}});});
+        items.push({z:-160,draw:()=>{const g=ctx.createRadialGradient(c.x,c.y,6,c.x,c.y,98*scale);
+          g.addColorStop(0,"rgba(232,133,12,.4)");g.addColorStop(1,"rgba(232,133,12,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,98*scale,0,7);ctx.fill();}});}
+      preShell.forEach(p=>{const rp=rot(p,ay,ax),pt2=proj(rp,cx,cy,f,scale);
+        items.push({z:rp.z-150,draw:()=>{ctx.beginPath();ctx.arc(pt2.x,pt2.y,2.2*pt2.s,0,7);ctx.fillStyle="rgba(255,190,110,"+(.28+.4*pt2.s)+")";ctx.fill();}});});
+      // vesicles with fill
+      vesCenters.forEach((v,vi)=>{const rp=rot(v,ay,ax),c=proj(rp,cx,cy,f,scale); const R=15*c.s;
+        items.push({z:rp.z-150,draw:()=>{ctx.beginPath();ctx.arc(c.x,c.y,R,0,7);ctx.strokeStyle="rgba(232,133,12,.5)";ctx.lineWidth=1.4;ctx.stroke();
+          const nd=Math.round(F.ves*5); for(let k=0;k<nd;k++){const a=k/5*7+vi;ctx.beginPath();ctx.arc(c.x+Math.cos(a)*R*.5,c.y+Math.sin(a)*R*.5,1.7*c.s,0,7);ctx.fillStyle="#ffb04d";ctx.fill();}}});});
+      // pre membrane line + DAT + enzymes
+      datPts.forEach(d=>{const rp=rot(d,ay,ax),c=proj(rp,cx,cy,f,scale);
+        items.push({z:rp.z-46,draw:()=>{ctx.beginPath();ctx.rect(c.x-5*c.s,c.y-4*c.s,10*c.s,8*c.s);ctx.fillStyle="rgba(232,133,12,.75)";ctx.fill();}});});
+      enzPts.forEach(en=>{const rp=rot(en,ay,ax),c=proj(rp,cx,cy,f,scale);
+        items.push({z:rp.z-96,draw:()=>{ctx.beginPath();ctx.arc(c.x,c.y,5*c.s,0,7);ctx.fillStyle="rgba(24,181,126,.75)";ctx.fill();}});});
       // post membrane disc
-      postDisc.forEach(p=>{const rp=rot(p,ay,ax),pt=proj(rp,cx,cy,f,scale);
-        items.push({z:rp.z+120,draw:()=>{ctx.beginPath();ctx.arc(pt.x,pt.y,2*pt.s,0,7);ctx.fillStyle="rgba(120,190,150,"+(.25+.35*pt.s)+")";ctx.fill();}});});
-      // receptors
-      receptors.forEach(p=>{const rp=rot(p,ay,ax),pt=proj(rp,cx,cy,f,scale); const rad=(CUR.d2up?5.5:3.8)*pt.s;
-        items.push({z:rp.z+121,draw:()=>{ctx.beginPath();ctx.arc(pt.x,pt.y,rad,0,7);ctx.fillStyle="rgba(240,66,106,.85)";ctx.fill();
-          ctx.beginPath();ctx.arc(pt.x,pt.y,rad+2,0,7);ctx.strokeStyle="rgba(240,66,106,.3)";ctx.lineWidth=1;ctx.stroke();}});});
-      // gaba cell
-      const gaOp=CUR.brakeOff?.28:1;
-      gabaCell.forEach(p=>{const rp=rot(p,ay,ax),pt=proj(rp,cx,cy,f,scale);
-        items.push({z:rp.z-120,draw:()=>{ctx.globalAlpha=gaOp;ctx.beginPath();ctx.arc(pt.x,pt.y,2.2*pt.s,0,7);ctx.fillStyle="rgba(196,123,240,.85)";ctx.fill();ctx.globalAlpha=1;}});});
-      // dopamine particles
-      for(let i=particles.length-1;i>=0;i--){const p=particles[i]; p.t+=.02; p.y+=p.vy;
-        // steer toward target x/z as it crosses
-        p.x += ((p.tgt.x - p.x))*0.04; p.z += ((p.tgt.z - p.z))*0.04;
-        if(p.y>=112){ particles.splice(i,1); continue; }
-        const rp=rot(p,ay,ax),pt=proj(rp,cx,cy,f,scale);
-        items.push({z:rp.z+p.y,draw:()=>{ctx.save();ctx.shadowBlur=12;ctx.shadowColor="#ffb04d";ctx.beginPath();ctx.arc(pt.x,pt.y,3.4*pt.s,0,7);ctx.fillStyle="#ffc074";ctx.fill();ctx.restore();}});}
-      // gaba particles travel from gaba cell to pre terminal
-      for(let i=gabaParts.length-1;i>=0;i--){const g=gabaParts[i]; g.t+=.02; if(g.t>=1){gabaParts.splice(i,1);continue;}
-        const x=200+(0-200)*g.t, y=-120+(-150+120)*g.t, z=0;
-        const rp=rot({x,y,z},ay,ax),pt=proj(rp,cx,cy,f,scale);
-        items.push({z:rp.z-135,draw:()=>{ctx.save();ctx.shadowBlur=9;ctx.shadowColor="#c47bf0";ctx.beginPath();ctx.arc(pt.x,pt.y,2.8*pt.s,0,7);ctx.fillStyle="#d9a6f5";ctx.fill();ctx.restore();}});}
+      postDisc.forEach(p=>{const rp=rot(p,ay,ax),c=proj(rp,cx,cy,f,scale);
+        items.push({z:rp.z+120,draw:()=>{ctx.beginPath();ctx.arc(c.x,c.y,2*c.s,0,7);ctx.fillStyle="rgba(120,190,150,"+(.24+.34*c.s)+")";ctx.fill();}});});
+      // receptors (D1/D2), D2 scale under depletion
+      recBase.forEach(p=>{const rp=rot(p,ay,ax),c=proj(rp,cx,cy,f,scale);
+        const big=p.d2&&F.d2up; const rad=(big?7:3.8)*c.s; const col=p.d2?"rgba(240,66,106,.9)":"rgba(102,216,166,.9)";
+        items.push({z:rp.z+121,draw:()=>{ctx.beginPath();ctx.arc(c.x,c.y,rad,0,7);ctx.fillStyle=col;ctx.fill();
+          if(big){ctx.beginPath();ctx.arc(c.x,c.y,rad+2.5,0,7);ctx.strokeStyle="rgba(240,66,106,.35)";ctx.lineWidth=1;ctx.stroke();}}});});
+      // gaba cell (dim if brake off)
+      const gaOp=F.brakeOff?.25:1;
+      gabaCell.forEach(p=>{const rp=rot(p,ay,ax),c=proj(rp,cx,cy,f,scale);
+        items.push({z:rp.z-120,draw:()=>{ctx.globalAlpha=gaOp;ctx.beginPath();ctx.arc(c.x,c.y,2.1*c.s,0,7);ctx.fillStyle="rgba(196,123,240,.85)";ctx.fill();ctx.globalAlpha=1;}});});
+      // active-phase particles
+      phaseParticles(F).forEach(P=>{const rp=rot(P.p,ay,ax),c=proj(rp,cx,cy,f,scale);
+        items.push({z:rp.z + P.p.y,draw:()=>{ctx.save();
+          if(P.ring){ctx.globalAlpha=P.a;ctx.beginPath();ctx.arc(c.x,c.y,P.r*c.s,0,7);ctx.strokeStyle=P.c;ctx.lineWidth=2;ctx.stroke();ctx.restore();return;}
+          ctx.shadowBlur=11;ctx.shadowColor=P.glow||P.c;ctx.globalAlpha=P.a==null?1:P.a;
+          ctx.beginPath();ctx.arc(c.x,c.y,P.r*c.s,0,7);ctx.fillStyle=P.c;ctx.fill();
+          if(P.ring2){ctx.shadowBlur=0;ctx.beginPath();ctx.arc(c.x,c.y,(P.r+3)*c.s,0,7);ctx.strokeStyle="rgba(255,176,77,.5)";ctx.lineWidth=1.4;ctx.stroke();}
+          ctx.restore();}});});
       items.sort((a,b)=>a.z-b.z); items.forEach(it=>it.draw());
-      // cleft label lines
-      ctx.strokeStyle="rgba(150,165,180,.15)";ctx.lineWidth=1;
     }
+
+    // ---- timeline ----
+    const DUR=1.7; // seconds per phase
     let raf;
-    function loop(){ if(autoRot&&!dragging&&!reduce) ay+=0.006; draw(); if(!reduce) raf=requestAnimationFrame(loop); }
+    function frame(ts){
+      const dt=lastTs?Math.min(.05,(ts-lastTs)/1000):.016; lastTs=ts;
+      if(!dragging) ay+=0.005;
+      pt += dt/DUR;
+      if(pt>=1){ if(playing){ ph=(ph+1)%STAGES.length; paintReadouts(); paintChips(); } pt=0; }
+      draw();
+      raf=requestAnimationFrame(frame);
+    }
+    function setStage(i){ ph=(i+STAGES.length)%STAGES.length; pt=0; paintReadouts(); paintChips(); if(reduce){pt=.6;draw();} }
+    function play(){ playing=!playing; $("play3d").textContent=playing?"❚❚ Pause":"▶ Play cycle"; return playing; }
+    function step(dir){ playing=false; $("play3d").textContent="▶ Play cycle"; setStage(ph+dir); }
+
+    // chips
+    function paintChips(){
+      const w=$("stageChips3d"); if(w.childElementCount!==STAGES.length){ w.innerHTML="";
+        STAGES.forEach((s,i)=>{const b=document.createElement("button");b.textContent=(i+1)+". "+s.label;b.onclick=()=>{step(0);setStage(i);};w.appendChild(b);});}
+      [...w.children].forEach((b,i)=>b.setAttribute("aria-pressed", i===ph?"true":"false"));
+    }
+
     // interaction
     cv.addEventListener("pointerdown",e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;cv.setPointerCapture(e.pointerId);});
     cv.addEventListener("pointermove",e=>{if(!dragging)return;ay+=(e.clientX-lastX)*.01; ax+=(e.clientY-lastY)*.008; ax=Math.max(-1.2,Math.min(1.2,ax)); lastX=e.clientX;lastY=e.clientY; if(reduce)draw();});
-    cv.addEventListener("pointerup",e=>{dragging=false;});
-    cv.addEventListener("pointercancel",()=>{dragging=false;});
+    cv.addEventListener("pointerup",()=>{dragging=false;}); cv.addEventListener("pointercancel",()=>{dragging=false;});
     function resize(){E.resize(0.62); if(reduce)draw();}
     resize(); window.addEventListener("resize",resize);
     try{ new ResizeObserver(resize).observe(cv); }catch(e){}
-    if(reduce) draw(); else raf=requestAnimationFrame(loop);
-    return {react, fire, toggleAuto(){autoRot=!autoRot; return autoRot;} };
+    paintReadouts(); paintChips();
+    if(reduce){ pt=.6; draw(); } else raf=requestAnimationFrame(frame);
+    return {react, setStage, play, step };
   })();
-  $("fireBtn").onclick=()=>{synapse3d.fire();};
-  $("autoRotBtn").onclick=function(){const on=synapse3d.toggleAuto(); this.textContent="⟳ Auto-rotate: "+(on?"on":"off");};
+  $("play3d").onclick=()=>synapse3d.play();
+  $("prev3d").onclick=()=>synapse3d.step(-1);
+  $("next3d").onclick=()=>synapse3d.step(1);
   function paint3DBadge(){ synapse3d.react(); }
 
   /* ============================================================
@@ -1964,7 +2080,9 @@ const CONCEPTS=[
       if(e.key==="ArrowLeft"){gStop();gPrev();e.preventDefault();}
       if(e.key===" "||e.code==="Space"){gPlay();e.preventDefault();}
     } else if(currentView==="synapse3d"){
-      if(e.key===" "||e.code==="Space"){synapse3d.fire();e.preventDefault();}
+      if(e.key===" "||e.code==="Space"){synapse3d.play();e.preventDefault();}
+      if(e.key==="ArrowRight"){synapse3d.step(1);e.preventDefault();}
+      if(e.key==="ArrowLeft"){synapse3d.step(-1);e.preventDefault();}
     }
   });
 
