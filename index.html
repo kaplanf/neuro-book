@@ -3000,6 +3000,7 @@ const CONCEPTS=[
   applyState();
   render(0);
   gRender(0);
+  requestAnimationFrame(()=>{ deskDock.scrollIntoView({block:"start"}); openDesk(); }); // land with the control desk open
 })();
 </script>
 </body>
