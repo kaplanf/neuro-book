@@ -174,7 +174,25 @@
   .mind .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
   .mind .top .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
   .moodword{font-size:26px;letter-spacing:-.01em;line-height:1;transition:color .4s}
-  .mind .felt{font-style:italic;color:var(--dim);font-size:15px;margin:10px 0 18px;min-height:44px;transition:opacity .3s}
+  .mind .felt{font-style:italic;color:var(--dim);font-size:15px;margin:10px 0 12px;min-height:44px;transition:opacity .3s}
+  .feltcues{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;min-height:2px}
+  .fcue{font-family:var(--mono);font-size:10px;letter-spacing:.02em;padding:4px 9px;border-radius:999px;
+    border:1px solid var(--fcc,#888);color:var(--fcc,#888);background:color-mix(in srgb,var(--fcc) 12%,transparent);display:inline-flex;gap:5px;align-items:center}
+  .fcue .g{font-size:11px}
+  .statequote{margin:0 0 14px;padding:12px 16px;border-left:2px solid var(--da);background:color-mix(in srgb,var(--da) 5%,var(--panel-2));border-radius:0 10px 10px 0}
+  .statequote .sq-q{display:block;font-family:var(--serif);font-style:italic;font-size:14.5px;line-height:1.55;color:var(--ink)}
+  .statequote .sq-a{display:block;font-family:var(--mono);font-style:normal;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:8px}
+  .whyfeel{margin-bottom:18px;border-top:1px solid var(--hair);padding-top:12px}
+  .whyfeel>summary{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--dim);cursor:pointer;list-style:none;display:flex;align-items:center;gap:7px}
+  .whyfeel>summary::-webkit-details-marker{display:none}
+  .whyfeel>summary::before{content:"▸";color:var(--da);transition:transform .2s;display:inline-block}
+  .whyfeel[open]>summary::before{transform:rotate(90deg)}
+  .whyfeel>summary:hover{color:var(--ink)}
+  .whycards{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+  .whycard{border:1px solid var(--hair);border-left:3px solid var(--wcc,var(--da));border-radius:10px;padding:11px 13px;background:var(--panel-2)}
+  .whycard .wct{font-size:13.5px;color:var(--ink);margin-bottom:3px}
+  .whycard .wcm{font-family:var(--mono);font-size:9.5px;letter-spacing:.02em;color:var(--faint);margin-bottom:6px}
+  .whycard .wcf{font-size:12.5px;color:var(--dim);line-height:1.5}
   .meters{display:flex;flex-direction:column;gap:11px}
   .meter{display:grid;grid-template-columns:92px 1fr 34px;align-items:center;gap:11px}
   .meter .mlbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim)}
@@ -559,6 +577,9 @@
       <div class="top"><span class="lbl">State of mind</span></div>
       <div class="moodword mono" id="moodWord">Available</div>
       <div class="felt" id="feltLine">Balanced and available — motivation on tap, mood level, mind clear.</div>
+      <div class="feltcues" id="feltCues"></div>
+      <blockquote class="statequote" id="stateQuote"><span class="sq-q" id="sqText"></span><cite class="sq-a" id="sqAttr"></cite></blockquote>
+      <details class="whyfeel" id="whyFeel"><summary>Why it feels this way — and what shifts it</summary><div class="whycards" id="whyCards"></div></details>
       <div class="meters" id="meters"></div>
       <div class="flowrow">
         <div class="flowhead"><span class="flowlbl">Flow readiness</span><span class="flowstate" id="flowState">flow within reach</span></div>
@@ -1373,6 +1394,39 @@ const CONCEPTS=[
     return s.charAt(0).toUpperCase()+s.slice(1)+".";
   }
 
+  /* ---- lived-experience layer: felt cues, a matching classic line, and what shifts it ---- */
+  const STATE_QUOTES={
+    "Available":{q:"I am the master of my fate, I am the captain of my soul.",a:"W. E. Henley — ‘Invictus’"},
+    "Calm":{q:"Nothing can bring you peace but yourself.",a:"Ralph Waldo Emerson — ‘Self-Reliance’"},
+    "Hyped":{q:"The joy's soul lies in the doing.",a:"Shakespeare — ‘Troilus and Cressida’"},
+    "Wired & low":{q:"I have of late — but wherefore I know not — lost all my mirth.",a:"Shakespeare — ‘Hamlet’"},
+    "Crash-prone":{q:"I am gall, I am heartburn… I am bitter: would taste myself.",a:"G. M. Hopkins — ‘I wake and feel the fell of dark’"},
+    "Flat":{q:"A grief without a pang, void, dark, and drear — a stifled, drowsy, unimpassioned grief.",a:"S. T. Coleridge — ‘Dejection: An Ode’"},
+    "Muted":{q:"There hath passed away a glory from the earth.",a:"William Wordsworth — ‘Intimations of Immortality’"},
+    "Off-baseline":{q:"The time is out of joint.",a:"Shakespeare — ‘Hamlet’"}
+  };
+  function feltCues(m){
+    const c=[];
+    if(m.motivation<40) c.push(["◔","heavy to start","#e8850c"]);
+    if(m.mood<46) c.push(["▽","colour drained","#7d8794"]);
+    if(m.agitation>56) c.push(["≈","wired, scanning","#e0295a"]);
+    if(m.focus<44) c.push(["≋","won't hold a thought","#1f8fe0"]);
+    if(m.stability<44) c.push(["⚡","fragile, crash-prone","#9b3fd4"]);
+    if(m.agitation<32 && m.mood>=50) c.push(["◡","settled, unhurried","#2aa17a"]);
+    if(!c.length) c.push(["◉","clear & available","#18b57e"]);
+    return c.slice(0,4);
+  }
+  function whyCards(m){
+    const cards=[];
+    if(m.motivation<45) cards.push({t:"Prime the pump",c:"#e8850c",why:"low dopamine drive → nothing forecasts worth the effort",fix:"Movement first, motivation second — a small, certain win restarts the reward-prediction signal. Momentum is chemical, not moral."});
+    if(m.mood<48) cards.push({t:"Lift the floor",c:"#26b389",why:"low serotonergic tone → the baseline reads grey",fix:"Morning light, omega-3s, rhythm and real connection raise the mood floor the rest of the system rests on."});
+    if(m.agitation>56) cards.push({t:"Pull the brake",c:"#e0295a",why:"high cortisol / sympathetic tone → threat-scanning",fix:"Long exhales, cold exposure and one task at a time engage the vagal brake and let cortisol fall."});
+    if(m.focus<44) cards.push({t:"Restore the band",c:"#1f8fe0",why:"dopamine tone off the PFC inverted-U → thoughts scatter",fix:"Sleep and a protein-forward morning rebuild the narrow dopamine band working memory needs."});
+    if(m.stability<44) cards.push({t:"Steady the base",c:"#9b3fd4",why:"thin reserves + hypersensitive D2 → small hits over-read",fix:"Regular sleep and meals and a lighter load stop the swings before they crash below where you started."});
+    if(!cards.length) cards.push({t:"You're primed",c:"#18b57e",why:"the ensemble is balanced",fix:"Protect the block: one clear task, notifications off. This is the state to spend, not save."});
+    return cards.slice(0,3);
+  }
+
   /* ============================================================
      STATE OF MIND PANEL
      ============================================================ */
@@ -1405,6 +1459,16 @@ const CONCEPTS=[
     const [word,col]=moodLabel(m);
     const mw=$("moodWord"); mw.textContent=word; mw.style.color=col;
     $("feltLine").textContent=feltSentence(m);
+    // felt-cue glyphs
+    const fc=$("feltCues"); if(fc){ fc.innerHTML=""; feltCues(m).forEach(([g,t,c])=>{ const s=document.createElement("span");
+      s.className="fcue"; s.style.setProperty("--fcc",c); s.innerHTML='<span class="g">'+g+'</span>'+t; fc.appendChild(s); }); }
+    // a classic line matched to the state
+    const Q=STATE_QUOTES[word], sq=$("stateQuote");
+    if(sq){ if(Q){ $("sqText").textContent="“"+Q.q+"”"; $("sqAttr").textContent=Q.a; sq.style.display=""; } else sq.style.display="none"; }
+    // why it feels this way → what shifts it
+    const wc=$("whyCards"); if(wc){ wc.innerHTML=""; whyCards(m).forEach(cd=>{ const d=document.createElement("div");
+      d.className="whycard"; d.style.setProperty("--wcc",cd.c);
+      d.innerHTML='<div class="wct">'+cd.t+'</div><div class="wcm">'+cd.why+'</div><div class="wcf">'+cd.fix+'</div>'; wc.appendChild(d); }); }
     // valence-arousal dot: x=mood(0..100)->6..94%, y=agitation(0..100)-> bottom..top (top=high arousal)
     const x=6+ (m.mood/100)*88;
     const y=6+ (1-m.agitation/100)*88;
