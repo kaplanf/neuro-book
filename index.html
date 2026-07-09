@@ -329,6 +329,13 @@
   .xbar .bt{height:9px;border-radius:6px;background:var(--hair-2);overflow:hidden}
   .xbar .bt span{display:block;height:100%;width:0;border-radius:6px;transition:width .4s,background .4s}
   .xbar .bv{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:right}
+  .xpresets{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
+  .xpreset{font-family:var(--mono);font-size:10.5px;letter-spacing:.01em;color:var(--dim);background:var(--panel-2);
+    border:1px solid var(--hair);border-radius:999px;padding:6px 12px;cursor:pointer;transition:.15s}
+  .xpreset:hover{border-color:var(--pc,var(--da));color:var(--ink)}
+  .xpreset.on{background:color-mix(in srgb,var(--pc,var(--da)) 20%,var(--panel));border-color:var(--pc,var(--da));color:var(--ink)}
+  .xpreset:focus-visible{outline:2px solid var(--pc,var(--da));outline-offset:2px}
+  .wl-ex{display:inline-block;margin-top:6px;font-family:var(--serif);font-style:italic;font-size:12px;color:var(--faint)}
 
   /* ---------- molecules ---------- */
   .molgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
@@ -777,7 +784,8 @@
 
       <div class="xcard" id="x-flow">
         <div class="xhead"><h4>The flow ensemble mixer</h4><button class="xlink" data-find="neurochemistry of flow">concept →</button></div>
-        <p class="xblurb">Flow is a ratio, not one thing maxed out. Mix the six channels; the readout names the missing ingredient.</p>
+        <p class="xblurb">Flow is a ratio, not one thing maxed out. Pick a state to load its recipe — then fine-tune the six channels by hand.</p>
+        <div class="xpresets" id="flowPresets"></div>
         <div class="xmix" id="flowMix"></div>
         <div class="xflowscore"><div class="xflowbar"><span id="flowMixFill"></span></div><span class="xval" id="flowMixVal">–</span></div>
         <div class="xread" id="flowMixRead"></div>
@@ -2171,10 +2179,10 @@ const CONCEPTS=[
   (function wl(){
     const want=$("wlWant"), like=$("wlLike"), quad=$("wlQuad"), read=$("wlRead"); if(!quad) return;
     const map={
-      "11":{t:"Chasing something that also feels good.",r:"<b>Healthy desire.</b> Dopamine pulls you toward the reward and opioids pay off when you arrive — the loop most people simply call motivation."},
-      "10":{t:"Craving with no payoff.",r:"<b>The addiction trap.</b> Wanting is intact but liking is gone — you pursue harder and harder for a reward that no longer actually pleases."},
-      "01":{t:"Content, but nothing pulls.",r:"<b>Quiet satisfaction.</b> You enjoy what's already here yet feel no drive to chase more — pleasant, though easy to mistake for lost ambition."},
-      "00":{t:"Nothing pulls, nothing pleases.",r:"<b>Anhedonia.</b> Both systems are flat — the depressive floor where effort feels pointless and rewards feel grey."}
+      "11":{t:"Chasing something that also feels good.",r:"<b>Healthy desire.</b> Dopamine pulls you toward the reward and opioids pay it off when you arrive — the loop most people simply call motivation. Wanting and liking point the same way, so pursuit and pleasure reinforce each other.<br><span class='wl-ex'>Like: the hobby you're good at — you look forward to it, and it delivers.</span>"},
+      "10":{t:"Craving with no payoff.",r:"<b>The addiction trap.</b> Wanting is intact but liking is gone — the incentive-salience system keeps flagging the target as urgent while the hedonic hotspots stay quiet. You pursue harder and harder for a reward that no longer actually pleases.<br><span class='wl-ex'>Like: the tenth scroll of the feed, the cigarette you don't even enjoy — all pursuit, hollow arrival.</span>"},
+      "01":{t:"Content, but nothing pulls.",r:"<b>Quiet contentment.</b> The pleasure system works but the incentive engine is idle — you enjoy what's already in front of you yet feel no drive to seek more. Pleasant, though easy to mistake for lost ambition.<br><span class='wl-ex'>Like: the slow afternoon you savour but would never have gone looking for.</span>"},
+      "00":{t:"Nothing pulls, nothing pleases.",r:"<b>Anhedonia.</b> Both systems are flat — no pull toward anything and no payoff on arrival. This is the depressive floor: effort feels pointless because the forecast of reward and the reward itself have both gone grey.<br><span class='wl-ex'>Like: the favourite meal that suddenly tastes of nothing.</span>"}
     };
     function upd(){ const k=(want.classList.contains("on")?"1":"0")+(like.classList.contains("on")?"1":"0");
       quad.innerHTML='<div class="qtxt">'+map[k].t+'</div>'; read.innerHTML=map[k].r; }
@@ -2249,31 +2257,55 @@ const CONCEPTS=[
     t.oninput=upd; p.oninput=upd; upd();
   })();
 
-  // 5 — flow ensemble mixer
+  // 5 — flow ensemble mixer (pick a state, then fine-tune)
   (function flow(){
-    const wrap=$("flowMix"), fill=$("flowMixFill"), sval=$("flowMixVal"), read=$("flowMixRead"); if(!wrap) return;
+    const wrap=$("flowMix"), fill=$("flowMixFill"), sval=$("flowMixVal"), read=$("flowMixRead"), preWrap=$("flowPresets"); if(!wrap) return;
     const ch=[
       {k:"Dopamine",ideal:82,v:60},{k:"Norepinephrine",ideal:70,v:45},{k:"Endorphin",ideal:60,v:40},
       {k:"Anandamide",ideal:58,v:35},{k:"Serotonin",ideal:48,v:50},{k:"Self-monitoring",ideal:18,v:70,inv:true}
     ];
+    // presets: [DA, NE, Endorphin, Anandamide, Serotonin, Self-monitoring]
+    const PRE=[
+      {n:"Deep flow",c:"#18b57e",v:[82,70,60,58,48,18],r:"Every channel in its band — effortless focus, time dissolves, the inner critic goes silent. This is the ratio, not any one thing maxed out."},
+      {n:"Anxious spin",c:"#e0295a",v:[52,92,24,20,34,90],r:"Noradrenaline pinned high with the self-monitor screaming and no endorphin/anandamide to soften it — arousal without ease. Wired, watched, unable to land."},
+      {n:"Wired & tired",c:"#e8850c",v:[58,84,30,28,24,74],r:"Stimulation forced on top of a depleted serotonin floor — running on adrenaline you no longer have. Alert but brittle, focus that won't hold."},
+      {n:"Burnout",c:"#8a99a8",v:[20,26,22,26,30,52],r:"Everything dialled down — the flat, resourceless floor. Nothing pulls, nothing soothes, effort feels pointless. Recovery, not a push, is the way up."},
+      {n:"Stoned ease",c:"#7d4fc0",v:[46,28,80,90,60,22],r:"Endocannabinoids and endorphins flooded, arousal low, the monitor off — deeply relaxed and pleasant, but too little drive/alertness to lock into a task."},
+      {n:"Bored / flat",c:"#3a6ea5",v:[26,32,44,44,52,58],r:"Mild everything and low dopamine — under-stimulated. Not distressed, just no pull; the task can't grab you because nothing's lit up."}
+    ];
     wrap.innerHTML=ch.map((c,i)=>'<div class="xmixrow"><span class="ml">'+c.k+'</span><input type="range" min="0" max="100" value="'+c.v+'" data-i="'+i+'" aria-label="'+c.k+'"></div>').join("");
     const sliders=[...wrap.querySelectorAll("input")];
-    function upd(){ sliders.forEach(s=>{ ch[+s.dataset.i].v=+s.value; });
-      let worst=null,worstDev=-1,total=0;
+    preWrap.innerHTML=PRE.map((p,i)=>'<button class="xpreset" data-p="'+i+'" style="--pc:'+p.c+'">'+p.n+'</button>').join("");
+    let activePreset=-1;
+    function score(){ let worst=null,worstDev=-1,total=0;
       ch.forEach(c=>{ const dev=Math.abs(c.v-c.ideal); total+=dev; if(dev>worstDev){worstDev=dev;worst=c;} });
-      const score=Math.max(0,Math.round(100-total/ch.length*1.4));
-      fill.style.width=score+"%"; fill.style.background=score>75?"#18b57e":score>50?"#e8a00c":"var(--recep)"; sval.textContent=score;
+      return {s:Math.max(0,Math.round(100-total/ch.length*1.4)), worst}; }
+    function paint(){ sliders.forEach(s=>{ ch[+s.dataset.i].v=+s.value; });
+      const {s,worst}=score();
+      fill.style.width=s+"%"; fill.style.background=s>75?"#18b57e":s>50?"#e8a00c":"var(--recep)"; sval.textContent=s;
       let r;
-      if(score>=80) r="<b>In flow.</b> All six channels sit in their band — effortless focus, time dissolves, the inner critic goes quiet. Notice it's a <i>ratio</i>, not any one thing maxed out.";
+      if(activePreset>=0){ r="<b>"+PRE[activePreset].n+" · "+s+"/100.</b> "+PRE[activePreset].r; }
+      else if(s>=80) r="<b>In flow · "+s+"/100.</b> All six channels sit in their band — effortless focus, time dissolves, the inner critic goes quiet.";
       else{ const dir = worst.inv ? (worst.v>worst.ideal?"too high":"too low") : (worst.v<worst.ideal?"too low":"too high");
         const why = worst.k==="Self-monitoring" ? "the inner critic won't switch off — self-consciousness blocks the merge"
           : worst.k==="Dopamine" ? "not enough pull toward the task — it feels like a chore"
           : worst.k==="Norepinephrine" ? "attention won't lock on — alertness is off its mark"
           : worst.k==="Serotonin" ? "the mood floor is unsteady — flow needs a stable base"
           : "the reward/ease chemistry is off — the task doesn't feel good enough to disappear into";
-        r="<b>"+worst.k+" is "+dir+".</b> Your missing ingredient: "+why+"."; }
+        r="<b>"+worst.k+" is "+dir+" · "+s+"/100.</b> Your missing ingredient: "+why+"."; }
       read.innerHTML=r; }
-    sliders.forEach(s=>s.oninput=upd); upd();
+    let anim=null;
+    function applyPreset(idx){ activePreset=idx;
+      document.querySelectorAll("#flowPresets .xpreset").forEach((b,i)=>b.classList.toggle("on",i===idx));
+      const target=PRE[idx].v, start=sliders.map(s=>+s.value);
+      if(reduce){ sliders.forEach((s,i)=>s.value=target[i]); paint(); return; }
+      if(anim)cancelAnimationFrame(anim); let t=0;
+      (function step(){ t=Math.min(1,t+0.08); const e=1-Math.pow(1-t,3);
+        sliders.forEach((s,i)=>s.value=Math.round(start[i]+(target[i]-start[i])*e)); paint();
+        if(t<1)anim=requestAnimationFrame(step); })(); }
+    document.querySelectorAll("#flowPresets .xpreset").forEach(b=>b.onclick=()=>applyPreset(+b.dataset.p));
+    sliders.forEach(s=>s.oninput=()=>{ activePreset=-1; document.querySelectorAll("#flowPresets .xpreset").forEach(b=>b.classList.remove("on")); paint(); });
+    applyPreset(0);
   })();
 
   // 6 — self-model rupture
