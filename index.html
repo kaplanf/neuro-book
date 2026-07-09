@@ -72,13 +72,45 @@
   .scrollcue .arrow{width:16px;height:16px;border-right:1.5px solid #8f9dab;border-bottom:1.5px solid #8f9dab;transform:rotate(45deg);animation:bob 1.8s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translateY(0) rotate(45deg)}50%{transform:translateY(5px) rotate(45deg)}}
 
-  /* ---------- control desk ---------- */
-  .desk{padding:44px 0 30px}
+  /* ---------- control desk (collapsible sticky dock) ---------- */
   .sectlabel{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
-  .desk h2{font-size:clamp(23px,3vw,34px);font-weight:400;letter-spacing:-.02em;line-height:1.08;margin-bottom:8px}
-  .desk .sub{color:var(--dim);max-width:64ch;font-size:15.5px;margin-bottom:24px}
+  .deskpanel h2{font-size:clamp(21px,2.6vw,30px);font-weight:400;letter-spacing:-.02em;line-height:1.08;margin-bottom:8px}
+  .deskpanel .sub{color:var(--dim);max-width:64ch;font-size:15px;margin-bottom:22px}
   .deskgrid{display:grid;grid-template-columns:1.05fr 1fr;gap:26px;align-items:start}
   @media (max-width:860px){.deskgrid{grid-template-columns:1fr}}
+
+  .deskdock{position:sticky;top:47px;z-index:56;background:color-mix(in srgb,var(--bg) 90%,transparent);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--hair)}
+  .deskbar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:none;border:none;cursor:pointer;padding:9px 0;text-align:left;color:inherit;font-family:inherit}
+  .db-l{display:flex;align-items:baseline;gap:12px;min-width:0}
+  .db-tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);flex:none}
+  .db-sum{font-family:var(--serif);font-size:14px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .db-r{display:flex;align-items:center;gap:14px;flex:none}
+  .db-mood{font-family:var(--mono);font-size:13px;letter-spacing:.01em;font-weight:600;transition:color .4s}
+  .db-flowtrack{width:66px;height:6px;border-radius:6px;background:var(--hair-2);overflow:hidden;display:inline-block}
+  .db-flowfill{display:block;height:100%;width:0;border-radius:6px;background:var(--enz);transition:width .6s,background .4s}
+  .db-adj{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink);border:1px solid var(--hair);border-radius:999px;padding:6px 13px;transition:.18s}
+  .deskbar:hover .db-adj,.deskbar:focus-visible .db-adj{border-color:var(--da);color:var(--da)}
+  .deskbar:focus-visible{outline:none}
+  .db-chev{transition:transform .2s;font-size:9px}
+  .deskbar[aria-expanded="true"] .db-chev{transform:rotate(180deg)}
+  @media (max-width:680px){ .db-sum{display:none} }
+
+  .deskscrim{position:fixed;inset:0;z-index:54;background:color-mix(in srgb,var(--bg) 42%,rgba(6,10,16,.62));backdrop-filter:blur(2px)}
+  .deskscrim[hidden]{display:none}
+  .deskpanel{position:fixed;left:0;right:0;top:95px;z-index:55;max-height:calc(100vh - 104px);overflow:auto;
+    background:var(--bg);border-bottom:1px solid var(--hair);box-shadow:0 26px 54px -20px rgba(0,0,0,.55)}
+  @media (prefers-reduced-motion:no-preference){ .deskpanel{animation:deskdrop .24s cubic-bezier(.2,.9,.3,1)} }
+  @keyframes deskdrop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+  .deskpanel[hidden]{display:none}
+  .deskpanel .wrap{padding-top:22px;padding-bottom:30px}
+  .deskphead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:6px}
+  .deskpclose{width:32px;height:32px;flex:none;border-radius:9px;border:1px solid var(--hair);background:var(--panel-2);
+    color:var(--dim);font-size:13px;cursor:pointer;display:grid;place-items:center}
+  .deskpclose:hover{color:var(--ink);border-color:var(--da)}
+  .deskpclose:focus-visible{outline:2px solid var(--da);outline-offset:2px}
 
   .influences .cap{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:11px}
   .togglewrap{display:flex;flex-wrap:wrap;gap:9px}
@@ -165,8 +197,8 @@
     border:1px solid var(--ac,#888);color:var(--ac,#888);background:color-mix(in srgb,var(--ac) 12%,transparent)}
 
   /* ---------- tabs ---------- */
-  .tabsbar{position:sticky;top:47px;z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);
-    backdrop-filter:blur(12px);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin-top:16px}
+  .tabsbar{position:sticky;top:93px;z-index:50;background:color-mix(in srgb,var(--bg) 86%,transparent);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--hair)}
   .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex:0 0 auto;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--dim);
@@ -350,7 +382,7 @@
   .learnlabel{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:6px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--hair)}
   .learnlabel .ll-n{color:var(--da);font-weight:600}
   .libintro{color:var(--dim);font-size:14.5px;max-width:70ch;margin-bottom:16px}
-  .libbar{display:flex;flex-direction:column;gap:14px;margin-bottom:16px;position:sticky;top:96px;z-index:20;
+  .libbar{display:flex;flex-direction:column;gap:14px;margin-bottom:16px;position:sticky;top:140px;z-index:20;
     background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);padding:8px 0 12px}
   .searchwrap{position:relative;max-width:440px}
   .searchwrap .sicon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:16px}
@@ -448,9 +480,18 @@
 </header>
 
 <!-- ============ CONTROL DESK ============ -->
-<section class="desk"><div class="wrap">
-  <div class="sectlabel">Control desk</div>
-  <h2>Choose what's acting on the circuit</h2>
+<section class="deskdock" id="deskDock"><div class="wrap">
+  <button class="deskbar" id="deskBar" aria-expanded="false" aria-controls="deskPanel">
+    <span class="db-l"><span class="db-tag">Control desk</span><span class="db-sum" id="dbChips">Baseline · healthy body</span></span>
+    <span class="db-r"><span class="db-mood" id="dbMood">Available</span><span class="db-flowtrack" aria-hidden="true"><span class="db-flowfill" id="dbFlowFill"></span></span><span class="db-adj"><span id="dbAdjTxt">Adjust</span><span class="db-chev" id="dbChev">▾</span></span></span>
+  </button>
+</div></section>
+<div class="deskscrim" id="deskScrim" hidden></div>
+<aside class="deskpanel" id="deskPanel" hidden><div class="wrap">
+  <div class="deskphead">
+    <div><div class="sectlabel">Control desk</div><h2>Choose what's acting on the circuit</h2></div>
+    <button class="deskpclose" id="deskClose" aria-label="Close controls">✕</button>
+  </div>
   <p class="sub">These aren't mutually exclusive — a bad night's sleep, two drinks and a stressful week stack. Combine them and the model composes the result, in molecules and in mood.</p>
   <div class="deskgrid">
     <div class="influences">
@@ -488,7 +529,7 @@
       <div class="activechips" id="activeChips"></div>
     </div>
   </div>
-</div></section>
+</div></aside>
 
 <!-- ============ TABS ============ -->
 <div class="tabsbar"><div class="wrap"><div class="tabs" role="tablist" id="tabs">
@@ -1338,6 +1379,10 @@ const CONCEPTS=[
       $("flowState").style.color=fcol;
       $("flowWhy").textContent = fs>72? "the dopamine–noradrenaline–focus ensemble is close to balanced." : flowLimiter(m)+".";
     }
+    // dock bar live summary
+    const bm=$("dbMood"); if(bm){ bm.textContent=word; bm.style.color=col; }
+    const bf=$("dbFlowFill"); if(bf){ bf.style.width=fs+"%"; bf.style.background=(fs>66?"#18b57e":fs>40?"#d7a53c":"#e0295a"); }
+    const bc=$("dbChips"); if(bc){ bc.textContent = st.ids.length? st.ids.map(id=>INF[id].name).join(" · ") : "Baseline · healthy body"; }
   }
 
   /* ============================================================
@@ -2662,6 +2707,24 @@ const CONCEPTS=[
       else if(!e.shiftKey && document.activeElement===last){ first.focus(); e.preventDefault(); }
     }
   },true);
+
+  /* ============================================================
+     CONTROL DESK — collapsible sticky dock
+     ============================================================ */
+  const deskDock=$("deskDock"), deskBar=$("deskBar"), deskPanel=$("deskPanel"), deskScrim=$("deskScrim");
+  let deskOpen=false;
+  function positionDesk(){ deskPanel.style.top=Math.round(deskDock.getBoundingClientRect().bottom)+"px"; }
+  function openDesk(){ deskOpen=true; positionDesk(); deskScrim.hidden=false; deskPanel.hidden=false;
+    deskBar.setAttribute("aria-expanded","true"); $("dbAdjTxt").textContent="Done";
+    requestAnimationFrame(()=>{ const f=deskPanel.querySelector("button,input,[tabindex]"); if(f)f.focus(); }); }
+  function closeDesk(){ if(!deskOpen) return; deskOpen=false; deskPanel.hidden=true; deskScrim.hidden=true;
+    deskBar.setAttribute("aria-expanded","false"); $("dbAdjTxt").textContent="Adjust"; }
+  deskBar.onclick=()=>{ deskOpen?closeDesk():openDesk(); };
+  $("deskClose").onclick=closeDesk;
+  deskScrim.onclick=closeDesk;
+  window.addEventListener("resize",()=>{ if(deskOpen) positionDesk(); });
+  window.addEventListener("scroll",()=>{ if(deskOpen) positionDesk(); },{passive:true});
+  document.addEventListener("keydown",e=>{ if(deskOpen && e.key==="Escape"){ closeDesk(); e.stopPropagation(); e.preventDefault(); } },true);
 
   // keyboard
   $("navBack").onclick=()=>popNav();
