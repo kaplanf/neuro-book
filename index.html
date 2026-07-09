@@ -371,6 +371,38 @@
   .mrelchip:hover{border-color:var(--da);color:var(--ink)}
   .mrelchip:focus-visible{outline:2px solid var(--da);outline-offset:2px}
 
+  /* ---------- concept drawer ---------- */
+  .cdscrim{position:fixed;inset:0;z-index:58;background:color-mix(in srgb,var(--bg) 20%,rgba(6,10,16,.28));opacity:0;transition:opacity .3s}
+  .cdscrim.show{opacity:1}
+  .cdscrim[hidden]{display:none}
+  .cdrawer{position:fixed;top:0;right:0;bottom:0;width:min(452px,92vw);z-index:59;background:var(--panel);
+    border-left:1px solid var(--hair);box-shadow:-26px 0 64px -26px rgba(0,0,0,.55);overflow-y:auto;
+    padding:52px 26px 44px;visibility:hidden;transform:translateX(100%);
+    transition:transform .34s cubic-bezier(.3,.9,.3,1),visibility 0s linear .34s}
+  .cdrawer.open{visibility:visible;transform:none;transition:transform .34s cubic-bezier(.3,.9,.3,1)}
+  @media (prefers-reduced-motion:reduce){ .cdrawer,.cdrawer.open{transition:visibility 0s} }
+  main.wrap{transition:transform .34s cubic-bezier(.3,.9,.3,1)}
+  @media (min-width:920px){ body.cdrawer-open main.wrap{transform:translateX(-116px)} }
+  .cdclose{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:9px;border:1px solid var(--hair);
+    background:var(--panel-2);color:var(--dim);font-size:13px;cursor:pointer;display:grid;place-items:center}
+  .cdclose:hover{color:var(--ink);border-color:var(--da)}
+  .cdclose:focus-visible{outline:2px solid var(--da);outline-offset:2px}
+  .cd-cat{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+  .cd-title{font-size:23px;font-weight:400;letter-spacing:-.015em;line-height:1.12;margin:0 24px 14px 0}
+  .cd-def{font-family:var(--serif);font-size:16px;line-height:1.55;color:var(--ink);margin-bottom:18px}
+  .cd-seclbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 7px}
+  .cd-mech{font-size:14px;line-height:1.62;color:var(--dim);margin-bottom:18px}
+  .cd-use{background:color-mix(in srgb,var(--enz) 8%,var(--panel-2));border:1px solid var(--hair);border-left:3px solid var(--enz);
+    border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.55;color:var(--dim);margin-bottom:18px}
+  .cd-use .ul{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--enz);margin-bottom:5px}
+  .cd-felt{background:color-mix(in srgb,var(--recep) 7%,var(--panel-2));border:1px solid var(--hair);border-left:3px solid var(--recep);
+    border-radius:10px;padding:12px 14px;font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.6;color:var(--ink);margin-bottom:18px}
+  .cd-felt .fl{display:block;font-family:var(--mono);font-style:normal;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--recep);margin-bottom:6px}
+  .cd-actors{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .cd-scn{font-size:13px;color:var(--dim);padding-top:14px;border-top:1px solid var(--hair)}
+  .cd-scn .go{font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--da);cursor:pointer}
+  .cd-scn .go:hover{text-decoration:underline;text-underline-offset:2px}
+
   /* ---------- legend + footer ---------- */
   .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:11px 24px;margin:32px 0 0;padding:22px 0;border-top:1px solid var(--hair)}
   .legend div{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dim)}
@@ -466,6 +498,13 @@
     <div class="mrel" id="mmRel" hidden><div class="mrelhd">Appears in these concepts</div><div class="mrelwrap" id="mmRelWrap"></div></div>
   </div>
 </div>
+
+<!-- ============ CONCEPT DRAWER (slides from right) ============ -->
+<div class="cdscrim" id="cdScrim" hidden></div>
+<aside class="cdrawer" id="cDrawer" aria-label="Concept detail" aria-hidden="true">
+  <button class="cdclose" id="cdClose" aria-label="Close">✕</button>
+  <div class="cdbody" id="cdBody"></div>
+</aside>
 
 <!-- ============ HERO ============ -->
 <header class="hero">
@@ -2332,11 +2371,8 @@ const CONCEPTS=[
     sl.oninput=upd; upd();
   })();
 
-  // concept-link buttons: jump to the matching card in the library below
-  document.querySelectorAll(".xlink").forEach(b=>b.onclick=()=>{
-    const s=$("libSearch"); if(!s) return; s.value=b.dataset.find; s.dispatchEvent(new Event("input",{bubbles:true}));
-    const g=$("conceptGrid"); if(g) g.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
-  });
+  // concept-link buttons: open the concept in the side drawer
+  document.querySelectorAll(".xlink").forEach(b=>b.onclick=()=>openConcept(findConcept(b.dataset.find)));
 
   /* ============================================================
      THEME + TABS + INFLUENCE TOGGLES + KEYBOARD
@@ -2681,7 +2717,7 @@ const CONCEPTS=[
     const list=(CONCEPT_BY_ACTOR[ent.key]||[]).slice(0,6);
     if(list.length){
       list.forEach(k=>{ const c=document.createElement("button"); c.className="mrelchip"; c.textContent=k.t;
-        c.onclick=()=>{ closeModal(); jumpToConcept(k.t); }; wrap.appendChild(c); });
+        c.onclick=()=>{ closeModal(); openConcept(k); }; wrap.appendChild(c); });
       rel.hidden=false;
     } else rel.hidden=true;
     modal.hidden=false;
@@ -2699,7 +2735,7 @@ const CONCEPTS=[
   modal.addEventListener("mousedown",e=>{ if(e.target===modal) closeModal(); });
   document.addEventListener("keydown",e=>{
     if(modal.hidden) return;
-    if(e.key==="Escape"){ closeModal(); e.stopPropagation(); e.preventDefault(); return; }
+    if(e.key==="Escape"){ closeModal(); e.stopImmediatePropagation(); e.preventDefault(); return; }
     if(e.key==="Tab"){ // simple focus trap
       const f=mDialog.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
       if(!f.length) return; const first=f[0], last=f[f.length-1];
@@ -2724,7 +2760,43 @@ const CONCEPTS=[
   deskScrim.onclick=closeDesk;
   window.addEventListener("resize",()=>{ if(deskOpen) positionDesk(); });
   window.addEventListener("scroll",()=>{ if(deskOpen) positionDesk(); },{passive:true});
-  document.addEventListener("keydown",e=>{ if(deskOpen && e.key==="Escape"){ closeDesk(); e.stopPropagation(); e.preventDefault(); } },true);
+  document.addEventListener("keydown",e=>{ if(deskOpen && e.key==="Escape"){ closeDesk(); e.stopImmediatePropagation(); e.preventDefault(); } },true);
+
+  /* ============================================================
+     CONCEPT DRAWER — slides in from the right (no text search)
+     ============================================================ */
+  const cDrawer=$("cDrawer"), cdScrim=$("cdScrim"), cdBody=$("cdBody");
+  let cdOpen=false;
+  function catOf(id){ return CATS.find(c=>c.id===id)||{name:"",color:"var(--da)"}; }
+  function findConcept(q){ q=(q||"").trim().toLowerCase(); if(!q) return null;
+    return CONCEPTS.find(k=>k.t.toLowerCase()===q) || CONCEPTS.find(k=>k.t.toLowerCase().includes(q))
+      || CONCEPTS.find(k=>((k.t+" "+k.d+" "+k.m).toLowerCase().includes(q))); }
+  function openConcept(k){ if(!k) return; const cat=catOf(k.c);
+    let actors=""; (k.a||[]).forEach(key=>{ const A=ACTORS[key]; if(!A) return;
+      actors+=`<span class="atag link" style="--at:${A.c}" data-key="${key}" role="button" tabindex="0">${A.l}</span>`; });
+    const use = k.u? `<div class="cd-use"><span class="ul">How to use it</span>${k.u}</div>`:"";
+    const felt = k.f? `<div class="cd-felt"><span class="fl">How it feels</span>${k.f}</div>`:"";
+    const scn = (k.s&&INF[k.s])? `<div class="cd-scn"><b>${INF[k.s].name}</b> · <span class="go" data-scn="${k.s}">see this state on the circuit →</span></div>`:"";
+    cdBody.innerHTML = `<div class="cd-cat" style="color:${cat.color}">${cat.name}</div>`
+      +`<h3 class="cd-title">${k.t}</h3><div class="cd-def">${k.d}</div>`
+      +`<div class="cd-seclbl">Mechanism</div><div class="cd-mech">${k.m}</div>`
+      + felt + use
+      + (actors?`<div class="cd-seclbl">Molecules &amp; regions — tap any</div><div class="cd-actors">${actors}</div>`:"")
+      + scn;
+    cdBody.querySelectorAll(".atag.link").forEach(t=>{ const go=()=>{ const e=actorEntity(t.dataset.key); if(e) openModal(e,t); };
+      t.addEventListener("click",go); t.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();go();}}); });
+    const sb=cdBody.querySelector(".cd-scn .go"); if(sb) sb.addEventListener("click",()=>{ closeConcept(); seeState(sb.dataset.scn); });
+    cdScrim.hidden=false; cdOpen=true;
+    requestAnimationFrame(()=>{ cdScrim.classList.add("show"); cDrawer.classList.add("open");
+      document.body.classList.add("cdrawer-open"); cDrawer.setAttribute("aria-hidden","false"); });
+    cDrawer.scrollTop=0; requestAnimationFrame(()=>$("cdClose").focus());
+  }
+  function closeConcept(){ if(!cdOpen) return; cdOpen=false; cDrawer.classList.remove("open"); cdScrim.classList.remove("show");
+    document.body.classList.remove("cdrawer-open"); cDrawer.setAttribute("aria-hidden","true");
+    setTimeout(()=>{ if(!cdOpen) cdScrim.hidden=true; }, 360); }
+  $("cdClose").onclick=closeConcept;
+  cdScrim.onclick=closeConcept;
+  document.addEventListener("keydown",e=>{ if(cdOpen && e.key==="Escape"){ closeConcept(); e.stopImmediatePropagation(); e.preventDefault(); } },true);
 
   // keyboard
   $("navBack").onclick=()=>popNav();
