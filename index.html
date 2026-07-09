@@ -305,6 +305,39 @@
   .molcard .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:11px;display:inline-block}
   .molcard svg{width:100%;height:120px;margin-bottom:11px;background:#fbfcfd;border:1px solid var(--hair-2);border-radius:8px}
   .molcard p{font-size:13px;color:var(--dim);line-height:1.5}
+  .molcard.tapcard{cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+  .molcard.tapcard:hover{border-color:var(--da);transform:translateY(-2px);box-shadow:0 8px 24px -14px rgba(0,0,0,.4)}
+  .molcard.tapcard:focus-visible{outline:2px solid var(--da);outline-offset:2px}
+  .molcard .more{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--gold);margin-top:9px;opacity:.8}
+
+  /* ---------- molecule / actor modal ---------- */
+  .mscrim{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:22px;
+    background:color-mix(in srgb,var(--bg) 55%,rgba(6,10,16,.72));backdrop-filter:blur(3px)}
+  .mscrim[hidden]{display:none}
+  .mdialog{position:relative;width:min(460px,100%);max-height:88vh;overflow:auto;background:var(--panel);
+    border:1px solid var(--hair);border-radius:16px;padding:26px 26px 22px;box-shadow:0 24px 70px -20px rgba(0,0,0,.6)}
+  @media (prefers-reduced-motion:no-preference){ .mdialog{animation:mpop .22s cubic-bezier(.2,.9,.3,1.1)} }
+  @keyframes mpop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+  .mclose{position:absolute;top:13px;right:13px;width:30px;height:30px;border-radius:8px;border:1px solid var(--hair);
+    background:var(--panel-2);color:var(--dim);font-size:13px;cursor:pointer;line-height:1;display:grid;place-items:center}
+  .mclose:hover{color:var(--ink);border-color:var(--da)}
+  .mclose:focus-visible{outline:2px solid var(--da);outline-offset:2px}
+  .mtag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mtc,var(--da));margin-bottom:5px}
+  .mname{font-size:22px;font-weight:400;letter-spacing:-.015em;margin:0 34px 12px 0}
+  .mstruct svg{width:100%;height:130px;background:#fbfcfd;border:1px solid var(--hair-2);border-radius:10px;margin-bottom:14px}
+  .mrole{font-family:var(--serif);font-size:14.5px;line-height:1.6;color:var(--dim);margin:0 0 16px}
+  .macts{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:4px}
+  .mdiag{font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:#fff;background:var(--da);border:none;
+    border-radius:9px;padding:10px 15px;cursor:pointer;transition:filter .15s}
+  .mdiag:hover{filter:brightness(1.08)}
+  .mdiag:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .mrel{margin-top:18px;border-top:1px solid var(--hair);padding-top:15px}
+  .mrelhd{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+  .mrelwrap{display:flex;flex-wrap:wrap;gap:7px}
+  .mrelchip{font-family:var(--serif);font-size:12.5px;color:var(--dim);background:var(--panel-2);border:1px solid var(--hair);
+    border-radius:8px;padding:6px 11px;cursor:pointer;transition:.14s;text-align:left}
+  .mrelchip:hover{border-color:var(--da);color:var(--ink)}
+  .mrelchip:focus-visible{outline:2px solid var(--da);outline-offset:2px}
 
   /* ---------- legend + footer ---------- */
   .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:11px 24px;margin:32px 0 0;padding:22px 0;border-top:1px solid var(--hair)}
@@ -388,6 +421,19 @@
   <button class="themebtn" id="themeBtn" aria-label="Toggle color theme">◐ theme</button>
 </div>
 <button class="navback" id="navBack" style="display:none" aria-label="Go back to where you were">← Back<span>restore previous state</span></button>
+
+<!-- ============ MOLECULE / ACTOR MODAL ============ -->
+<div class="mscrim" id="molModal" hidden>
+  <div class="mdialog" role="dialog" aria-modal="true" aria-labelledby="mmName">
+    <button class="mclose" id="mmClose" aria-label="Close">✕</button>
+    <div class="mtag" id="mmTag"></div>
+    <h3 class="mname" id="mmName"></h3>
+    <div class="mstruct" id="mmStruct" hidden></div>
+    <p class="mrole" id="mmRole"></p>
+    <div class="macts" id="mmActs"></div>
+    <div class="mrel" id="mmRel" hidden><div class="mrelhd">Appears in these concepts</div><div class="mrelwrap" id="mmRelWrap"></div></div>
+  </div>
+</div>
 
 <!-- ============ HERO ============ -->
 <header class="hero">
@@ -792,7 +838,7 @@
     targets:{text:"With chronically low SCFAs, weak vagal tone and ongoing low-grade inflammation, the gut feeds the same depletion seen in the synapse — less precursor, more inflammation, unsteady modulation.",mech:"low SCFA + weak vagus + inflammation → feeds depletion",delta:"Gut feeds the synaptic depletion loop"}
   }
 };
-  const MOL=[     {name:"Dopamine",tag:"neurotransmitter",color:"#e8850c",svg:catechol("NH₂",false),desc:"Catecholamine: catechol ring (two hydroxyls) + ethylamine tail. Built from tyrosine; carries the reward-prediction and motivation signal."},     {name:"Tyrosine",tag:"precursor · amino acid",color:"#128a63",svg:tyrosineSVG(),desc:"Dietary substrate. One ring hydroxyl; TH adds the second to make L-DOPA — the rate-limiting step."},     {name:"L-DOPA",tag:"intermediate",color:"#128a63",svg:catechol("tail",true),desc:"Catechol now complete; AADC removes the carboxyl to yield dopamine. Crosses the blood-brain barrier, unlike dopamine."},     {name:"GABA",tag:"inhibitory transmitter",color:"#9b3fd4",svg:gabaSVG(),desc:"γ-aminobutyric acid — the main inhibitory signal. From the interneuron it hyperpolarizes the dopamine terminal and brakes firing."},     {name:"Glutamate",tag:"excitatory transmitter",color:"#1f8fe0",svg:glutamateSVG(),desc:"Main excitatory signal, opposing GABA. Net firing = glutamate drive − GABA brake."},     {name:"Butyrate (SCFA)",tag:"microbial metabolite",color:"#2aa17a",svg:butyrateSVG(),desc:"Short-chain fatty acid from fiber fermentation. Feeds enterocytes, seals tight junctions, crosses into brain to raise BDNF and calm microglia."},     {name:"VMAT2",tag:"vesicular transporter",color:"#e8850c",svg:transporterSVG("vesicle"),desc:"Pumps cytoplasmic dopamine into vesicles using stored H⁺ energy. Wine tyramine reverses it, dumping stores."},     {name:"DAT",tag:"membrane transporter",color:"#e8850c",svg:transporterSVG("membrane"),desc:"Reuptake pump on the presynaptic membrane. Recaptures released dopamine — fastest way to end the signal in the striatum."},     {name:"D1 / D2 receptors",tag:"GPCRs",color:"#e0295a",svg:receptorSVG(),desc:"Seven-pass GPCRs. D1 (Gs) raises cAMP → 'go'; D2 (Gi) lowers it → 'no-go'. Chronic low signal upregulates D2."},     {name:"MAO-B / COMT",tag:"degradation enzymes",color:"#128a63",svg:enzymeSVG(),desc:"Break dopamine into DOPAC and HVA. Dominant clearance in prefrontal cortex, where reuptake is sparse."},     {name:"Synaptic vesicle",tag:"storage organelle",color:"#e8850c",svg:vesicleSVG(),desc:"Holds ~10³–10⁴ dopamine molecules. Docks and fuses on a firing signal, emptying cargo into the cleft."},     {name:"Vagus nerve",tag:"gut ↔ brain cable",color:"#2aa17a",svg:vagusSVG(),desc:"Longest cranial nerve, ~80% afferent. Carries gut metabolite and serotonin signals up to the NTS — the hardwire behind the gut–brain axis."}   ];
+  const MOL=[     {name:"Dopamine",key:"dopamine",tag:"neurotransmitter",color:"#e8850c",svg:catechol("NH₂",false),desc:"Catecholamine: catechol ring (two hydroxyls) + ethylamine tail. Built from tyrosine; carries the reward-prediction and motivation signal."},     {name:"Tyrosine",key:"tyrosine",tag:"precursor · amino acid",color:"#128a63",svg:tyrosineSVG(),desc:"Dietary substrate. One ring hydroxyl; TH adds the second to make L-DOPA — the rate-limiting step."},     {name:"L-DOPA",key:"ldopa",tag:"intermediate",color:"#128a63",svg:catechol("tail",true),desc:"Catechol now complete; AADC removes the carboxyl to yield dopamine. Crosses the blood-brain barrier, unlike dopamine."},     {name:"GABA",key:"GABA",tag:"inhibitory transmitter",color:"#9b3fd4",svg:gabaSVG(),desc:"γ-aminobutyric acid — the main inhibitory signal. From the interneuron it hyperpolarizes the dopamine terminal and brakes firing."},     {name:"Glutamate",key:"glutamate",tag:"excitatory transmitter",color:"#1f8fe0",svg:glutamateSVG(),desc:"Main excitatory signal, opposing GABA. Net firing = glutamate drive − GABA brake."},     {name:"Butyrate (SCFA)",key:"SCFA",tag:"microbial metabolite",color:"#2aa17a",svg:butyrateSVG(),desc:"Short-chain fatty acid from fiber fermentation. Feeds enterocytes, seals tight junctions, crosses into brain to raise BDNF and calm microglia."},     {name:"VMAT2",key:"VMAT2",tag:"vesicular transporter",color:"#e8850c",svg:transporterSVG("vesicle"),desc:"Pumps cytoplasmic dopamine into vesicles using stored H⁺ energy. Wine tyramine reverses it, dumping stores."},     {name:"DAT",key:"DAT",tag:"membrane transporter",color:"#e8850c",svg:transporterSVG("membrane"),desc:"Reuptake pump on the presynaptic membrane. Recaptures released dopamine — fastest way to end the signal in the striatum."},     {name:"D1 / D2 receptors",key:"D1",tag:"GPCRs",color:"#e0295a",svg:receptorSVG(),desc:"Seven-pass GPCRs. D1 (Gs) raises cAMP → 'go'; D2 (Gi) lowers it → 'no-go'. Chronic low signal upregulates D2."},     {name:"MAO-B / COMT",key:"MAOB",tag:"degradation enzymes",color:"#128a63",svg:enzymeSVG(),desc:"Break dopamine into DOPAC and HVA. Dominant clearance in prefrontal cortex, where reuptake is sparse."},     {name:"Synaptic vesicle",key:"vesicle",tag:"storage organelle",color:"#e8850c",svg:vesicleSVG(),desc:"Holds ~10³–10⁴ dopamine molecules. Docks and fuses on a firing signal, emptying cargo into the cleft."},     {name:"Vagus nerve",key:"vagus",tag:"gut ↔ brain cable",color:"#2aa17a",svg:vagusSVG(),desc:"Longest cranial nerve, ~80% afferent. Carries gut metabolite and serotonin signals up to the NTS — the hardwire behind the gut–brain axis."}   ];
   function catechol(tail,isDopa){return `<svg viewBox="0 0 220 130"><g stroke="#1a2530" stroke-width="1.6" fill="none"><polygon points="70,30 100,30 115,56 100,82 70,82 55,56" fill="#fff"/><line x1="59" y1="49" x2="72" y2="49"/><line x1="59" y1="63" x2="72" y2="63"/><line x1="98" y1="34" x2="98" y2="46"/></g><text x="38" y="40" fill="#e0295a" font-size="12" font-family="monospace">HO</text><text x="38" y="86" fill="#e0295a" font-size="12" font-family="monospace">HO</text><line x1="115" y1="56" x2="145" y2="56" stroke="#1a2530" stroke-width="1.6"/><line x1="145" y1="56" x2="160" y2="42" stroke="#1a2530" stroke-width="1.6"/>${isDopa?'<text x="150" y="46" fill="#9b3fd4" font-size="10" font-family="monospace">CH-NH₂</text><text x="150" y="80" fill="#e0295a" font-size="10" font-family="monospace">COOH</text>':'<text x="163" y="46" fill="#9b3fd4" font-size="11" font-family="monospace">NH₂</text>'}<text x="150" y="112" fill="#8a99a8" font-size="9" font-family="monospace">catechol ${isDopa?'+ amino acid':'+ amine'}</text></svg>`;}   function tyrosineSVG(){return `<svg viewBox="0 0 220 130"><g stroke="#1a2530" stroke-width="1.6" fill="none"><polygon points="70,30 100,30 115,56 100,82 70,82 55,56" fill="#fff"/><line x1="98" y1="34" x2="98" y2="46"/></g><text x="30" y="60" fill="#e0295a" font-size="12" font-family="monospace">HO</text><line x1="55" y1="56" x2="42" y2="56" stroke="#1a2530" stroke-width="1.6"/><line x1="115" y1="56" x2="145" y2="56" stroke="#1a2530" stroke-width="1.6"/><text x="150" y="50" fill="#9b3fd4" font-size="10" font-family="monospace">CH-NH₂</text><text x="150" y="72" fill="#e0295a" font-size="10" font-family="monospace">COOH</text><text x="150" y="112" fill="#8a99a8" font-size="9" font-family="monospace">one OH only</text></svg>`;}   function gabaSVG(){return `<svg viewBox="0 0 220 130"><g font-family="monospace" font-size="13"><text x="20" y="70" fill="#9b3fd4">H₂N</text><line x1="52" y1="65" x2="78" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="78" y1="52" x2="104" y2="65" stroke="#1a2530" stroke-width="1.6"/><line x1="104" y1="65" x2="130" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="130" y1="52" x2="150" y2="65" stroke="#1a2530" stroke-width="1.6"/><text x="150" y="70" fill="#e0295a">COOH</text></g><text x="46" y="105" fill="#8a99a8" font-size="9" font-family="monospace">4-carbon chain · amine + acid</text></svg>`;}   function glutamateSVG(){return `<svg viewBox="0 0 220 130"><g font-family="monospace" font-size="12"><text x="14" y="66" fill="#e0295a">HOOC</text><line x1="54" y1="62" x2="78" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="78" y1="52" x2="100" y2="64" stroke="#1a2530" stroke-width="1.6"/><line x1="100" y1="64" x2="100" y2="86" stroke="#1a2530" stroke-width="1.6"/><text x="86" y="102" fill="#9b3fd4">NH₂</text><line x1="100" y1="64" x2="124" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="124" y1="52" x2="148" y2="64" stroke="#1a2530" stroke-width="1.6"/><text x="150" y="68" fill="#e0295a">COOH</text></g><text x="40" y="118" fill="#8a99a8" font-size="9" font-family="monospace">two acid groups — excitatory</text></svg>`;}   function butyrateSVG(){return `<svg viewBox="0 0 220 130"><g font-family="monospace" font-size="13"><text x="26" y="70" fill="#2aa17a">CH₃</text><line x1="58" y1="65" x2="82" y2="52" stroke="#1a2530" stroke-width="1.6"/><line x1="82" y1="52" x2="106" y2="65" stroke="#1a2530" stroke-width="1.6"/><line x1="106" y1="65" x2="130" y2="52" stroke="#1a2530" stroke-width="1.6"/><text x="132" y="58" fill="#e0295a">COOH</text></g><text x="42" y="105" fill="#8a99a8" font-size="9" font-family="monospace">4-carbon SCFA · feeds gut + brain</text></svg>`;}   function transporterSVG(where){return `<svg viewBox="0 0 220 130"><rect x="20" y="58" width="180" height="14" fill="#e9eff3" stroke="#c4cfd8"/><rect x="92" y="44" width="36" height="42" rx="7" fill="#e8850c" opacity=".85"/><path d="M110,50 v34" stroke="#fff" stroke-width="2"/><circle cx="110" cy="34" r="6" fill="#e8850c"/><path d="M110,40 l0,6" stroke="#e8850c" stroke-width="2"/><text x="110" y="112" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">pumps DA across ${where==='vesicle'?'vesicle wall':'membrane'}</text></svg>`;}   function receptorSVG(){return `<svg viewBox="0 0 220 130"><rect x="20" y="70" width="180" height="14" fill="#e4efe9" stroke="#c2d2ca"/><g stroke="#e0295a" stroke-width="3" fill="none"><path d="M60,70 q6,-22 12,0 M74,70 q6,-22 12,0 M88,70 q6,-22 12,0"/></g><circle cx="80" cy="46" r="6" fill="#e8850c"/><text x="80" y="104" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">7-pass GPCR · DA docks on top</text></svg>`;}   function enzymeSVG(){return `<svg viewBox="0 0 220 130"><path d="M55,42 q40,-20 70,10 q20,30 -12,45 q-45,20 -68,-10 q-16,-28 10,-45 z" fill="#e2f1ea" stroke="#128a63" stroke-width="1.6"/><circle cx="92" cy="62" r="8" fill="#e8850c"/><text x="150" y="58" fill="#128a63" font-size="11" font-family="monospace">→ DOPAC</text><text x="150" y="76" fill="#128a63" font-size="11" font-family="monospace">→ HVA</text><text x="92" y="115" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">active site cleaves dopamine</text></svg>`;}   function vesicleSVG(){return `<svg viewBox="0 0 220 130"><circle cx="110" cy="62" r="40" fill="none" stroke="#e8850c" stroke-width="1.8"/>${[...Array(8)].map((_,i)=>{const a=i/8*6.283;return `<circle cx="${110+Math.cos(a)*20}" cy="${62+Math.sin(a)*20}" r="5" fill="#e8850c"/>`}).join('')}<rect x="98" y="20" width="24" height="9" rx="2" fill="#e8850c"/><text x="110" y="120" text-anchor="middle" fill="#8a99a8" font-size="9" font-family="monospace">~10³–10⁴ DA molecules</text></svg>`;}   function vagusSVG(){return `<svg viewBox="0 0 220 130"><path d="M30,100 C80,40 140,120 190,40" fill="none" stroke="#2aa17a" stroke-width="3"/><circle cx="30" cy="100" r="7" fill="#a9713f"/><circle cx="190" cy="40" r="7" fill="#5b6b7a"/><text x="24" y="120" fill="#a9713f" font-size="9" font-family="monospace">gut</text><text x="176" y="30" fill="#5b6b7a" font-size="9" font-family="monospace">brain</text><text x="70" y="70" fill="#2aa17a" font-size="9" font-family="monospace">80% afferent</text></svg>`;}   function buildMol(){const grid=$('molGrid');MOL.forEach(m=>{const card=document.createElement('div');card.className='molcard';card.innerHTML=`<span class="tag" style="color:${m.color}">${m.tag}</span><h4>${m.name}</h4>${m.svg}<p>${m.desc}</p>`;grid.appendChild(card);});}
   /* ---- categories ---- */
 const CATS=[
@@ -1562,8 +1608,13 @@ const CONCEPTS=[
   /* ============================================================
      MOLECULES
      ============================================================ */
-  (function buildMol(){const grid=$("molGrid");MOL.forEach(m=>{const c=document.createElement("div");c.className="molcard";
-    c.innerHTML=`<span class="tag" style="color:${m.color}">${m.tag}</span><h4>${m.name}</h4>${m.svg}<p>${m.desc}</p>`;grid.appendChild(c);});})();
+  (function buildMol(){const grid=$("molGrid");MOL.forEach(m=>{const c=document.createElement("div");c.className="molcard tapcard";
+    c.setAttribute("role","button"); c.setAttribute("tabindex","0"); c.setAttribute("aria-label",m.name+" — open detail");
+    c.innerHTML=`<span class="tag" style="color:${m.color}">${m.tag}</span><h4>${m.name}</h4>${m.svg}<p>${m.desc}</p><div class="more">tap for role · diagram · concepts →</div>`;
+    const open=()=>openModal(molEntity(m),c);
+    c.addEventListener("click",open);
+    c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});
+    grid.appendChild(c);});})();
 
   /* ============================================================
      TINY 3D ENGINE (canvas) — shared
@@ -2437,17 +2488,15 @@ const CONCEPTS=[
       let actorsHtml="";
       (k.a||[]).forEach(key=>{
         const A=ACTORS[key]; if(!A) return;
-        const linkable=A.tab&&A.sel;
-        const span=`<span class="atag${linkable?" link":""}" style="--at:${A.c}"${linkable?` data-tab="${A.tab}" data-sel="${A.sel}" role="button" tabindex="0"`:""}>${A.l}</span>`;
-        actorsHtml+=span;
+        actorsHtml+=`<span class="atag link" style="--at:${A.c}" data-key="${key}" role="button" tabindex="0">${A.l}</span>`;
       });
       let scn="";
       if(k.s && INF[k.s]){ scn=`<div class="cscn"><b>${INF[k.s].name}</b> · <span class="go" data-scn="${k.s}">see this state →</span></div>`; }
       const useHtml = k.u ? `<div class="cuse"><span class="ul">How to use</span>${k.u}</div>` : "";
       el.innerHTML=`<div class="ccat">${cat.name}</div><h4>${k.t}</h4><div class="cdef">${k.d}</div><div class="cmech">${k.m}</div>${useHtml}<div class="cactors">${actorsHtml}</div>${scn}`;
-      // wire actor links
+      // wire actor tags → open detail modal
       el.querySelectorAll(".atag.link").forEach(t=>{
-        const go=()=>xref(t.dataset.tab,t.dataset.sel);
+        const go=()=>{ const ent=actorEntity(t.dataset.key); if(ent) openModal(ent,t); };
         t.addEventListener("click",go);
         t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
       });
@@ -2466,6 +2515,153 @@ const CONCEPTS=[
     }
     rebuild();
   })();
+
+  /* ============================================================
+     PART 4 — MOLECULE / ACTOR DETAIL MODAL (dismissible overlay)
+     ============================================================ */
+  // one-line role for every actor in the registry
+  const ROLE={
+    tyrosine:{t:"precursor",r:"Dietary amino acid — the raw material. TH hydroxylates it to L-DOPA in the rate-limiting first step of dopamine synthesis."},
+    TH:{t:"enzyme",r:"Tyrosine hydroxylase — the rate-limiting enzyme of dopamine synthesis. Needs iron and BH4; downregulated by chronic cortisol."},
+    AADC:{t:"enzyme",r:"Aromatic amino-acid decarboxylase — strips the carboxyl from L-DOPA to make dopamine. Fast, rarely the bottleneck."},
+    ldopa:{t:"intermediate",r:"The completed catechol, one step from dopamine. Unlike dopamine it crosses the blood–brain barrier."},
+    BH4:{t:"cofactor",r:"Tetrahydrobiopterin — essential cofactor for TH. Low BH4 under oxidative stress throttles dopamine synthesis."},
+    iron:{t:"cofactor",r:"Ferrous iron sits in TH's active site. Iron deficiency quietly lowers dopamine output."},
+    dopamine:{t:"neurotransmitter",r:"The reward-prediction and motivation signal — stored in vesicles, released in bursts to encode 'better than expected'."},
+    VMAT2:{t:"transporter",r:"Pumps cytoplasmic dopamine into vesicles for storage and protection from oxidation. Reversed by tyramine in aged wine and cheese."},
+    vesicle:{t:"organelle",r:"Storage sac holding thousands of dopamine molecules; docks and fuses on a firing signal to empty into the cleft."},
+    quinones:{t:"oxidation product",r:"Dopamine left in the cytoplasm auto-oxidizes into reactive quinones — the slow self-poisoning that stresses depleted neurons."},
+    DAT:{t:"transporter",r:"The reuptake pump — recaptures released dopamine, the fastest way to end the signal in the striatum. Cocaine's target."},
+    MAOB:{t:"enzyme",r:"Monoamine oxidase B — breaks dopamine down into DOPAC then HVA. Its activity rises with age."},
+    COMT:{t:"enzyme",r:"Catechol-O-methyltransferase — the dominant dopamine clearance route in the prefrontal cortex, where reuptake is sparse."},
+    SNARE:{t:"fusion machinery",r:"The SNARE proteins plus a calcium influx that fuse a docked vesicle to the membrane — the trigger converting a spike into release."},
+    D1:{t:"receptor",r:"Gs-coupled 'go' receptor — raises cAMP and drives approach. Works best inside a narrow tone (the inverted-U)."},
+    D2:{t:"receptor",r:"Gi-coupled 'no-go' receptor — lowers cAMP and gates the indirect pathway. Upregulates when signal is chronically low."},
+    D2auto:{t:"autoreceptor",r:"Presynaptic D2 that senses dopamine in the cleft and dials back further release — the terminal's own thermostat."},
+    GABA:{t:"inhibitory transmitter",r:"The main inhibitory signal — hyperpolarizes the dopamine terminal and brakes firing. Alcohol and benzodiazepines amplify it."},
+    glutamate:{t:"excitatory transmitter",r:"The main excitatory drive onto dopamine neurons. Net firing = glutamate drive minus the GABA brake."},
+    NMDA:{t:"receptor",r:"Glutamate-gated calcium channel central to plasticity and burst firing — over-activated by quinolinic acid."},
+    serotonin:{t:"neurotransmitter",r:"5-HT — mood, satiety and gut motility. ~90% is made in the gut; its synthesis competes with the kynurenine steal."},
+    TPH2:{t:"enzyme",r:"Tryptophan hydroxylase 2 — the rate-limiting enzyme of neuronal serotonin synthesis."},
+    tryptophan:{t:"precursor",r:"Essential amino acid feeding both serotonin and the kynurenine pathway — inflammation decides which way it goes."},
+    vagus:{t:"nerve",r:"The gut↔brain cable, ~80% afferent — carries gut metabolite and serotonin signals up to the NTS. The hardwire of the gut–brain axis."},
+    NTS:{t:"brainstem hub",r:"Nucleus tractus solitarius — the first brain relay for vagal signals, distributing gut state to raphe, VTA and amygdala."},
+    SCFA:{t:"microbial metabolite",r:"Short-chain fatty acids, especially butyrate, from fiber fermentation — they seal the gut barrier, raise BDNF and calm microglia."},
+    microbiome:{t:"ecosystem",r:"The gut's microbial community — its diversity sets SCFA output, tryptophan routing and barrier integrity."},
+    ECcell:{t:"gut cell",r:"Enterochromaffin cells — the gut's serotonin factories, sensing lumen contents and signalling the vagus."},
+    tightjx:{t:"barrier",r:"Tight junctions sealing the gut epithelium. When they loosen ('leaky gut'), LPS translocates and lights up inflammation."},
+    IDO:{t:"enzyme",r:"Indoleamine 2,3-dioxygenase — switched on by inflammation, it diverts tryptophan away from serotonin into kynurenine."},
+    kynurenine:{t:"metabolite",r:"The inflammatory fork of tryptophan metabolism — the path onward to neurotoxic quinolinic acid."},
+    quinolinic:{t:"neurotoxin",r:"Quinolinic acid — an NMDA agonist driving excitotoxicity; the toxic endpoint of the kynurenine steal."},
+    LPS:{t:"endotoxin",r:"Lipopolysaccharide from gut bacteria — crosses a leaky barrier, triggers TLR4 and systemic inflammation."},
+    TLR4:{t:"receptor",r:"Toll-like receptor 4 — detects LPS and launches the cytokine response that reaches the brain."},
+    cytokines:{t:"signals",r:"Inflammatory messengers (IL-6, TNF-α…) that cross to the brain, activate IDO and shift mood and motivation."},
+    cortisol:{t:"hormone",r:"The main stress glucocorticoid — acutely sharpens dopamine, chronically downregulates TH and flattens drive."},
+    GR:{t:"receptor",r:"Glucocorticoid receptor — cortisol's intracellular sensor; chronic overactivation reshapes gene expression toward depletion."},
+    HPA:{t:"axis",r:"Hypothalamic–pituitary–adrenal axis — the stress cascade ending in cortisol release; sensitized by early or chronic stress."},
+    amygdala:{t:"brain region",r:"Threat- and salience-detector; cortisol raises its gain, biasing the whole system toward vigilance."},
+    NE:{t:"neurotransmitter",r:"Norepinephrine from the locus coeruleus — alertness and arousal, a key channel in the flow ensemble."},
+    VTA:{t:"brain region",r:"Ventral tegmental area — origin of the reward-pathway dopamine neurons projecting to the accumbens and PFC."},
+    raphe:{t:"brain region",r:"Raphe nuclei — the brain's serotonin source, steadied (or destabilized) by vagal gut signals."},
+    ACh:{t:"neurotransmitter",r:"Acetylcholine — attention, learning and the salience of surprise; nicotine hijacks its receptors on dopamine neurons."},
+    CB1:{t:"receptor",r:"The main cannabinoid receptor — dials down neurotransmitter release. THC's target; also slows gut motility."},
+    anandamide:{t:"endocannabinoid",r:"The 'bliss molecule' (with 2-AG) — an endogenous cannabinoid contributing ease and flow."},
+    adenosine:{t:"neuromodulator",r:"Builds up with wakefulness as sleep pressure; its A2A receptors restrain D2. Caffeine blocks them."},
+    A2A:{t:"receptor complex",r:"The A2A–D2 heterodimer — where adenosine and caffeine tune dopamine's 'no-go' signal."},
+    nAChR:{t:"receptor",r:"The α4β2 nicotinic receptor on dopamine neurons — nicotine's binding site, driving reinforcement."},
+    opioid:{t:"receptor",r:"μ-opioid receptor — the 'liking' system that stamps consummatory pleasure, distinct from dopamine 'wanting'."},
+    oxytocin:{t:"neuropeptide",r:"Bonding and trust signal — buffers stress and shapes social reward."},
+    PFC:{t:"brain region",r:"Prefrontal cortex — executive control and working memory, running on a delicate dopamine inverted-U."},
+    vmPFC:{t:"brain region",r:"Ventromedial PFC — valuation and self-relevance; anchors the felt sense of what matters."},
+    dlPFC:{t:"brain region",r:"Dorsolateral PFC — the seat of working memory and deliberate control; goes offline in flow's transient hypofrontality."},
+    ACC:{t:"brain region",r:"Anterior cingulate — effort, conflict monitoring and the cost side of the go/no-go decision."},
+    striatum:{t:"brain region",r:"The action-selection hub, reading dopamine's go/no-go balance to gate movement and habit."},
+    NAcc:{t:"brain region",r:"Nucleus accumbens — the reward/motivation core where dopamine 'wanting' and opioid 'liking' meet."},
+    DMN:{t:"brain network",r:"Default mode network — self-referential mind-wandering; its quieting is part of flow and of psychedelic ego-dissolution."},
+    hippocampus:{t:"brain region",r:"Memory and context — binds experience to place and time; sensitive to cortisol and BDNF."},
+    estrogen:{t:"hormone",r:"Raises dopamine synthesis and receptor sensitivity — why drive shifts across the cycle, peaking near ovulation."},
+    progesterone:{t:"hormone",r:"Rises in the luteal phase; via allopregnanolone it damps dopamine and raises GABAergic calm."},
+    allo:{t:"neurosteroid",r:"Allopregnanolone — a progesterone metabolite that potentiates GABA, calming mood (and destabilizing it on withdrawal)."},
+    testosterone:{t:"hormone",r:"Supports dopaminergic drive, confidence and reward sensitivity."},
+    BDNF:{t:"growth factor",r:"Brain-derived neurotrophic factor — the fertilizer of plasticity; raised by exercise, butyrate and sleep."},
+    LAT1:{t:"transporter",r:"The blood–brain amino-acid gate tryptophan and tyrosine share — so a carb-vs-protein meal shifts which precursor wins entry."},
+    insulin:{t:"hormone",r:"Beyond glucose, it tilts LAT1 competition toward tryptophan — the mechanism behind carb-induced calm."},
+    glymphatic:{t:"clearance system",r:"The brain's overnight waste-flush, most active in slow-wave sleep — clears metabolic debris and misfolded proteins."},
+    SWS:{t:"sleep stage",r:"Slow-wave sleep — when glymphatic clearance peaks and dopamine receptors resensitize."},
+    ATP:{t:"energy currency",r:"Cellular fuel, and a fast co-transmitter. Dopamine synthesis and vesicle loading are energy-hungry."},
+    MTHFR:{t:"enzyme",r:"Makes methylfolate for the methylation that supports monoamine synthesis; common variants slow it."},
+    PPARa:{t:"receptor",r:"A nuclear receptor tuning fatty-acid metabolism and neuroinflammation — a target of ketones and some lipids."},
+    ghrelin:{t:"hormone",r:"The hunger signal — also sensitizes dopamine reward, sharpening motivation when you're hungry."},
+    orexin:{t:"neuropeptide",r:"Wakefulness and motivated arousal — links energy state to dopaminergic drive."},
+    ketones:{t:"fuel",r:"β-hydroxybutyrate — an alternative brain fuel that steadies energy and damps inflammation."},
+    folate:{t:"vitamin",r:"A methylation cofactor supporting monoamine synthesis; deficiency tracks with low mood."},
+    magnesium:{t:"mineral",r:"Gates NMDA receptors and supports hundreds of enzymes; low levels raise excitability and stress reactivity."},
+    nitricoxide:{t:"gasotransmitter",r:"A diffusible signal in blood flow and plasticity; in excess, with inflammation, it turns damaging."},
+    Nrf2:{t:"transcription factor",r:"The master antioxidant switch — polyphenols activate it to buffer the oxidative stress of dopamine metabolism."},
+    theanine:{t:"amino acid",r:"From tea — promotes calm alertness by raising GABA and smoothing glutamate, complementing caffeine."},
+    polyphenol:{t:"plant compound",r:"Dietary antioxidants that activate Nrf2, feed the microbiome and temper neuroinflammation."},
+    autophagy:{t:"cellular recycling",r:"The cell's self-clean-up, clearing damaged components; boosted by fasting and exercise, protective for neurons."},
+    histamine:{t:"neuromodulator",r:"A wakefulness and inflammation signal; also a marker of mast-cell and allergic gut activation."},
+    prokinetic:{t:"gut motility",r:"The migrating motor complex — the fasting 'cleanup wave' sweeping the small intestine, stalled by stress."}
+  };
+  // structure SVGs keyed by actor, harvested from the molecule set
+  const MOLSVG={}; MOL.forEach(m=>{ if(m.key) MOLSVG[m.key]=m.svg; });
+  // which concepts each actor appears in
+  const CONCEPT_BY_ACTOR={};
+  CONCEPTS.forEach(k=>(k.a||[]).forEach(key=>{ (CONCEPT_BY_ACTOR[key]=CONCEPT_BY_ACTOR[key]||[]).push(k); }));
+
+  function molEntity(m){ const A=ACTORS[m.key]||{};
+    return { key:m.key, name:m.name, tag:m.tag, color:m.color, svg:m.svg, role:m.desc, tab:A.tab, sel:A.sel }; }
+  function actorEntity(key){ const A=ACTORS[key]; if(!A) return null; const R=ROLE[key]||{};
+    return { key, name:A.l, tag:R.t||"", color:A.c, svg:MOLSVG[key]||"", role:R.r||"", tab:A.tab, sel:A.sel }; }
+
+  const modal=$("molModal"), mDialog=modal.querySelector(".mdialog");
+  let mReturnFocus=null;
+  function openModal(ent, originEl){
+    if(!ent) return;
+    mReturnFocus = originEl || document.activeElement;
+    $("mmName").textContent=ent.name;
+    const tag=$("mmTag"); tag.textContent=ent.tag||""; tag.style.setProperty("--mtc",ent.color||"var(--da)"); tag.style.display=ent.tag?"block":"none";
+    const st=$("mmStruct"); if(ent.svg){ st.innerHTML=ent.svg; st.hidden=false; } else { st.innerHTML=""; st.hidden=true; }
+    $("mmRole").textContent=ent.role||"";
+    // actions
+    const acts=$("mmActs"); acts.innerHTML="";
+    if(ent.tab && ent.sel){
+      const b=document.createElement("button"); b.className="mdiag"; b.textContent="Show in diagram →";
+      b.onclick=()=>{ const tab=ent.tab, sel=ent.sel; closeModal(); xref(tab,sel); };
+      acts.appendChild(b);
+    }
+    // related concepts
+    const rel=$("mmRel"), wrap=$("mmRelWrap"); wrap.innerHTML="";
+    const list=(CONCEPT_BY_ACTOR[ent.key]||[]).slice(0,6);
+    if(list.length){
+      list.forEach(k=>{ const c=document.createElement("button"); c.className="mrelchip"; c.textContent=k.t;
+        c.onclick=()=>{ closeModal(); jumpToConcept(k.t); }; wrap.appendChild(c); });
+      rel.hidden=false;
+    } else rel.hidden=true;
+    modal.hidden=false;
+    requestAnimationFrame(()=>$("mmClose").focus());
+  }
+  function closeModal(){ if(modal.hidden) return; modal.hidden=true;
+    if(mReturnFocus && mReturnFocus.focus){ try{ mReturnFocus.focus(); }catch(e){} } mReturnFocus=null; }
+  function jumpToConcept(title){
+    switchView("concepts");
+    const s=$("libSearch"); if(s){ s.value=title; s.dispatchEvent(new Event("input",{bubbles:true})); }
+    const g=$("conceptGrid"); if(g) requestAnimationFrame(()=>g.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"}));
+  }
+  // dismiss: X, click-outside, Esc (Esc handled in capture so it beats the nav-stack handler)
+  $("mmClose").onclick=closeModal;
+  modal.addEventListener("mousedown",e=>{ if(e.target===modal) closeModal(); });
+  document.addEventListener("keydown",e=>{
+    if(modal.hidden) return;
+    if(e.key==="Escape"){ closeModal(); e.stopPropagation(); e.preventDefault(); return; }
+    if(e.key==="Tab"){ // simple focus trap
+      const f=mDialog.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+      if(!f.length) return; const first=f[0], last=f[f.length-1];
+      if(e.shiftKey && document.activeElement===first){ last.focus(); e.preventDefault(); }
+      else if(!e.shiftKey && document.activeElement===last){ first.focus(); e.preventDefault(); }
+    }
+  },true);
 
   // keyboard
   $("navBack").onclick=()=>popNav();
