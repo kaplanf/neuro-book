@@ -1960,15 +1960,15 @@ const CONCEPTS=[
 
     // ---- stages ----
     const STAGES=[
-      {id:"synthesis",label:"Synthesis",cap:"Tyrosine → L-DOPA → dopamine",sub:"TH is the rate-limiting step (Fe²⁺·BH₄·O₂)"},
-      {id:"storage",label:"Storage",cap:"VMAT2 packs dopamine into vesicles",sub:"H⁺-ATPase gradient · ATP cost · fill tracks your state"},
-      {id:"firing",label:"Firing",cap:"Action potential → Ca²⁺ influx → SNARE fusion",sub:"a docked vesicle fuses with the membrane"},
-      {id:"release",label:"Release",cap:"Dopamine crosses the ~20 nm cleft",sub:"burst size scales with vesicle load and the brake"},
-      {id:"reception",label:"Reception",cap:"Docking on D1 (go) and D2 (no-go)",sub:"D2 enlarges and over-reads under depletion"},
-      {id:"clearance",label:"Clearance",cap:"DAT pumps dopamine back for reuse",sub:"the dominant striatal off-switch"},
-      {id:"metabolism",label:"Metabolism",cap:"MAO-B / COMT → DOPAC → HVA",sub:"leftover dopamine is broken down to byproducts"},
-      {id:"oxidation",label:"Oxidation",cap:"Unpacked dopamine → toxic quinones",sub:"the cost of failed VMAT2 packing — worst when stores are thin"},
-      {id:"brake",label:"GABA brake",cap:"Interneuron GABA gates the firing rate",sub:"lifted by alcohol / THC → disinhibited firing"}
+      {id:"synthesis",label:"Building it",cap:"Made from tyrosine, an amino acid from food",sub:"one slow enzyme sets how much you can make"},
+      {id:"storage",label:"Storing it",cap:"A pump tucks dopamine into little sacs",sub:"how full the sacs are tracks your current state"},
+      {id:"firing",label:"Firing",cap:"A spike lets calcium in and a sac bursts open",sub:"a loaded sac fuses with the wall and empties"},
+      {id:"release",label:"Release",cap:"Dopamine crosses a gap thinner than a hair",sub:"burst size follows how full the sacs are, and the brake"},
+      {id:"reception",label:"Being read",cap:"Sensors read it — 'go' and 'ease off'",sub:"the 'ease off' sensor swells and over-reads when depleted"},
+      {id:"clearance",label:"Cleaning up",cap:"A pump sweeps dopamine back for reuse",sub:"the main off-switch — clears the signal fast"},
+      {id:"metabolism",label:"Breaking down",cap:"Leftover dopamine is broken into byproducts",sub:"what isn't reused gets taken apart"},
+      {id:"oxidation",label:"Going bad",cap:"Dopamine left loose turns toxic",sub:"the cost of poor packing — worst when sacs run thin"},
+      {id:"brake",label:"The brake",cap:"A neighbour's signal holds firing down",sub:"alcohol / THC lift the brake → firing runs loose"}
     ];
     let ph=3, pt=0, playing=false, lastTs=0;
 
@@ -2075,11 +2075,20 @@ const CONCEPTS=[
       // post membrane disc
       postDisc.forEach(p=>{const rp=rot(p,ay,ax),c=proj(rp,cx,cy,f,scale);
         items.push({z:rp.z+120,draw:()=>{ctx.beginPath();ctx.arc(c.x,c.y,2*c.s,0,7);ctx.fillStyle="rgba(120,190,150,"+(.24+.34*c.s)+")";ctx.fill();}});});
-      // receptors (D1/D2), D2 scale under depletion
+      // receptors (D1/D2) drawn as little GPCRs — three transmembrane humps; D2 swells under depletion
       recBase.forEach(p=>{const rp=rot(p,ay,ax),c=proj(rp,cx,cy,f,scale);
-        const big=p.d2&&F.d2up; const rad=(big?7:3.8)*c.s; const col=p.d2?"rgba(240,66,106,.9)":"rgba(102,216,166,.9)";
-        items.push({z:rp.z+121,draw:()=>{ctx.beginPath();ctx.arc(c.x,c.y,rad,0,7);ctx.fillStyle=col;ctx.fill();
-          if(big){ctx.beginPath();ctx.arc(c.x,c.y,rad+2.5,0,7);ctx.strokeStyle="rgba(240,66,106,.35)";ctx.lineWidth=1;ctx.stroke();}}});});
+        const big=p.d2&&F.d2up; const col=p.d2?"rgba(240,66,106,.95)":"rgba(102,216,166,.95)";
+        const hw=Math.max(2.6,(big?4.2:3.0)*c.s), lw=Math.max(1.2,(big?2.1:1.6)*c.s);
+        items.push({z:rp.z+121,draw:()=>{
+          if(big){ctx.beginPath();ctx.arc(c.x,c.y-hw*0.5,hw*2.2,0,7);ctx.fillStyle="rgba(240,66,106,.14)";ctx.fill();}
+          ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.lineCap="round";
+          // base membrane line
+          ctx.globalAlpha=.55; ctx.beginPath(); ctx.moveTo(c.x-hw*1.6,c.y); ctx.lineTo(c.x+hw*1.6,c.y); ctx.stroke(); ctx.globalAlpha=1;
+          // three transmembrane loops (the GPCR silhouette)
+          ctx.beginPath();
+          for(let k=-1;k<=1;k++){ const bx=c.x+k*hw-hw*0.5; ctx.moveTo(bx,c.y); ctx.quadraticCurveTo(bx+hw*0.5,c.y-hw*1.9,bx+hw,c.y); }
+          ctx.stroke();
+        }});});
       // gaba cell (dim if brake off)
       const gaOp=F.brakeOff?.25:1;
       gabaCell.forEach(p=>{const rp=rot(p,ay,ax),c=proj(rp,cx,cy,f,scale);
