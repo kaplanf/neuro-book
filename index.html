@@ -179,6 +179,7 @@
   .mind .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
   .mind .top .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
   .moodword{font-size:26px;letter-spacing:-.01em;line-height:1;transition:color .4s}
+  .moodbody{font-family:var(--serif);font-size:13px;color:var(--faint);margin-top:7px;line-height:1.4}
   .mind .felt{font-style:italic;color:var(--dim);font-size:15px;margin:10px 0 12px;min-height:44px;transition:opacity .3s}
   .feltcues{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;min-height:2px}
   .fcue{font-family:var(--mono);font-size:10px;letter-spacing:.02em;padding:4px 9px;border-radius:999px;
@@ -590,6 +591,7 @@
     <div class="mind" id="mindPanel" aria-live="polite">
       <div class="top"><span class="lbl">State of mind</span></div>
       <div class="moodword mono" id="moodWord">Available</div>
+      <div class="moodbody" id="moodBody">clear and ready — motivation on tap, shoulders down</div>
       <div class="felt" id="feltLine">Balanced and available — motivation on tap, mood level, mind clear.</div>
       <div class="feltcues" id="feltCues"></div>
       <blockquote class="statequote" id="stateQuote"><span class="sq-q" id="sqText"></span><cite class="sq-a" id="sqAttr"></cite></blockquote>
@@ -1315,7 +1317,7 @@ const CONCEPTS=[
   const PROFILE_SEX={
     male:{label:"Male",mind:{},note:""},
     female:{label:"Female",mind:{mood:-4,stability:-5,agitation:4},
-      note:"~52% lower serotonin synthesis rate — the system sits closer to the deficit line, and swings with the cycle"}
+      note:"Female brains synthesize serotonin at roughly half the male rate — a real PET-scan finding, not a deficiency, but a baseline that sits closer to the edge and leans much harder on the monthly cycle. Estrogen lifts serotonin and dopamine; progesterone soothes, then withdraws. So the same body can feel like different people week to week."}
   };
   const PHASES=[
     {id:"none",label:"— (averaged)",mind:{},note:""},
@@ -1386,15 +1388,29 @@ const CONCEPTS=[
 
   /* ---- mind-state text ---- */
   function moodLabel(m){
-    if(active.size===0 && profile.phase==="none" && !(profile.sex==="female"&&profile.pill)) return ["Available","#e8850c"];
-    const hiAr=m.agitation>52, loMood=m.mood<45, hiMood=m.mood>62, loAr=m.agitation<32;
-    if(m.stability<40 && m.motivation<40) return ["Crash-prone","#e0295a"];
-    if(hiAr&&loMood) return ["Wired & low","#e0295a"];
-    if(hiAr&&hiMood) return ["Hyped","#e8850c"];
-    if(loAr&&loMood) return ["Flat","#5f6d7c"];
-    if(loAr&&hiMood) return ["Calm","#2aa17a"];
-    if(loMood) return ["Muted","#7d8794"];
-    return ["Off-baseline","#1f8fe0"];
+    if(active.size===0 && profile.phase==="none" && !(profile.sex==="female"&&profile.pill))
+      return ["Available","#e8850c","clear and ready — motivation on tap, shoulders down"];
+    const hiAr=m.agitation>54, loMood=m.mood<45, hiMood=m.mood>62, loAr=m.agitation<32, vLoAr=m.agitation<24, vLoMood=m.mood<32;
+    // shutdown / numb — arousal collapsed with mood floor (dorsal-vagal)
+    if(vLoAr && vLoMood && m.motivation<38) return ["Shut down","#5f6d7c","body gone quiet — numb and distant, moving through molasses"];
+    // fragile reserves
+    if(m.stability<38 && m.motivation<42) return ["Crash-prone","#e0295a","running on fumes — wired one minute, sunk the next"];
+    // depletion craving — drive intact, no payoff
+    if(m.motivation>54 && loMood && m.stability<52) return ["Craving","#e0295a","a restless pull toward a hit — hunger without pleasure"];
+    // overload
+    if(hiAr && m.focus<42) return ["Frazzled","#e0295a","buzzing but scattered — too much signal, nothing lands"];
+    if(hiAr && loMood) return ["Wired & low","#e0295a","jaw and chest tight — alarm with no off-switch"];
+    if(hiAr && hiMood) return ["Hyped","#e8850c","electric and up — can't sit still, everything's vivid"];
+    // engaged
+    if(m.motivation>62 && m.focus>62 && m.mood>=48) return ["Locked in","#18b57e","leaning in — time thins and the task pulls you"];
+    if(m.agitation>=42 && m.agitation<=54 && m.focus<50 && m.mood>=45) return ["Restless","#d7a53c","fidgety — can't quite settle into anything"];
+    // dulled
+    if(m.focus<42 && m.agitation<50 && m.mood>=42) return ["Foggy","#7d8794","cotton-headed — slow, words just out of reach"];
+    if(loAr && loMood) return ["Flat","#5f6d7c","heavy and still — effort feels pointless"];
+    if(loAr && hiMood) return ["Calm","#2aa17a","warm and unhurried — settled in the body"];
+    if(m.mood>=55 && m.agitation>=32 && m.agitation<=54) return ["Content","#2aa17a","at ease — nothing pressing, nothing lacking"];
+    if(loMood) return ["Muted","#7d8794","colour drained — going through the motions"];
+    return ["Off-baseline","#1f8fe0","slightly shifted, but holding steady"];
   }
   function feltSentence(m){
     const parts=[];
@@ -1423,6 +1439,13 @@ const CONCEPTS=[
     "Crash-prone":{q:"I am gall, I am heartburn… I am bitter: would taste myself.",a:"G. M. Hopkins — ‘I wake and feel the fell of dark’"},
     "Flat":{q:"A grief without a pang, void, dark, and drear — a stifled, drowsy, unimpassioned grief.",a:"S. T. Coleridge — ‘Dejection: An Ode’"},
     "Muted":{q:"There hath passed away a glory from the earth.",a:"William Wordsworth — ‘Intimations of Immortality’"},
+    "Shut down":{q:"Nothing to be done.",a:"Samuel Beckett — ‘Waiting for Godot’"},
+    "Craving":{q:"My love is as a fever, longing still for that which longer nurseth the disease.",a:"Shakespeare — Sonnet 147"},
+    "Frazzled":{q:"O, full of scorpions is my mind!",a:"Shakespeare — ‘Macbeth’"},
+    "Restless":{q:"I have measured out my life with coffee spoons.",a:"T. S. Eliot — ‘Prufrock’"},
+    "Locked in":{q:"To strive, to seek, to find, and not to yield.",a:"Alfred Tennyson — ‘Ulysses’"},
+    "Foggy":{q:"The dull brain perplexes and retards.",a:"John Keats — ‘Ode to a Nightingale’"},
+    "Content":{q:"My crown is called content: a crown it is that seldom kings enjoy.",a:"Shakespeare — ‘Henry VI, Part 3’"},
     "Off-baseline":{q:"The time is out of joint.",a:"Shakespeare — ‘Hamlet’"}
   };
   function feltCues(m){
@@ -1476,8 +1499,9 @@ const CONCEPTS=[
       f.style.background=mt.col;
       v.textContent=Math.round(val);
     });
-    const [word,col]=moodLabel(m);
+    const [word,col,body]=moodLabel(m);
     const mw=$("moodWord"); mw.textContent=word; mw.style.color=col;
+    const mb=$("moodBody"); if(mb) mb.textContent=body||"";
     $("feltLine").textContent=feltSentence(m);
     // felt-cue glyphs
     const fc=$("feltCues"); if(fc){ fc.innerHTML=""; feltCues(m).forEach(([g,t,c])=>{ const s=document.createElement("span");
@@ -2552,8 +2576,9 @@ const CONCEPTS=[
     const note=document.createElement("div"); note.className="pnote"; note.style.flexBasis="100%";
     let txt=PROFILE_SEX[profile.sex].note;
     if(profile.sex==="female"){
-      if(profile.pill) txt=PILL.note;
-      else if(profile.phase!=="none") txt=(txt?txt+" · ":"")+PHASE[profile.phase].note;
+      if(profile.pill) txt=PROFILE_SEX.female.note+" On the pill, the cycle is flattened: "+PILL.note;
+      else if(profile.phase!=="none") txt=PROFILE_SEX.female.note+" Right now — "+PHASE[profile.phase].label+": "+PHASE[profile.phase].note+".";
+      else txt=PROFILE_SEX.female.note+" ▸ Pick a cycle phase above to watch it shift.";
     }
     note.textContent=txt||""; wrap.appendChild(note);
   }
