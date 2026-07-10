@@ -59,18 +59,23 @@
   .navback span{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;font-weight:400;opacity:.8}
 
   /* ---------- hero ---------- */
-  .hero{position:relative;height:min(78vh,680px);min-height:520px;overflow:hidden;border-bottom:1px solid var(--hair)}
+  .hero{position:relative;height:min(56vh,470px);min-height:390px;overflow:hidden;border-bottom:1px solid var(--hair)}
   #heroCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:radial-gradient(120% 120% at 50% 18%,#111c2c 0%,#080b12 62%,#05070c 100%)}
   .hero-veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(8,11,18,.15) 0%,rgba(8,11,18,0) 30%,rgba(8,11,18,.55) 100%)}
   .hero-copy{position:absolute;left:0;right:0;bottom:0;padding:0 26px 46px;pointer-events:none}
   .hero-copy .inner{max-width:1180px;margin:0 auto}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--da-glow);margin-bottom:16px;text-shadow:0 0 18px rgba(255,176,77,.5)}
-  .hero h1{font-size:clamp(34px,6.2vw,72px);font-weight:400;line-height:.98;letter-spacing:-.025em;color:#f4f7fb;text-wrap:balance;text-shadow:0 2px 30px rgba(0,0,0,.6)}
+  .hero h1{font-size:clamp(30px,4.8vw,54px);font-weight:400;line-height:1;letter-spacing:-.025em;color:#f4f7fb;text-wrap:balance;text-shadow:0 2px 30px rgba(0,0,0,.6)}
   .hero h1 em{font-style:italic;color:var(--da-glow)}
-  .hero .lede{margin-top:16px;max-width:60ch;font-size:clamp(15px,1.7vw,18.5px);color:#c3ccd8;text-shadow:0 1px 14px rgba(0,0,0,.55)}
-  .scrollcue{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8f9dab;display:flex;align-items:center;gap:9px}
-  .scrollcue .arrow{width:16px;height:16px;border-right:1.5px solid #8f9dab;border-bottom:1.5px solid #8f9dab;transform:rotate(45deg);animation:bob 1.8s ease-in-out infinite}
-  @keyframes bob{0%,100%{transform:translateY(0) rotate(45deg)}50%{transform:translateY(5px) rotate(45deg)}}
+  .hero .lede{margin-top:13px;max-width:56ch;font-size:clamp(14px,1.5vw,16.5px);color:#c3ccd8;text-shadow:0 1px 14px rgba(0,0,0,.55)}
+  .herochips{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;pointer-events:auto}
+  .herochip{font-family:var(--mono);font-size:11.5px;letter-spacing:.03em;color:#f4f7fb;cursor:pointer;
+    background:color-mix(in srgb,#ffb04d 16%,rgba(12,16,24,.5));border:1px solid color-mix(in srgb,#ffb04d 45%,transparent);
+    border-radius:999px;padding:9px 16px;transition:.16s;backdrop-filter:blur(6px)}
+  .herochip:hover{background:color-mix(in srgb,#ffb04d 30%,rgba(12,16,24,.5));transform:translateY(-1px)}
+  .herochip:focus-visible{outline:2px solid #ffb04d;outline-offset:2px}
+  .herochip.primary{background:var(--da);border-color:var(--da);color:#1a1206;font-weight:600}
+  .herochip.primary:hover{filter:brightness(1.07)}
 
   /* ---------- control desk (collapsible sticky dock) ---------- */
   .sectlabel{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
@@ -556,9 +561,13 @@
   <div class="hero-veil"></div>
   <div class="hero-copy"><div class="inner">
     <div class="eyebrow">Dopamine · the reward circuit · the gut–brain axis</div>
-    <h1>Nothing moves you<br>until <em>something fires</em>.</h1>
-    <p class="lede">Motivation, craving, focus, the flat grey of a bad week — all of it runs through one small molecular circuit. Toggle what's acting on it and watch the chemistry, and the state of mind, change together.</p>
-    <div class="scrollcue">Begin at the control desk <span class="arrow"></span></div>
+    <h1>Nothing moves you until <em>something fires</em>.</h1>
+    <p class="lede">Motivation, craving, focus, the flat grey of a bad week — all of it runs through one small molecular circuit. Set what's acting on it and watch the chemistry, and the state of mind, change together.</p>
+    <div class="herochips">
+      <button class="herochip primary" data-go="desk">⚙ Set your state</button>
+      <button class="herochip" data-go="circuit">See the circuit</button>
+      <button class="herochip" data-go="concepts">▶ Play with the tools</button>
+    </div>
   </div></div>
 </header>
 
@@ -3020,6 +3029,13 @@ const CONCEPTS=[
   window.addEventListener("resize",()=>{ if(deskOpen) positionDesk(); });
   window.addEventListener("scroll",()=>{ if(deskOpen) positionDesk(); },{passive:true});
   document.addEventListener("keydown",e=>{ if(deskOpen && e.key==="Escape"){ closeDesk(); e.stopImmediatePropagation(); e.preventDefault(); } },true);
+  // hero entry chips → jump straight into the tool
+  document.querySelectorAll(".herochip").forEach(b=>b.onclick=()=>{
+    const go=b.dataset.go;
+    if(go==="desk"){ openDesk(); return; }
+    switchView(go);
+    deskDock.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+  });
 
   /* ============================================================
      CONCEPT DRAWER — slides in from the right (no text search)
