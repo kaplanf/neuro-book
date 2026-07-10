@@ -630,7 +630,7 @@
 <!-- ============ TABS ============ -->
 <div class="tabsbar"><div class="wrap"><div class="tabs" role="tablist" id="tabs">
   <button class="tab" role="tab" data-view="circuit" aria-selected="true"><span class="ti">01</span>Circuit flow</button>
-  <button class="tab" role="tab" data-view="synapse3d" aria-selected="false"><span class="ti">02</span>3D synapse</button>
+  <button class="tab" role="tab" data-view="synapse3d" aria-selected="false"><span class="ti">02</span>Step inside</button>
   <button class="tab" role="tab" data-view="gut" aria-selected="false"><span class="ti">03</span>Gut · vagus · brain</button>
   <button class="tab" role="tab" data-view="concepts" aria-selected="false"><span class="ti">04</span>Concepts &amp; library</button>
   <button class="tab" role="tab" data-view="molecules" aria-selected="false"><span class="ti">05</span>Molecules</button>
@@ -670,8 +670,8 @@
   <!-- ===== 3D SYNAPSE ===== -->
   <section class="view" id="view-synapse3d" role="tabpanel">
     <div class="viewhead">
-      <h3>Inside the cleft — the whole lifecycle, in 3D</h3>
-      <p>The full molecular cycle plays out in three dimensions — build, store, fire, cross, read, clear, metabolise, and the oxidation cost of failed packing — with the GABA brake riding in from the side. Play it, or scrub to any stage. Drag to orbit. Everything you toggle at the desk visibly changes it.</p>
+      <h3>Step inside a living synapse</h3>
+      <p>Watch one dopamine signal happen in 3D — built, packed away, fired across the gap, read, and cleaned up, with a neighbouring cell riding the brake. Press play, scrub to any moment, and drag to spin it around. Whatever you set at the desk, you'll see it change here.</p>
     </div>
     <div class="controls">
       <button class="primary" id="play3d">▶ Play cycle</button>
@@ -1289,7 +1289,17 @@ const CONCEPTS=[
     {id:"stress", name:"Chronic stress", tag:"cortisol · ↑DAT", color:"#b07d1a",
       one:"cortisol downregulates TH and sharpens reuptake — strips a scarce signal"},
     {id:"depleted", name:"Depletion", tag:"D2 hypersensitive", color:"#4a5563",
-      one:"thin vesicles + upregulated hypersensitive D2 + early autoreceptor shutdown"}
+      one:"thin vesicles + upregulated hypersensitive D2 + early autoreceptor shutdown"},
+    {id:"caffeine", name:"Caffeine", tag:"adenosine blocked", color:"#8a6d4b",
+      one:"blocks adenosine → more alert, but borrows against later"},
+    {id:"nicotine", name:"Nicotine", tag:"nAChR → dopamine", color:"#d7a53c",
+      one:"nicotinic receptors trigger a quick dopamine bump; tolerance builds fast"},
+    {id:"exercise", name:"Exercise", tag:"BDNF · dopamine ↑", color:"#18b57e",
+      one:"raises BDNF, dopamine and mood — one of the few levers that lifts the whole system"},
+    {id:"sugar", name:"Sugar / junk", tag:"insulin swing · inflammation", color:"#e0568f",
+      one:"a fast spike and crash; a junk pattern feeds low-grade inflammation"},
+    {id:"screens", name:"Doomscrolling", tag:"dopamine on tap", color:"#6b7684",
+      one:"endless small hits blunt the response to slower, realer rewards"}
   ];
   const INF=Object.fromEntries(INFLUENCES.map(i=>[i.id,i]));
 
@@ -1343,6 +1353,40 @@ const CONCEPTS=[
         one:"stores drawn down — low drive, but the receiver still reads straight"},
       {id:"deep",name:"Chronic depletion",mind:{motivation:-44,mood:-34,agitation:12,focus:-24,stability:-42},ves:.34,d2up:true,synth:true,
         one:"thin vesicles + hypersensitive D2 + early autoreceptor shutdown — craving then crash"}
+    ]},
+    caffeine:{def:"one",opts:[
+      {id:"one",name:"A coffee",mind:{motivation:8,mood:4,agitation:8,focus:14,stability:-2},ves:1,
+        one:"a clean lift — sharper focus and drive for a few hours"},
+      {id:"several",name:"Several cups",mind:{motivation:6,mood:0,agitation:22,focus:10,stability:-8},ves:1,
+        one:"a wired edge creeping in — heart up, patience down"},
+      {id:"late",name:"Too much / late",mind:{motivation:-2,mood:-6,agitation:30,focus:-6,stability:-14},ves:.9,synth:true,
+        one:"jittery now, and it quietly steals tonight's deep sleep → tomorrow's crash"}
+    ]},
+    nicotine:{def:"acute",opts:[
+      {id:"acute",name:"A cigarette / vape",mind:{motivation:10,mood:6,agitation:-4,focus:12,stability:-4},ves:1,
+        one:"a quick, real dopamine hit — calm-alert for a few minutes"},
+      {id:"heavy",name:"Heavy / chain",mind:{motivation:-6,mood:-6,agitation:16,focus:-4,stability:-16},ves:.8,d2up:true,
+        one:"tolerance means you smoke to feel normal; agitation rises between hits"}
+    ]},
+    exercise:{def:"moderate",opts:[
+      {id:"walk",name:"A brisk walk",mind:{motivation:8,mood:12,agitation:-10,focus:8,stability:10},ves:1,
+        one:"a gentle lift — mood up, edge off, nothing to pay back"},
+      {id:"moderate",name:"A good workout",mind:{motivation:16,mood:20,agitation:-4,focus:14,stability:16},ves:1,
+        one:"BDNF and dopamine up, stress hormones burned off — the clean high"},
+      {id:"over",name:"Overtraining",mind:{motivation:-8,mood:-10,agitation:16,focus:-8,stability:-14},ves:.7,synth:true,
+        one:"past recovery it flips — cortisol stays high and the gains reverse"}
+    ]},
+    sugar:{def:"hit",opts:[
+      {id:"hit",name:"A sugar hit",mind:{motivation:6,mood:10,agitation:2,focus:2,stability:-12},ves:1,
+        one:"a brief warm lift, then the insulin dip drops mood below where you started"},
+      {id:"junk",name:"Junk-food pattern",mind:{motivation:-8,mood:-14,agitation:12,focus:-10,stability:-16},ves:1,infl:true,gut:.5,synth:true,
+        one:"steady low-grade inflammation and blood-sugar swings — a quiet drag on everything"}
+    ]},
+    screens:{def:"scroll",opts:[
+      {id:"scroll",name:"An hour scrolling",mind:{motivation:-6,mood:-4,agitation:10,focus:-16,stability:-4},ves:1,
+        one:"a stream of tiny hits — pleasant, but focus frays and real tasks feel duller"},
+      {id:"doom",name:"Compulsive / doomscroll",mind:{motivation:-16,mood:-16,agitation:20,focus:-24,stability:-10},ves:1,d2up:true,
+        one:"the bar for 'worth it' resets high — slow rewards stop registering; restless and flat"}
     ]}
   };
   function variantOf(id){const v=VARIANTS[id]; const chosen=active.get(id)||v.def; return v.opts.find(o=>o.id===chosen)||v.opts[0];}
