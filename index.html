@@ -97,11 +97,16 @@
   .db-chev{transition:transform .2s;font-size:9px}
   .deskbar[aria-expanded="true"] .db-chev{transform:rotate(180deg)}
   @media (max-width:680px){ .db-sum{display:none} }
+  .deskdock.previewing{border-bottom-color:color-mix(in srgb,var(--da) 55%,var(--hair));box-shadow:inset 0 3px 0 -1px var(--da)}
+  .deskdock.previewing .db-tag{color:var(--da)}
+  .deskdock.previewing .db-sum{color:var(--ink)}
+  .deskdock.previewing .db-tag::before{content:"● ";font-size:8px;vertical-align:middle}
 
-  .deskscrim{position:fixed;inset:0;z-index:54;background:color-mix(in srgb,var(--bg) 42%,rgba(6,10,16,.62));backdrop-filter:blur(2px)}
+  .deskscrim{position:fixed;inset:0;z-index:54;background:color-mix(in srgb,var(--bg) 30%,rgba(4,7,12,.74));backdrop-filter:blur(3px)}
   .deskscrim[hidden]{display:none}
   .deskpanel{position:fixed;left:0;right:0;top:95px;z-index:55;max-height:calc(100vh - 104px);overflow:auto;
-    background:var(--bg);border-bottom:1px solid var(--hair);box-shadow:0 26px 54px -20px rgba(0,0,0,.55)}
+    background:var(--bg-2);border-top:1px solid color-mix(in srgb,var(--da) 40%,var(--hair));
+    border-bottom:1px solid var(--hair);box-shadow:0 30px 64px -18px rgba(0,0,0,.7)}
   @media (prefers-reduced-motion:no-preference){ .deskpanel{animation:deskdrop .24s cubic-bezier(.2,.9,.3,1)} }
   @keyframes deskdrop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
   .deskpanel[hidden]{display:none}
@@ -303,6 +308,12 @@
   .cviz .cvnote{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:11px;line-height:1.5;min-height:32px}
 
   /* ---------- interactive explorables ---------- */
+  .playhead{margin:4px 0 18px;padding:20px 22px;border-radius:16px;border:1px solid color-mix(in srgb,var(--da) 34%,var(--hair));
+    background:linear-gradient(135deg,color-mix(in srgb,var(--da) 12%,var(--panel)),color-mix(in srgb,var(--recep) 7%,var(--panel)))}
+  .ph-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:#fff;background:var(--da);border-radius:999px;padding:4px 11px;margin-bottom:11px}
+  .playhead h3{font-size:clamp(20px,2.4vw,27px);font-weight:400;letter-spacing:-.015em;margin-bottom:6px}
+  .playhead p{color:var(--dim);font-size:14.5px;line-height:1.5;max-width:62ch}
   .xgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:14px}
   .xcard{background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:16px 17px;display:flex;flex-direction:column}
   .xhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
@@ -357,7 +368,10 @@
 
   /* ---------- molecules ---------- */
   .molgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-  .molcard{border:1px solid var(--hair);border-radius:12px;padding:16px;background:var(--panel)}
+  .molcard{position:relative;border:1px solid var(--hair);border-radius:12px;padding:16px;background:var(--panel)}
+  .molbadge{position:absolute;top:11px;right:11px;font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--da);background:color-mix(in srgb,var(--da) 15%,var(--panel));border:1px solid color-mix(in srgb,var(--da) 40%,transparent);
+    border-radius:999px;padding:3px 8px;pointer-events:none}
   .molcard h4{font-size:15.5px;font-weight:400;margin-bottom:2px}
   .molcard .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:11px;display:inline-block}
   .molcard svg{width:100%;height:120px;margin-bottom:11px;background:#fbfcfd;border:1px solid var(--hair-2);border-radius:8px}
@@ -695,80 +709,16 @@
   <!-- ===== CONCEPTS ===== -->
   <section class="view" id="view-concepts" role="tabpanel">
     <div class="viewhead">
-      <h3>Learn the ideas</h3>
-      <p>The circuit is the mechanism — these are what it's <em>for</em>. Start with the three interactive deep-dives, then browse the full library below: every concept is a card you can search, filter, and click through to the diagrams.</p>
+      <h3>Explore the ideas</h3>
+      <p>What the circuit is <em>for</em> — motivation, focus, flow, the flat grey of a bad week. Start by playing with the interactive tools, then take the deep-dives, then browse the full library of 100+ concepts.</p>
     </div>
-    <div class="learnlabel"><span class="ll-n">Start here</span> · three ideas you can play with</div>
 
-    <article class="concept">
-      <div class="chead">
-        <div class="cnum">Concept 01 · the teaching signal</div>
-        <h3>Reward prediction error</h3>
-      </div>
-      <div class="cbody">
-        <div>
-          <p><b>Dopamine is not the pleasure.</b> It's the <em>surprise</em> — the gap between the reward you expected and the reward you got. That gap is the signal the brain learns from.</p>
-          <p class="pull">Better than expected → a burst. Exactly as expected → nothing. Worse, or nothing at all → a dip below baseline.</p>
-          <p>Once a cue reliably predicts a reward, the dopamine burst walks <b>backward in time</b> onto the cue itself — the ping of your phone, the smell of the bar. The reward stops surprising you; the <em>promise</em> of it does the wanting. This is why anticipation can outshout the thing itself, and why cues drive craving long after the reward has gone flat.</p>
-          <p style="color:var(--faint);font-size:13px">Try each case and watch the firing trace.</p>
-        </div>
-        <div class="cviz">
-          <canvas id="rpeCanvas" aria-label="Dopamine firing rate over time"></canvas>
-          <div class="cvcontrols" id="rpeControls">
-            <button data-rpe="unexpected" class="on">Unexpected reward</button>
-            <button data-rpe="expected">Fully predicted</button>
-            <button data-rpe="omitted">Reward omitted</button>
-          </div>
-          <div class="cvnote" id="rpeNote"></div>
-        </div>
-      </div>
-    </article>
-
-    <article class="concept">
-      <div class="chead">
-        <div class="cnum">Concept 02 · the executive</div>
-        <h3>The prefrontal cortex, and its dopamine sweet spot</h3>
-      </div>
-      <div class="cbody">
-        <div>
-          <p>The <b>prefrontal cortex</b> is the part of you that holds a goal in mind, weighs the long game against the quick hit, and vetoes the impulse the reward circuit is pushing. It's the difference between <em>wanting</em> and <em>choosing</em>.</p>
-          <p>But it runs on a knife-edge of dopamine — an <b>inverted-U</b>. Too little and it can't hold a thought: apathy, blank focus, decisions deferred. Too much and it's noisy and scattered: everything feels urgent, nothing gets finished. It only works well in a narrow band in the middle.</p>
-          <p class="pull">Almost every state on this page shoves the PFC off its peak — which is why judgment and follow-through are the first things to go.</p>
-          <p>The curve below is that inverted-U. The marker is where your <b>current toggled state</b> sits on it — watch it slide as you change things at the desk.</p>
-        </div>
-        <div class="cviz">
-          <canvas id="pfcCanvas" aria-label="Prefrontal performance versus dopamine tone"></canvas>
-          <div class="cvnote" id="pfcNote"></div>
-        </div>
-      </div>
-    </article>
-
-    <article class="concept">
-      <div class="chead">
-        <div class="cnum">Concept 03 · use rewrites the wiring</div>
-        <h3>Remodeling the mind after experience</h3>
-      </div>
-      <div class="cbody">
-        <div>
-          <p><b>Neurons that fire together, wire together.</b> Every experience strengthens some synapses and lets others fade. Strengthening (<em>long-term potentiation</em>) grows new dendritic spines and studs them with receptors; disuse (<em>long-term depression</em>) shrinks spines until they're pruned away.</p>
-          <p class="pull">The mind you practice is the mind you become.</p>
-          <p>Repeat a state and you deepen its groove — a reward circuit fired again and again becomes easier to trigger (the physical basis of habit and craving), while a chronically stressed brain prunes the very connections that would calm it. This is also the way out: the same plasticity that carves the rut can carve a new path, given different, repeated experience.</p>
-          <p style="color:var(--faint);font-size:13px">Fire the synapse repeatedly to potentiate it — or leave it and watch it prune.</p>
-        </div>
-        <div class="cviz">
-          <canvas id="plastCanvas" aria-label="Dendritic spines growing and pruning with use"></canvas>
-          <div class="cvcontrols" id="plastControls">
-            <button data-plast="fire">⚡ Fire together (×1)</button>
-            <button data-plast="burst">Repeat ×10</button>
-            <button data-plast="fade">Let it fade</button>
-          </div>
-          <div class="cvnote" id="plastNote"></div>
-        </div>
-      </div>
-    </article>
-
-    <!-- interactive explorables -->
-    <div class="learnlabel" style="margin-top:34px"><span class="ll-n">Play with it</span> · nine more mini-tools, each responds live</div>
+    <!-- interactive explorables (showcased at top) -->
+    <div class="playhead">
+      <span class="ph-badge">▶ Interactive</span>
+      <h3>Play with the mechanisms</h3>
+      <p>Nine hands-on mini-tools plus the deep-dives below — drag, toggle, pick a state, and watch the readout respond. No reading required.</p>
+    </div>
     <div class="xgrid" id="xgrid">
 
       <div class="xcard" id="x-wl">
@@ -853,6 +803,76 @@
       </div>
 
     </div>
+
+
+    <div class="learnlabel" style="margin-top:38px"><span class="ll-n">Go deeper</span> · three interactive deep-dives</div>
+
+    <article class="concept">
+      <div class="chead">
+        <div class="cnum">Concept 01 · the teaching signal</div>
+        <h3>Reward prediction error</h3>
+      </div>
+      <div class="cbody">
+        <div>
+          <p><b>Dopamine is not the pleasure.</b> It's the <em>surprise</em> — the gap between the reward you expected and the reward you got. That gap is the signal the brain learns from.</p>
+          <p class="pull">Better than expected → a burst. Exactly as expected → nothing. Worse, or nothing at all → a dip below baseline.</p>
+          <p>Once a cue reliably predicts a reward, the dopamine burst walks <b>backward in time</b> onto the cue itself — the ping of your phone, the smell of the bar. The reward stops surprising you; the <em>promise</em> of it does the wanting. This is why anticipation can outshout the thing itself, and why cues drive craving long after the reward has gone flat.</p>
+          <p style="color:var(--faint);font-size:13px">Try each case and watch the firing trace.</p>
+        </div>
+        <div class="cviz">
+          <canvas id="rpeCanvas" aria-label="Dopamine firing rate over time"></canvas>
+          <div class="cvcontrols" id="rpeControls">
+            <button data-rpe="unexpected" class="on">Unexpected reward</button>
+            <button data-rpe="expected">Fully predicted</button>
+            <button data-rpe="omitted">Reward omitted</button>
+          </div>
+          <div class="cvnote" id="rpeNote"></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="concept">
+      <div class="chead">
+        <div class="cnum">Concept 02 · the executive</div>
+        <h3>The prefrontal cortex, and its dopamine sweet spot</h3>
+      </div>
+      <div class="cbody">
+        <div>
+          <p>The <b>prefrontal cortex</b> is the part of you that holds a goal in mind, weighs the long game against the quick hit, and vetoes the impulse the reward circuit is pushing. It's the difference between <em>wanting</em> and <em>choosing</em>.</p>
+          <p>But it runs on a knife-edge of dopamine — an <b>inverted-U</b>. Too little and it can't hold a thought: apathy, blank focus, decisions deferred. Too much and it's noisy and scattered: everything feels urgent, nothing gets finished. It only works well in a narrow band in the middle.</p>
+          <p class="pull">Almost every state on this page shoves the PFC off its peak — which is why judgment and follow-through are the first things to go.</p>
+          <p>The curve below is that inverted-U. The marker is where your <b>current toggled state</b> sits on it — watch it slide as you change things at the desk.</p>
+        </div>
+        <div class="cviz">
+          <canvas id="pfcCanvas" aria-label="Prefrontal performance versus dopamine tone"></canvas>
+          <div class="cvnote" id="pfcNote"></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="concept">
+      <div class="chead">
+        <div class="cnum">Concept 03 · use rewrites the wiring</div>
+        <h3>Remodeling the mind after experience</h3>
+      </div>
+      <div class="cbody">
+        <div>
+          <p><b>Neurons that fire together, wire together.</b> Every experience strengthens some synapses and lets others fade. Strengthening (<em>long-term potentiation</em>) grows new dendritic spines and studs them with receptors; disuse (<em>long-term depression</em>) shrinks spines until they're pruned away.</p>
+          <p class="pull">The mind you practice is the mind you become.</p>
+          <p>Repeat a state and you deepen its groove — a reward circuit fired again and again becomes easier to trigger (the physical basis of habit and craving), while a chronically stressed brain prunes the very connections that would calm it. This is also the way out: the same plasticity that carves the rut can carve a new path, given different, repeated experience.</p>
+          <p style="color:var(--faint);font-size:13px">Fire the synapse repeatedly to potentiate it — or leave it and watch it prune.</p>
+        </div>
+        <div class="cviz">
+          <canvas id="plastCanvas" aria-label="Dendritic spines growing and pruning with use"></canvas>
+          <div class="cvcontrols" id="plastControls">
+            <button data-plast="fire">⚡ Fire together (×1)</button>
+            <button data-plast="burst">Repeat ×10</button>
+            <button data-plast="fade">Let it fade</button>
+          </div>
+          <div class="cvnote" id="plastNote"></div>
+        </div>
+      </div>
+    </article>
 
     <!-- unified library -->
     <div class="learnlabel" style="margin-top:34px"><span class="ll-n">Browse all</span> · the complete concept library</div>
@@ -1494,10 +1514,16 @@ const CONCEPTS=[
       $("flowState").style.color=fcol;
       $("flowWhy").textContent = fs>72? "the dopamine–noradrenaline–focus ensemble is close to balanced." : flowLimiter(m)+".";
     }
-    // dock bar live summary
+    // dock bar live summary + "previewing" signal
     const bm=$("dbMood"); if(bm){ bm.textContent=word; bm.style.color=col; }
     const bf=$("dbFlowFill"); if(bf){ bf.style.width=fs+"%"; bf.style.background=(fs>66?"#18b57e":fs>40?"#d7a53c":"#e0295a"); }
-    const bc=$("dbChips"); if(bc){ bc.textContent = st.ids.length? st.ids.map(id=>INF[id].name).join(" · ") : "Baseline · healthy body"; }
+    const bits=[];
+    if(profile.sex==="female") bits.push("Female"+(profile.phase!=="none"?" · "+(PHASE[profile.phase]||{}).label:"")+(profile.pill?" · pill":""));
+    st.ids.forEach(id=>bits.push(INF[id].name));
+    const preview=bits.length>0;
+    const bc=$("dbChips"); if(bc){ bc.textContent = preview? bits.join(" · ") : "Baseline · healthy body"; }
+    const dock=$("deskDock"); if(dock){ dock.classList.toggle("previewing",preview);
+      const tg=dock.querySelector(".db-tag"); if(tg) tg.textContent = preview? "Previewing" : "Control desk"; }
   }
 
   /* ============================================================
@@ -1768,9 +1794,11 @@ const CONCEPTS=[
   /* ============================================================
      MOLECULES
      ============================================================ */
+  const ANIM_KEYS={dopamine:1,vesicle:1,VMAT2:1,DAT:1,GABA:1,glutamate:1,tyrosine:1,ldopa:1,D1:1,MAOB:1,SCFA:1,vagus:1};
   (function buildMol(){const grid=$("molGrid");MOL.forEach(m=>{const c=document.createElement("div");c.className="molcard tapcard";
-    c.setAttribute("role","button"); c.setAttribute("tabindex","0"); c.setAttribute("aria-label",m.name+" — open detail");
-    c.innerHTML=`<span class="tag" style="color:${m.color}">${m.tag}</span><h4>${m.name}</h4>${m.svg}<p>${m.desc}</p><div class="more">tap for role · diagram · concepts →</div>`;
+    c.setAttribute("role","button"); c.setAttribute("tabindex","0"); c.setAttribute("aria-label",m.name+" — open animated detail");
+    const anim=!!ANIM_KEYS[m.key];
+    c.innerHTML=`${anim?'<span class="molbadge">▶ animated</span>':''}<span class="tag" style="color:${m.color}">${m.tag}</span><h4>${m.name}</h4>${m.svg}<p>${m.desc}</p><div class="more">${anim?'▶ tap to watch it work':'tap for role · diagram · concepts →'}</div>`;
     const open=()=>openModal(molEntity(m),c);
     c.addEventListener("click",open);
     c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});
