@@ -135,6 +135,73 @@
   .toggle[aria-pressed="true"] .dot{box-shadow:0 0 12px 2px var(--tc);transform:scale(1.15)}
   .toggle[aria-pressed="true"] .nm{color:var(--ink)}
   .togglecol{display:flex;flex-direction:column}
+  /* ---- add-button + selected chips (persistent control layer) ---- */
+  .addbtn{display:flex;align-items:center;gap:9px;width:100%;min-height:48px;background:color-mix(in srgb,var(--da) 12%,var(--panel));
+    border:1px dashed color-mix(in srgb,var(--da) 55%,var(--hair));border-radius:12px;padding:12px 15px;cursor:pointer;
+    color:var(--ink);font-family:var(--sans);font-size:14.5px;transition:.18s}
+  .addbtn:hover{border-color:var(--da);background:color-mix(in srgb,var(--da) 18%,var(--panel))}
+  .addbtn-plus{font-size:18px;color:var(--da);line-height:1}
+  .selchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .selchip{display:inline-flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--sc,#888) 15%,var(--panel));
+    border:1px solid color-mix(in srgb,var(--sc,#888) 55%,transparent);border-radius:999px;padding:7px 8px 7px 12px;font-size:12.5px;color:var(--ink)}
+  .selchip .sc-dot{width:9px;height:9px;border-radius:50%;background:var(--sc,#888);flex:none}
+  .selchip .sc-x{width:20px;height:20px;border-radius:50%;border:none;background:color-mix(in srgb,var(--sc,#888) 22%,transparent);
+    color:var(--ink);cursor:pointer;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;transition:.15s}
+  .selchip .sc-x:hover{background:var(--sc,#888);color:#fff}
+  .selchip-empty{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em}
+  /* ---- selector sheet ---- */
+  .sheetscrim{position:fixed;inset:0;z-index:90;background:rgba(6,9,14,.55);backdrop-filter:blur(3px);animation:fade .2s ease}
+  .agentsheet{position:fixed;z-index:91;display:flex;flex-direction:column;background:var(--panel);color:var(--ink);
+    border:1px solid var(--hair);box-shadow:0 30px 80px -20px rgba(0,0,0,.6);overflow:hidden}
+  .agentsheet[hidden]{display:none}
+  /* desktop: centred popup */
+  .agentsheet{left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,94vw);max-height:82vh;border-radius:18px}
+  .sheet-handle{display:none}
+  .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:20px 22px 14px;border-bottom:1px solid var(--hair);flex:none}
+  .sheet-title{font-size:19px;font-weight:600;letter-spacing:-.01em}
+  .sheet-sub{font-size:12.5px;color:var(--dim);margin-top:3px;max-width:46ch}
+  .sheet-close{border:1px solid var(--hair);background:var(--panel-2);color:var(--ink);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;flex:none;transition:.15s}
+  .sheet-close:hover{border-color:var(--da);color:var(--da)}
+  .sheet-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 14px 14px;overscroll-behavior:contain}
+  .sheet-cat{border-bottom:1px solid var(--hair-2)}
+  .sheet-cathead{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:none;border:none;cursor:pointer;
+    color:inherit;text-align:left;padding:14px 8px;font-family:inherit}
+  .sheet-cathead .cat-l{display:flex;align-items:center;gap:10px;min-width:0}
+  .cat-dot{width:10px;height:10px;border-radius:50%;background:var(--catc,#888);flex:none}
+  .cat-name{font-size:14.5px;font-weight:600}
+  .cat-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .cat-r{display:flex;align-items:center;gap:9px;flex:none}
+  .cat-badge{font-family:var(--mono);font-size:10px;color:var(--da);min-width:14px;text-align:center}
+  .cat-chev{font-size:10px;color:var(--faint);transition:transform .2s}
+  .sheet-cat.open .cat-chev{transform:rotate(180deg)}
+  .sheet-catbody{display:none;padding:0 4px 10px}
+  .sheet-cat.open .sheet-catbody{display:block}
+  .agentrow{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;background:var(--panel-2);border:1px solid var(--hair);
+    border-radius:11px;padding:10px 13px;margin-bottom:8px;cursor:pointer;text-align:left;color:inherit;font-family:inherit;transition:.15s}
+  .agentrow:hover{border-color:var(--faint)}
+  .agentrow .ar-dot{width:12px;height:12px;border-radius:50%;background:var(--arc,#888);flex:none;transition:.2s}
+  .agentrow .ar-col{flex:1 1 auto;min-width:0}
+  .agentrow .ar-nm{font-size:14.5px;line-height:1.15}
+  .agentrow .ar-nm b{font-weight:600}
+  .agentrow .ar-sci{color:var(--faint);font-weight:400;font-size:12px}
+  .agentrow .ar-desc{font-size:12px;color:var(--dim);line-height:1.35;margin-top:2px}
+  .agentrow .ar-check{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--hair);flex:none;display:flex;align-items:center;
+    justify-content:center;font-size:13px;color:transparent;transition:.15s}
+  .agentrow[aria-pressed="true"]{border-color:var(--arc);background:color-mix(in srgb,var(--arc) 13%,var(--panel-2))}
+  .agentrow[aria-pressed="true"] .ar-dot{box-shadow:0 0 12px 2px var(--arc);transform:scale(1.12)}
+  .agentrow[aria-pressed="true"] .ar-check{background:var(--arc);border-color:var(--arc);color:#fff}
+  .sheet-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 20px;border-top:1px solid var(--hair);flex:none}
+  .sheet-count{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .sheet-done{background:var(--da);color:#1a1206;border:none;border-radius:999px;padding:11px 26px;font-weight:600;font-size:14px;cursor:pointer;transition:.15s}
+  .sheet-done:hover{filter:brightness(1.06)}
+  @media (max-width:640px){
+    .agentsheet{left:0;right:0;bottom:0;top:auto;transform:translateY(0);width:100%;max-height:88vh;border-radius:20px 20px 0 0;border-bottom:none;
+      animation:sheetup .28s cubic-bezier(.2,.8,.2,1)}
+    .sheet-handle{display:block;width:44px;height:5px;border-radius:999px;background:var(--hair);border:none;margin:9px auto 2px;cursor:grab;flex:none;padding:0}
+    .sheet-head{padding-top:8px}
+  }
+  @keyframes sheetup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  @media (prefers-reduced-motion:reduce){.agentsheet{animation:none}.sheetscrim{animation:none}}
   .deskfoot{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
   .resetbtn{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;background:transparent;border:1px solid var(--hair);
     color:var(--dim);border-radius:999px;padding:8px 15px;cursor:pointer;transition:.2s}
@@ -163,6 +230,9 @@
   .ftrow .fttop{display:flex;align-items:center;gap:8px}
   .ftrow .ftname{font-size:13.5px;color:var(--ink)}
   .ftrow .ftone{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--dim);line-height:1.4}
+  .ft-onset{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.03em;color:var(--faint);text-transform:uppercase}
+  .ft-xlink{align-self:flex-start;font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--gold);background:none;border:none;cursor:pointer;padding:2px 0;margin-top:2px}
+  .ft-xlink:hover{text-decoration:underline;text-underline-offset:2px}
   .ftopts{display:flex;flex-wrap:wrap;gap:5px}
   .ftopt{font-family:var(--mono);font-size:10.5px;letter-spacing:.01em;color:var(--dim);background:var(--panel);
     border:1px solid var(--hair);border-radius:7px;padding:6px 10px;cursor:pointer;transition:.15s;white-space:nowrap}
@@ -606,8 +676,9 @@
     <div class="influences">
       <div class="cap">Who — your baseline body</div>
       <div class="profilewrap" id="profileWrap"></div>
-      <div class="cap" style="margin-top:20px">Lifestyle — combinable, each with a dose</div>
-      <div class="togglewrap" id="toggleWrap"></div>
+      <div class="cap" style="margin-top:20px">What's acting on the circuit</div>
+      <button class="addbtn" id="addAgentBtn" aria-haspopup="dialog"><span class="addbtn-plus">＋</span> Add a factor or agent</button>
+      <div class="selchips" id="selChips"></div>
       <div class="finetune" id="fineTune"></div>
       <div class="deskfoot">
         <button class="resetbtn" id="clearBtn">↺ Clear all (healthy)</button>
@@ -647,6 +718,18 @@
     </div>
   </div>
 </div></aside>
+
+<!-- ============ AGENT / FACTOR SELECTOR (bottom-sheet on mobile, popup on desktop) ============ -->
+<div class="sheetscrim" id="sheetScrim" hidden></div>
+<div class="agentsheet" id="agentSheet" hidden role="dialog" aria-modal="true" aria-label="Add a factor or agent">
+  <button class="sheet-handle" id="sheetHandle" aria-label="Drag down to close"></button>
+  <div class="sheet-head">
+    <div><div class="sheet-title">Add a factor or agent</div><div class="sheet-sub">Tap to add — stack as many as you like. Mechanism and effect only, not advice.</div></div>
+    <button class="sheet-close" id="sheetClose" aria-label="Close">✕</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+  <div class="sheet-foot"><span class="sheet-count" id="sheetCount">nothing selected</span><button class="sheet-done" id="sheetDone">Done</button></div>
+</div>
 
 <!-- ============ TABS ============ -->
 <div class="tabsbar"><div class="wrap"><div class="tabs" role="tablist" id="tabs">
@@ -2994,16 +3077,82 @@ const CONCEPTS=[
   }
 
   // ---- influence toggles ----
-  const tw=$("toggleWrap");
-  INFLUENCES.forEach(inf=>{
-    const b=document.createElement("button"); b.className="toggle"; b.setAttribute("aria-pressed","false");
-    b.style.setProperty("--tc",inf.color); b.dataset.id=inf.id;
-    b.innerHTML=`<span class="dot"></span><span class="togglecol"><span class="nm">${inf.name}</span><span class="sub2">${inf.tag}</span></span>`;
-    b.onclick=()=>{ if(active.has(inf.id)){active.delete(inf.id);b.setAttribute("aria-pressed","false");}
-      else{active.set(inf.id, VARIANTS[inf.id].def);b.setAttribute("aria-pressed","true");}
-      buildFineTune(); refresh(); };
-    tw.appendChild(b);
-  });
+  // ================= agent / factor selector (bottom-sheet mobile · popup desktop) =================
+  const selChips=$("selChips"), sheet=$("agentSheet"), sheetScrim=$("sheetScrim"), sheetBody=$("sheetBody");
+  let sheetOpen=false, sheetPrevFocus=null;
+
+  function buildSheet(){
+    sheetBody.innerHTML="";
+    AGENT_CATS.forEach((cat,ci)=>{
+      const items=INFLUENCES.filter(i=>i.cat===cat.id);
+      if(!items.length) return;
+      const sec=document.createElement("div"); sec.className="sheet-cat"+(ci===0?" open":""); sec.dataset.cat=cat.id;
+      const head=document.createElement("button"); head.className="sheet-cathead"; head.setAttribute("aria-expanded", ci===0?"true":"false");
+      head.innerHTML=`<span class="cat-l"><span class="cat-dot" style="background:${cat.color}"></span>
+        <span><span class="cat-name">${cat.label}</span> <span class="cat-tag">${cat.tag}</span></span></span>
+        <span class="cat-r"><span class="cat-badge" data-catbadge="${cat.id}"></span><span class="cat-chev">▾</span></span>`;
+      head.onclick=()=>{ const open=sec.classList.toggle("open"); head.setAttribute("aria-expanded",open?"true":"false"); };
+      const body=document.createElement("div"); body.className="sheet-catbody";
+      items.forEach(inf=>{
+        const row=document.createElement("button"); row.className="agentrow"; row.dataset.id=inf.id;
+        row.style.setProperty("--arc",inf.color); row.setAttribute("aria-pressed", active.has(inf.id)?"true":"false");
+        const sci=inf.sci?` <span class="ar-sci">· ${inf.sci}</span>`:"";
+        row.innerHTML=`<span class="ar-dot"></span><span class="ar-col"><span class="ar-nm"><b>${inf.name}</b>${sci}</span>
+          <span class="ar-desc">${inf.one}</span></span><span class="ar-check">✓</span>`;
+        row.onclick=()=>toggleAgent(inf.id,row);
+        body.appendChild(row);
+      });
+      sec.appendChild(head); sec.appendChild(body); sheetBody.appendChild(sec);
+    });
+  }
+  function toggleAgent(id,row){
+    if(active.has(id)) active.delete(id); else active.set(id, VARIANTS[id].def);
+    if(row) row.setAttribute("aria-pressed", active.has(id)?"true":"false");
+    commitSelection(); syncSheetBadges();
+  }
+  function syncSheetRows(){
+    sheetBody.querySelectorAll(".agentrow").forEach(r=>r.setAttribute("aria-pressed", active.has(r.dataset.id)?"true":"false"));
+    syncSheetBadges();
+  }
+  function syncSheetBadges(){
+    AGENT_CATS.forEach(cat=>{ const n=INFLUENCES.filter(i=>i.cat===cat.id && active.has(i.id)).length;
+      const el=sheetBody.querySelector('[data-catbadge="'+cat.id+'"]'); if(el) el.textContent=n?("● "+n):""; });
+    const c=$("sheetCount"); if(c) c.textContent = active.size? (active.size+" active — stacking") : "nothing selected";
+  }
+  function renderSelChips(){
+    selChips.innerHTML="";
+    if(active.size===0){ selChips.innerHTML='<span class="selchip-empty">nothing active — healthy baseline</span>'; return; }
+    [...active.keys()].forEach(id=>{
+      const inf=INF[id], vr=variantOf(id);
+      const chip=document.createElement("span"); chip.className="selchip"; chip.style.setProperty("--sc",inf.color);
+      const nm = (vr.name.toLowerCase()===inf.name.toLowerCase())? inf.name : inf.name+" · "+vr.name;
+      chip.innerHTML='<span class="sc-dot"></span><span>'+nm+'</span><button class="sc-x" aria-label="Remove '+inf.name+'">✕</button>';
+      chip.querySelector(".sc-x").onclick=()=>{ active.delete(id); commitSelection(); syncSheetRows(); };
+      selChips.appendChild(chip);
+    });
+  }
+  function commitSelection(){ buildFineTune(); renderSelChips(); refresh(); }
+
+  function openSheet(){ sheetOpen=true; sheetPrevFocus=document.activeElement; syncSheetRows(); sheetScrim.hidden=false; sheet.hidden=false;
+    sheet.style.transform=""; requestAnimationFrame(()=>{ const f=sheet.querySelector(".sheet-close"); if(f)f.focus(); }); }
+  function closeSheet(){ if(!sheetOpen)return; sheetOpen=false; sheet.hidden=true; sheetScrim.hidden=true;
+    if(sheetPrevFocus&&sheetPrevFocus.focus)sheetPrevFocus.focus(); }
+  $("addAgentBtn").onclick=openSheet;
+  $("sheetClose").onclick=closeSheet; $("sheetDone").onclick=closeSheet; sheetScrim.onclick=closeSheet;
+  document.addEventListener("keydown",e=>{ if(!sheetOpen)return;
+    if(e.key==="Escape"){ closeSheet(); e.stopImmediatePropagation(); e.preventDefault(); }
+    else if(e.key==="Tab"){ const f=[...sheet.querySelectorAll('button,[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled&&x.offsetParent!==null);
+      if(!f.length)return; const first=f[0], last=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===first){ last.focus(); e.preventDefault(); }
+      else if(!e.shiftKey&&document.activeElement===last){ first.focus(); e.preventDefault(); } }
+  },true);
+  (function(){ const h=$("sheetHandle"); let sy=0,drag=false;
+    h.addEventListener("pointerdown",e=>{ drag=true; sy=e.clientY; sheet.style.transition="none"; try{h.setPointerCapture(e.pointerId);}catch(_){} });
+    h.addEventListener("pointermove",e=>{ if(!drag)return; sheet.style.transform="translateY("+Math.max(0,e.clientY-sy)+"px)"; });
+    h.addEventListener("pointerup",e=>{ if(!drag)return; drag=false; sheet.style.transition=""; const dy=Math.max(0,e.clientY-sy);
+      sheet.style.transform=""; if(dy>90) closeSheet(); });
+  })();
+  buildSheet(); renderSelChips();
 
   // ---- fine-tune (dose/pattern per active influence) ----
   function buildFineTune(){
@@ -3013,21 +3162,24 @@ const CONCEPTS=[
       const V=VARIANTS[inf.id], chosen=active.get(inf.id);
       const row=document.createElement("div"); row.className="ftrow"; row.style.setProperty("--fc",inf.color);
       const cur=V.opts.find(o=>o.id===chosen)||V.opts[0];
-      row.innerHTML=`<div class="fttop"><span class="dot" style="width:9px;height:9px;border-radius:50%;background:${inf.color};display:inline-block"></span><span class="ftname">${inf.name}</span></div>
-        <div class="ftopts"></div><div class="ftone">${cur.one}</div>`;
+      const onset=cur.onset?' <span class="ft-onset">· '+cur.onset+'</span>':"";
+      row.innerHTML='<div class="fttop"><span class="dot" style="width:9px;height:9px;border-radius:50%;background:'+inf.color+';display:inline-block"></span><span class="ftname">'+inf.name+'</span></div>'
+        +'<div class="ftopts"></div><div class="ftone">'+cur.one+onset+'</div>';
       const opts=row.querySelector(".ftopts");
       V.opts.forEach(o=>{
         const b=document.createElement("button"); b.className="ftopt"; b.textContent=o.name;
         b.setAttribute("aria-pressed", o.id===chosen?"true":"false");
-        b.onclick=()=>{ active.set(inf.id,o.id); buildFineTune(); refresh(); };
+        b.onclick=()=>{ active.set(inf.id,o.id); buildFineTune(); renderSelChips(); refresh(); };
         opts.appendChild(b);
       });
+      if(cur.xlink){ const lk=document.createElement("button"); lk.className="ft-xlink"; lk.textContent="▸ related tool: "+cur.xlink.label;
+        lk.onclick=()=>{ const c=findConcept(cur.xlink.find); if(c){ closeSheet(); openConcept(c); } };
+        row.appendChild(lk); }
       wrap.appendChild(row);
     });
   }
 
-  $("clearBtn").onclick=()=>{active.clear(); document.querySelectorAll(".toggle").forEach(t=>t.setAttribute("aria-pressed","false"));
-    buildFineTune(); refresh();};
+  $("clearBtn").onclick=()=>{active.clear(); commitSelection(); syncSheetRows();};
 
   // tabs
   let currentView="circuit";
@@ -3045,7 +3197,7 @@ const CONCEPTS=[
      NAVIGATION STACK — every cross-link is reversible
      ============================================================ */
   const navStack=[];
-  function syncToggles(){ document.querySelectorAll(".toggle").forEach(t=>t.setAttribute("aria-pressed", active.has(t.dataset.id)?"true":"false")); }
+  function syncToggles(){ renderSelChips(); syncSheetRows(); }
   function snapshot(){
     return { profile:{sex:profile.sex,phase:profile.phase,pill:profile.pill},
       active:[...active.entries()], view:currentView, cur, gcur,
