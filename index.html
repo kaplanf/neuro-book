@@ -186,6 +186,13 @@
   .mind .top .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
   .moodword{font-size:26px;letter-spacing:-.01em;line-height:1;transition:color .4s}
   .moodbody{font-family:var(--serif);font-size:13px;color:var(--faint);margin-top:7px;line-height:1.4}
+  .warnbox{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .warn{display:flex;gap:10px;align-items:flex-start;background:color-mix(in srgb,#e0295a 14%,var(--panel-2));
+    border:1px solid color-mix(in srgb,#e0295a 55%,transparent);border-radius:10px;padding:11px 13px}
+  .warn-i{color:#ff6b83;font-size:16px;line-height:1.2;flex:none}
+  .warn b{display:block;font-size:12.5px;letter-spacing:.02em;color:#ff8097;margin-bottom:3px;text-transform:uppercase}
+  .warn span{display:block;font-size:12.5px;color:var(--dim);line-height:1.45}
+  .warn i{color:var(--faint);font-style:italic}
   .mind .felt{font-family:var(--serif);font-style:italic;color:var(--dim);font-size:15px;margin:10px 0 12px;min-height:44px;transition:opacity .3s}
   .feltcues{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;min-height:2px}
   .fcue{font-family:var(--mono);font-size:10px;letter-spacing:.02em;padding:4px 9px;border-radius:999px;
@@ -251,6 +258,12 @@
   /* ---------- diagram plate (always light) ---------- */
   .plate{background:#f8fafb;border:1px solid #d3dbe2;border-radius:12px;overflow:hidden;position:relative;box-shadow:var(--shadow)}
   .plate svg{display:block;width:100%;height:auto}
+  /* agent signature field-tint over the synapse (2D + 3D) */
+  .fieldfx{position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:multiply;transition:opacity .5s,background .5s;z-index:2}
+  .stage3d .fieldfx{mix-blend-mode:screen}
+  .fxlabel{position:absolute;left:12px;bottom:10px;z-index:3;pointer-events:none;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.02em;color:#fff;background:rgba(12,16,24,.72);border-radius:999px;padding:5px 11px;opacity:0;transition:opacity .4s;max-width:calc(100% - 24px)}
+  .fxlabel.show{opacity:1}
   .svg-mono{font-family:var(--mono)}
   .banner{position:absolute;top:0;left:0;right:0;padding:9px 16px;font-family:var(--mono);font-size:12px;
     letter-spacing:.01em;background:rgba(155,63,212,.1);color:#7d2bb0;border-bottom:1px solid #e6d2f4;display:none;line-height:1.4;z-index:2}
@@ -605,6 +618,7 @@
       <div class="top"><span class="lbl">State of mind</span></div>
       <div class="moodword mono" id="moodWord">Available</div>
       <div class="moodbody" id="moodBody">clear and ready — motivation on tap, shoulders down</div>
+      <div class="warnbox" id="warnBox" hidden></div>
       <div class="felt" id="feltLine">Balanced and available — motivation on tap, mood level, mind clear.</div>
       <div class="feltcues" id="feltCues"></div>
       <blockquote class="statequote" id="stateQuote"><span class="sq-q" id="sqText"></span><cite class="sq-a" id="sqAttr"></cite></blockquote>
@@ -661,6 +675,8 @@
     <div class="plate">
       <div class="banner" id="banner"></div>
       <svg id="scene" viewBox="0 0 1200 780" role="img" aria-labelledby="sceneTitle">         <title id="sceneTitle">Dopamine synapse with synthesis, storage, release, receptors, reuptake, degradation and GABA modulation.</title>         <defs>           <linearGradient id="preFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f5f8fa"/><stop offset="100%" stop-color="#e9eff3"/></linearGradient>           <linearGradient id="postFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#eef5f2"/><stop offset="100%" stop-color="#e4efe9"/></linearGradient>           <linearGradient id="gabaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f6edfb"/><stop offset="100%" stop-color="#efe1f7"/></linearGradient>           <radialGradient id="daGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#e8850c" stop-opacity=".55"/><stop offset="100%" stop-color="#e8850c" stop-opacity="0"/></radialGradient>           <radialGradient id="inflGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#e0295a" stop-opacity=".4"/><stop offset="100%" stop-color="#e0295a" stop-opacity="0"/></radialGradient>           <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#128a63"/></marker>           <marker id="arrowInhib" markerWidth="12" markerHeight="12" refX="4" refY="6" orient="auto"><rect x="0" y="4.5" width="9" height="3" fill="#9b3fd4"/></marker>         </defs>          <g id="preTerminal">           <path d="M44,70 Q120,52 300,60 L560,60 Q636,64 650,132 L650,300 Q650,332 585,336 L120,336 Q48,330 46,266 Z" fill="url(#preFill)" stroke="#c4cfd8" stroke-width="1.5"/>           <text x="72" y="98" class="svg-mono" fill="#5b6b7a" font-size="13" letter-spacing="2">PRESYNAPTIC TERMINAL</text>           <text x="72" y="115" class="svg-mono" fill="#8a99a8" font-size="10.5">where reward signals begin</text>         </g>         <!-- inflammation glow overlay -->         <circle id="inflMark" cx="150" cy="185" r="60" fill="url(#inflGlow)" opacity="0"/>          <g id="gSynthesis" opacity="0.3">           <text x="74" y="150" class="svg-mono" fill="#128a63" font-size="11" letter-spacing="1.4">SYNTHESIS</text>           <circle cx="98" cy="182" r="13" fill="#dff0e9" stroke="#128a63" stroke-width="1.3"/><text x="98" y="186" text-anchor="middle" class="svg-mono" fill="#0c5c43" font-size="10">Tyr</text>           <line x1="115" y1="182" x2="153" y2="182" stroke="#128a63" stroke-width="1.3" marker-end="url(#arrow)"/><text x="134" y="174" text-anchor="middle" class="svg-mono" fill="#128a63" font-size="8.5" id="thLabel">TH</text>           <circle cx="174" cy="182" r="14" fill="#dff0e9" stroke="#128a63" stroke-width="1.3"/><text x="174" y="186" text-anchor="middle" class="svg-mono" fill="#0c5c43" font-size="9">DOPA</text>           <line x1="192" y1="182" x2="230" y2="182" stroke="#128a63" stroke-width="1.3" marker-end="url(#arrow)"/><text x="211" y="174" text-anchor="middle" class="svg-mono" fill="#128a63" font-size="8">AADC</text>           <circle cx="252" cy="182" r="15" fill="#fbe6c4" stroke="#e8850c" stroke-width="1.6"/><text x="252" y="186" text-anchor="middle" class="svg-mono" fill="#7a4708" font-size="10" font-weight="700">DA</text>           <text x="150" y="220" class="svg-mono" fill="#8a99a8" font-size="9" id="synthNote">the slow first step sets the supply</text>         </g>          <g id="gVesicles" opacity="0.3">           <text x="334" y="150" class="svg-mono" fill="#e8850c" font-size="11" letter-spacing="1.4">VESICULAR STORAGE</text>           <circle id="ves1" cx="432" cy="270" r="33" fill="none" stroke="#e8850c" stroke-width="1.5" stroke-opacity=".55"/>           <g id="ves1Load">             <circle cx="422" cy="262" r="5" fill="#e8850c"/><circle cx="442" cy="270" r="5" fill="#e8850c"/><circle cx="427" cy="282" r="5" fill="#e8850c"/><circle cx="445" cy="256" r="5" fill="#e8850c"/><circle cx="414" cy="275" r="5" fill="#e8850c"/><circle cx="434" cy="285" r="5" fill="#e8850c"/>           </g>           <rect x="420" y="234" width="24" height="9" rx="2" fill="#e8850c" opacity=".85"/><text x="432" y="227" text-anchor="middle" class="svg-mono" fill="#b9690a" font-size="8.5">VMAT2</text>           <g id="reservePool">             <circle cx="362" cy="232" r="21" fill="none" stroke="#e8850c" stroke-width="1.2" stroke-opacity=".3"/><circle cx="354" cy="227" r="4" fill="#e8850c" opacity=".7"/><circle cx="370" cy="234" r="4" fill="#e8850c" opacity=".7"/><circle cx="362" cy="240" r="4" fill="#e8850c" opacity=".7"/>             <circle cx="512" cy="236" r="19" fill="none" stroke="#e8850c" stroke-width="1.2" stroke-opacity=".3"/><circle cx="505" cy="231" r="4" fill="#e8850c" opacity=".7"/><circle cx="519" cy="238" r="4" fill="#e8850c" opacity=".7"/>           </g>           <text x="334" y="308" class="svg-mono" fill="#8a99a8" font-size="9" id="vesNote">packed into sacs — costs energy</text>         </g>          <g id="gMembrane">           <line x1="120" y1="336" x2="585" y2="336" stroke="#e8850c" stroke-width="2" opacity=".5"/>           <g id="datGroup" opacity="0.35"><rect x="198" y="328" width="30" height="18" rx="3" fill="#fff4e3" stroke="#e8850c" stroke-width="1.4"/><text x="213" y="361" text-anchor="middle" class="svg-mono" fill="#b9690a" font-size="10">DAT</text></g>           <g id="autorecGroup" opacity="0.35"><path d="M300,336 q10,-14 20,0" fill="none" stroke="#e0295a" stroke-width="2.4"/><text x="310" y="320" text-anchor="middle" class="svg-mono" fill="#e0295a" font-size="9">D2 auto</text></g>           <g id="fusionSite" opacity="0.35"><path d="M417,336 q15,-10 30,0" fill="none" stroke="#e8850c" stroke-width="2.4"/><text x="432" y="320" text-anchor="middle" class="svg-mono" fill="#b9690a" font-size="9">SNARE</text></g>           <g id="gabaRecep" opacity="0.35"><path d="M556,336 q12,-14 24,0" fill="none" stroke="#9b3fd4" stroke-width="2.6"/><text x="568" y="320" text-anchor="middle" class="svg-mono" fill="#9b3fd4" font-size="8.5">GABA-R</text></g>         </g>          <rect x="46" y="360" width="604" height="104" rx="4" fill="var(--cleft)" stroke="#efe4cf" stroke-width="1"/>         <text x="60" y="380" class="svg-mono" fill="#b99b5e" font-size="10.5" letter-spacing="1.4">SYNAPTIC CLEFT · ~20 nm</text>         <g id="cleftDA"></g>         <g id="gDegrade" opacity="0.3">           <rect x="74" y="406" width="150" height="44" rx="4" fill="#e2f1ea" stroke="#128a63" stroke-width="1.1"/>           <text x="149" y="426" text-anchor="middle" class="svg-mono" fill="#0c5c43" font-size="10">MAO-B · COMT</text>           <text x="149" y="442" text-anchor="middle" class="svg-mono" fill="#5b6b7a" font-size="8.5">leftovers broken down</text>         </g>          <g id="postTerminal">           <path d="M120,560 Q96,490 176,486 L1000,486 Q1080,488 1082,560 L1082,694 Q1080,716 1000,716 L150,716 Q120,714 120,636 Z" fill="url(#postFill)" stroke="#c2d2ca" stroke-width="1.5"/>           <text x="150" y="646" class="svg-mono" fill="#5b6b7a" font-size="13" letter-spacing="2">POSTSYNAPTIC NEURON</text>           <text x="150" y="664" class="svg-mono" fill="#8a99a8" font-size="10.5">the receiving cell</text>         </g>         <g id="gRecep" opacity="0.35">           <g id="d1recep"><path id="d1path" d="M300,486 q14,-20 28,0" fill="none" stroke="#e0295a" stroke-width="3"/><circle cx="314" cy="470" r="0" fill="#e8850c" id="d1bound"/><text x="314" y="520" text-anchor="middle" class="svg-mono" fill="#e0295a" font-size="11" id="d1label">D1</text><text x="314" y="534" text-anchor="middle" class="svg-mono" fill="#8a99a8" font-size="8.5">the 'go' sensor</text></g>           <g id="d2recep"><path id="d2path" d="M470,486 q14,-20 28,0" fill="none" stroke="#e0295a" stroke-width="3"/><circle cx="484" cy="470" r="0" fill="#e8850c" id="d2bound"/><text x="484" y="520" text-anchor="middle" class="svg-mono" fill="#e0295a" font-size="11" id="d2label">D2</text><text x="484" y="534" text-anchor="middle" class="svg-mono" fill="#8a99a8" font-size="8.5">the 'ease off' sensor</text></g>         </g>          <g id="gGaba">           <path d="M770,132 Q750,72 830,68 L1050,68 Q1130,72 1132,140 L1132,320 Q1130,360 1055,362 L820,362 Q762,356 766,290 Z" fill="url(#gabaFill)" stroke="#d8bce9" stroke-width="1.5"/>           <text x="802" y="110" class="svg-mono" fill="#9b3fd4" font-size="13" letter-spacing="2">GABA INTERNEURON</text>           <text x="802" y="128" class="svg-mono" fill="#7d5a90" font-size="10.5" id="gabaSub">tonic inhibitory brake — ACTIVE</text>           <g id="gabaVesGroup"><circle cx="905" cy="300" r="25" fill="none" stroke="#9b3fd4" stroke-width="1.4" stroke-opacity=".5"/><circle cx="897" cy="294" r="4.5" fill="#9b3fd4"/><circle cx="913" cy="300" r="4.5" fill="#9b3fd4"/><circle cx="903" cy="308" r="4.5" fill="#9b3fd4"/><circle cx="915" cy="291" r="4.5" fill="#9b3fd4"/></g>           <path id="gabaAxon" d="M824,344 C700,432 640,372 602,340" fill="none" stroke="#9b3fd4" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrowInhib)" opacity=".75"/>           <text id="brakeState" x="948" y="345" class="svg-mono" fill="#128a63" font-size="10">brake ON</text>           <g id="gabaFlow"></g>           <text x="802" y="158" class="svg-mono" fill="#1f8fe0" font-size="10">▲ excitatory glutamate drives firing</text>           <text x="802" y="175" class="svg-mono" fill="#8a99a8" font-size="9.5">firing = go push minus brake</text>         </g>          <g id="apSpark" opacity="0"><circle cx="432" cy="300" r="46" fill="url(#daGlow)"/><text x="432" y="205" text-anchor="middle" class="svg-mono" fill="#e8850c" font-size="12" font-weight="700">⚡ ACTION POTENTIAL</text></g>       </svg>
+      <div class="fieldfx" id="fxCircuit"></div>
+      <div class="fxlabel" id="fxCircuitLbl"></div>
     </div>
     <div class="caption">
       <div class="num" id="capNum">·</div>
@@ -689,6 +705,8 @@
     <div class="stagechips3d" id="stageChips3d"></div>
     <div class="stage3d">
       <canvas id="synapseCanvas"></canvas>
+      <div class="fieldfx" id="fx3d"></div>
+      <div class="fxlabel" id="fx3dLbl"></div>
       <div class="badge3d" id="badge3d"></div>
       <div class="stagecap3d" id="stageCap3d"></div>
       <div class="hint3d">drag to orbit · scroll-safe</div>
@@ -1416,6 +1434,164 @@ const CONCEPTS=[
         one:"the bar for 'worth it' resets high — slow rewards stop registering; restless and flat"}
     ]}
   };
+
+  /* ============================================================
+     AGENT LIBRARY — substances that act on the same synapse.
+     Same (stage × state) machinery as lifestyle factors, but grouped
+     by category and carrying richer flags (serotonin/NE/PFC-DA fields,
+     cleft flood, oxidation, sedation, dissociation, mu-opioid, D2 block,
+     plasticity) plus onset/tolerance notes and interaction risk tags.
+     Educational: mechanism & effect only. Doses are qualitative bands.
+     ============================================================ */
+  const AGENT_CATS=[
+    {id:"lifestyle", label:"Lifestyle & state", tag:"how you live", color:"#2aa17a"},
+    {id:"antidep",   label:"Antidepressants & psychiatric", tag:"prescribed", color:"#3a6ea5"},
+    {id:"stim",      label:"Stimulants", tag:"Rx + illicit", color:"#e8850c"},
+    {id:"opioid",    label:"Opioids & depressants", tag:"Rx + illicit", color:"#b4452e"},
+    {id:"psych",     label:"Psychedelics", tag:"5-HT2A", color:"#9b3fd4"}
+  ];
+  const AGENTS=[
+    // ---------- antidepressants / psychiatric ----------
+    {id:"ssri", cat:"antidep", name:"SSRI", sci:"escitalopram", tag:"SERT blocked → 5-HT ↑", color:"#3a6ea5",
+      one:"blocks serotonin reuptake; over weeks the filter thickens — steadier, sometimes blunted"},
+    {id:"snri", cat:"antidep", name:"SNRI", sci:"duloxetine", tag:"SERT + NET blocked", color:"#2f6f8f",
+      one:"serotonin plus noradrenaline; NET block also lifts PFC dopamine → filter + drive"},
+    {id:"ndri", cat:"antidep", name:"NDRI", sci:"bupropion", tag:"DAT + NET blocked", color:"#c47d1a",
+      one:"dopamine + noradrenaline, no serotonin — raises drive and initiation, no blunting"},
+    {id:"agomelatine", cat:"antidep", name:"Agomelatine", sci:"Valdoxan", tag:"MT1/2 + 5-HT2C block", color:"#4a7d9b",
+      one:"resets the body clock and lifts frontal dopamine; no transporter block, no discontinuation crash"},
+    {id:"tianeptine", cat:"antidep", name:"Tianeptine", sci:"atypical", tag:"glutamate plasticity · µ at high dose", color:"#5f6f9b",
+      one:"steadies mood via glutamate plasticity; at high dose it turns opioid — dependence risk"},
+    {id:"maoi", cat:"antidep", name:"MAOI", sci:"phenelzine", tag:"monoamine breakdown blocked", color:"#7a5f9b",
+      one:"stops the enzyme that clears all monoamines; powerful, but dangerous with tyramine and other serotonergics"},
+    {id:"benzo", cat:"antidep", name:"Benzodiazepine", sci:"clonazepam", tag:"GABA-A boosted (global)", color:"#5a6b7c",
+      one:"turns up the brain's master brake everywhere — calm and sedation, with tolerance and rebound"},
+    {id:"antipsychotic", cat:"antidep", name:"Antipsychotic", sci:"olanzapine", tag:"D2 blocked", color:"#6b5a7c",
+      one:"blocks the D2 'no-go' receptor — quiets psychosis, at the cost of blunting and sedation"},
+    {id:"lithium", cat:"antidep", name:"Lithium", sci:"mood stabiliser", tag:"neuroprotective", color:"#4a6b6b",
+      one:"steadies the amplitude of signalling from downstream — narrows the swings, protects neurons"},
+    // ---------- stimulants (prescription + illicit) ----------
+    {id:"amphetamine", cat:"stim", name:"Amphetamine", sci:"Adderall / meth", tag:"DAT reversal → efflux", color:"#e0662a",
+      one:"reverses the pump so dopamine pours out; sharp focus and drive, oxidation load, a steep crash after"},
+    {id:"cocaine", cat:"stim", name:"Cocaine", sci:"DAT blocker", tag:"reuptake blocked (fast)", color:"#d24a4a",
+      one:"jams reuptake hard and briefly — dopamine spikes then drops, driving a binge cycle"},
+    {id:"mdma", cat:"stim", name:"MDMA", sci:"empathogen", tag:"SERT reversal → 5-HT flood", color:"#e0568f",
+      one:"floods serotonin (plus some dopamine/NE) — warmth and empathy, then a multi-day trough"},
+    // ---------- opioids & depressants ----------
+    {id:"opioid", cat:"opioid", name:"Opioids", sci:"morphine / heroin / oxy", tag:"µ-agonism → brake off", color:"#b4452e",
+      one:"removes the VTA brake through the µ-receptor and hits 'liking' directly — euphoria, then dependence"},
+    {id:"ghb", cat:"opioid", name:"GHB", sci:"GABA-B / GHB-R", tag:"deep inhibition", color:"#8a5a3e",
+      one:"strong inhibition through GABA-B; a narrow, dangerous dose window between calm and unconsciousness"},
+    {id:"ketamine", cat:"opioid", name:"Ketamine", sci:"NMDA antagonist", tag:"glutamate surge → plasticity", color:"#5f8fb0",
+      one:"blocks NMDA → paradoxical glutamate surge → rapid plasticity; dissociation, and fast antidepressant action"},
+    // ---------- psychedelics ----------
+    {id:"psychedelic", cat:"psych", name:"Psychedelics", sci:"psilocybin / LSD", tag:"5-HT2A agonism", color:"#9b3fd4",
+      one:"5-HT2A lights up cortex and dissolves the default-mode network — a plastic window and a loosened self"}
+  ];
+  const AGENT_VARIANTS={
+    ssri:{def:"steady",opts:[
+      {id:"steady",name:"As prescribed (steady state)",mind:{mood:14,agitation:-16,stability:10,motivation:-4,focus:-2},sero:45,sero2c:true,pfcDA:-8,sxLoad:1,felt:"blunted",onset:"2–6 weeks to build",
+        one:"a thicker filter — less reactive, steadier; can flatten highs and lows (and libido)",xlink:{label:"serotonin depletion",find:"serotonin"}},
+      {id:"start",name:"First 2 weeks (activation)",mind:{mood:2,agitation:16,stability:-8,motivation:2,focus:-6},sero:30,sxLoad:1,felt:"blunted",onset:"early jitter before benefit",
+        one:"serotonin up before receptors adapt — a jittery, activated window some feel first"},
+      {id:"withdrawal",name:"Cold-turkey discontinuation",mind:{mood:-18,agitation:20,stability:-24,focus:-12,motivation:-8},sero:-30,synth:true,felt:"withdrawal",
+        one:"brain-zaps, dizziness, mood swings as 5-HT2C is unmasked — taper, don't stop abruptly"}
+    ]},
+    snri:{def:"steady",opts:[
+      {id:"steady",name:"As prescribed",mind:{mood:14,agitation:-10,stability:8,motivation:8,focus:8},sero:38,ne:25,pfcDA:15,sxLoad:1,felt:"filter+drive",onset:"2–6 weeks",
+        one:"serotonin filter plus a noradrenaline/PFC-dopamine lift — steadier and more driven",xlink:{label:"serotonin depletion",find:"serotonin"}},
+      {id:"withdrawal",name:"Discontinuation (day-by-day)",mind:{mood:-16,agitation:22,stability:-22,focus:-14,motivation:-10},sero:-25,ne:-10,synth:true,felt:"withdrawal",
+        one:"zaps + autonomic surges (sweating, racing heart), and the drive prop drops out → flat/foggy returns"}
+    ]},
+    ndri:{def:"steady",opts:[
+      {id:"steady",name:"As prescribed",mind:{motivation:16,mood:8,focus:10,agitation:6,stability:2},flood:.22,ne:20,felt:"drive",onset:"2–6 weeks",
+        one:"dopamine + noradrenaline reuptake blocked — drive and initiation up, no blunting, no sexual dysfunction"},
+      {id:"high",name:"High dose",mind:{motivation:12,mood:4,focus:2,agitation:22,stability:-10},flood:.3,ne:26,felt:"drive",
+        one:"more drive but jittery — and it lowers the seizure threshold"}
+    ]},
+    agomelatine:{def:"steady",opts:[
+      {id:"steady",name:"As prescribed (at night)",mind:{mood:10,stability:12,motivation:6,agitation:-6,focus:4},ne:8,pfcDA:8,circ:true,felt:"circadian",onset:"1–2 weeks",
+        one:"re-entrains the body clock and lifts daytime drive; no withdrawal to speak of"}
+    ]},
+    tianeptine:{def:"ther",opts:[
+      {id:"ther",name:"Therapeutic",mind:{mood:10,stability:8,agitation:-6,focus:2},plast:true,felt:"steadied",
+        one:"steadies mood by strengthening glutamate plasticity — an atypical route"},
+      {id:"high",name:"High / supratherapeutic",mind:{mood:16,agitation:-14,motivation:6,stability:-12},mu:true,brakeOff:true,depress:1,felt:"euphoria",
+        one:"at high dose it becomes a µ-opioid — euphoria now, dependence and withdrawal later"}
+    ]},
+    maoi:{def:"steady",opts:[
+      {id:"steady",name:"As prescribed",mind:{mood:14,motivation:8,agitation:-4,stability:4},sero:32,ne:16,sxLoad:2,maoi:true,felt:"filter+drive",onset:"2–4 weeks",
+        one:"blocks monoamine breakdown — broad lift, but aged cheese/wine (tyramine) and other serotonergics turn dangerous"}
+    ]},
+    benzo:{def:"anx",opts:[
+      {id:"anx",name:"Anxiolytic dose",mind:{agitation:-30,stability:6,mood:4,focus:-12,motivation:-6},sedate:true,depress:1,felt:"sedation",
+        one:"turns the master brake up everywhere — anxiety drops, so does memory encoding"},
+      {id:"rebound",name:"Tolerance / rebound",mind:{agitation:26,stability:-18,focus:-14,mood:-10},felt:"withdrawal",
+        one:"rebound anxiety climbs above baseline between doses — taper carefully"}
+    ]},
+    antipsychotic:{def:"std",opts:[
+      {id:"std",name:"Standard dose",mind:{agitation:-20,motivation:-16,mood:-4,focus:-8,stability:6},d2block:true,sedate:true,felt:"blunted",
+        one:"blocks the D2 'no-go' receptor — quiets psychosis and agitation; blunting, sedation, a metabolic cost"}
+    ]},
+    lithium:{def:"ther",opts:[
+      {id:"ther",name:"Therapeutic level",mind:{stability:22,agitation:-10,mood:4},felt:"steadied",
+        one:"narrows the amplitude of the swings from downstream and protects neurons — steadier, less extreme"}
+    ]},
+    amphetamine:{def:"low",opts:[
+      {id:"low",name:"Low / therapeutic band",mind:{motivation:18,focus:22,mood:8,agitation:10,stability:-4},flood:.4,ne:20,felt:"drive",onset:"30–60 min · hours",
+        one:"nudges the pump into reverse — steady dopamine outflow → focus and drive"},
+      {id:"high",name:"High band",mind:{motivation:24,mood:22,focus:6,agitation:24,stability:-24},flood:.85,oxid:.7,ne:30,felt:"euphoria",
+        one:"the cleft floods, vesicles empty, oxidation load spikes — euphoric and wired, and neurotoxic"},
+      {id:"crash",name:"The crash after",mind:{motivation:-34,mood:-30,agitation:8,focus:-20,stability:-30},ves:.4,d2up:true,synth:true,felt:"crash",
+        one:"stores emptied, receptors downregulated — anhedonia and depletion for days"}
+    ]},
+    cocaine:{def:"line",opts:[
+      {id:"line",name:"A line",mind:{motivation:22,mood:22,focus:10,agitation:22,stability:-16},flood:.7,ne:22,felt:"euphoria",onset:"minutes · short",
+        one:"reuptake jammed hard — dopamine spikes fast, fades fast → the urge to redose"},
+      {id:"binge",name:"Binge / crash",mind:{motivation:-26,mood:-26,agitation:16,focus:-14,stability:-26},ves:.5,d2up:true,felt:"crash",
+        one:"the short half-life drives a spike–crash loop; depleted and irritable after"}
+    ]},
+    mdma:{def:"dose",opts:[
+      {id:"dose",name:"A dose",mind:{mood:30,agitation:8,stability:-6,motivation:8,focus:-6},sero:60,flood:.3,oxid:.5,ne:12,sxLoad:2,felt:"euphoria",onset:"30–60 min · hours",
+        one:"serotonin floods out (with some dopamine/NE) — warmth, closeness, empathy",xlink:{label:"serotonin depletion",find:"serotonin"}},
+      {id:"comedown",name:"Comedown ('Tuesday blues')",mind:{mood:-24,agitation:10,stability:-16,motivation:-14,focus:-10},sero:-45,synth:true,felt:"crash",
+        one:"serotonin ran dry — a multi-day trough while stores rebuild"}
+    ]},
+    opioid:{def:"rec",opts:[
+      {id:"ther",name:"Therapeutic (pain)",mind:{mood:10,agitation:-14,motivation:-4,stability:2,focus:-6},mu:true,brakeOff:true,sedate:true,depress:1,felt:"sedation",onset:"analgesia + calm",
+        one:"µ-agonism lifts the VTA brake and dampens pain — calm, with real respiratory-depression danger",xlink:{label:"wanting vs liking",find:"wanting vs liking"}},
+      {id:"rec",name:"Recreational high",mind:{mood:26,agitation:-18,motivation:4,stability:-10,focus:-10},mu:true,brakeOff:true,sedate:true,flood:.3,depress:2,felt:"euphoria",
+        one:"brake off + 'liking' hit directly → euphoria; the respiratory-depression risk is high",xlink:{label:"wanting vs liking",find:"wanting vs liking"}},
+      {id:"withdrawal",name:"Tolerance / withdrawal",mind:{mood:-24,agitation:26,motivation:18,stability:-24,focus:-12},d2up:true,felt:"dependence",
+        one:"receptors downregulated — wanting without liking: the dependence state, craving and dysphoria",xlink:{label:"wanting vs liking",find:"wanting vs liking"}}
+    ]},
+    ghb:{def:"low",opts:[
+      {id:"low",name:"Low dose",mind:{agitation:-18,mood:10,stability:-6,focus:-8},sedate:true,depress:1,felt:"sedation",
+        one:"GABA-B calm and mild euphoria — but the dose window is narrow"},
+      {id:"high",name:"High dose",mind:{agitation:-24,mood:-4,focus:-24,stability:-20,motivation:-14},sedate:true,depress:2,felt:"sedation",
+        one:"a small step up tips calm into sedation and unconsciousness"}
+    ]},
+    ketamine:{def:"ther",opts:[
+      {id:"ther",name:"Sub-anaesthetic (therapeutic)",mind:{mood:22,agitation:-8,stability:10,motivation:8,focus:-6},dissoc:true,plast:true,felt:"dissociation",onset:"hours → days of plasticity",
+        one:"NMDA block → a glutamate/AMPA surge → rapid BDNF-driven plasticity; mild dissociation",xlink:{label:"neuroplasticity",find:"plasticity"}},
+      {id:"high",name:"Recreational / high",mind:{mood:6,agitation:-6,stability:-18,focus:-26,motivation:-10},dissoc:true,felt:"dissociation",
+        one:"deep dissociation (the 'k-hole') — memory and coordination drop offline"}
+    ]},
+    psychedelic:{def:"low",opts:[
+      {id:"low",name:"Low ('museum') dose",mind:{mood:14,agitation:6,stability:-6,focus:-8,motivation:2},plast:true,felt:"altered",onset:"set & setting matter",
+        one:"colours brighten, edges soften — a gentle plastic window",xlink:{label:"self-model rupture",find:"single-experience rupture"}},
+      {id:"full",name:"Full dose",mind:{mood:10,agitation:16,stability:-24,focus:-22,motivation:-4},plast:true,dissoc:true,felt:"ego-dissolution",
+        one:"the default-mode network dissolves — ego-dissolution, a self-model rupture and re-formation",xlink:{label:"self-model rupture",find:"single-experience rupture"}}
+    ]}
+  };
+  // merge agents into the same selection machinery as lifestyle factors
+  AGENTS.forEach(a=>{ INFLUENCES.push(a); INF[a.id]=a; });
+  Object.assign(VARIANTS, AGENT_VARIANTS);
+  INFLUENCES.forEach(i=>{ if(!i.cat) i.cat = (i.id==="caffeine"||i.id==="nicotine") ? "stim" : "lifestyle"; });
+  // interaction-risk sets (id-based, robust)
+  const SEROTONERGIC=new Set(["ssri","snri","mdma","maoi","tianeptine"]);
+  const DEPRESSANTS =new Set(["alcohol","opioid","benzo","ghb"]);
+
   function variantOf(id){const v=VARIANTS[id]; const chosen=active.get(id)||v.def; return v.opts.find(o=>o.id===chosen)||v.opts[0];}
 
   /* ---- biological profile: sex + menstrual phase ---- */
@@ -1455,6 +1631,10 @@ const CONCEPTS=[
       else addMind(mind, (PHASE[profile.phase]||PHASE.none).mind);
     }
     let ves=1, brakeOff=false, d2up=false, inflammation=false, synthImpaired=false, gutHit=0;
+    // agent fields
+    let sero=0, ne=0, pfcDA=0, flood=0, oxid=0;
+    let sedate=false, dissoc=false, d2block=false, mu=false, plast=false, sero2c=false, circ=false;
+    const feltTags=[];
     for(const id of ids){
       const v=variantOf(id);
       addMind(mind, v.mind);
@@ -1464,11 +1644,34 @@ const CONCEPTS=[
       if(v.infl) inflammation=true;
       if(v.synth) synthImpaired=true;
       gutHit=Math.max(gutHit, v.gut||0);
+      sero+=v.sero||0; ne+=v.ne||0; pfcDA+=v.pfcDA||0;
+      flood=Math.max(flood, v.flood||0); oxid=Math.max(oxid, v.oxid||0);
+      if(v.sedate) sedate=true; if(v.dissoc) dissoc=true; if(v.d2block) d2block=true;
+      if(v.mu) mu=true; if(v.plast) plast=true; if(v.sero2c) sero2c=true; if(v.circ) circ=true;
+      if(v.felt) feltTags.push(v.felt);
     }
     for(const a in mind) mind[a]=clamp(mind[a]);
     // menstruation adds a mild inflammatory / kynurenine note
     if(profile.sex==="female" && !profile.pill && profile.phase==="menstruation"){ synthImpaired=true; }
+    // ---- dangerous-interaction detection ----
+    const seroAgents=ids.filter(id=>SEROTONERGIC.has(id));
+    const depAgents =ids.filter(id=>DEPRESSANTS.has(id));
+    const maoiOn=ids.includes("maoi");
+    const warnings=[];
+    if(seroAgents.length>=2)
+      warnings.push({k:"serotonin",label:"Serotonin syndrome risk",
+        body:"Two or more serotonergic agents are stacked ("+seroAgents.map(i=>INF[i].name).join(" + ")+"). Too much serotonin at once can cause agitation, fever, tremor and racing heart — a medical emergency.",
+        detail: maoiOn? "An MAOI with any other serotonergic is especially dangerous." : "SSRI/SNRI + MDMA is the classic combination behind this."});
+    if(depAgents.length>=2)
+      warnings.push({k:"respiratory",label:"Respiratory-depression risk",
+        body:"Two or more CNS depressants are stacked ("+depAgents.map(i=>INF[i].name).join(" + ")+"). Their effect on breathing multiplies — this combination is a leading cause of overdose death.",
+        detail:"Alcohol + opioid + benzodiazepine is the highest-risk stack."});
+    if(maoiOn && ids.some(id=>["amphetamine","cocaine","mdma"].includes(id)))
+      warnings.push({k:"hypertensive",label:"Hypertensive / serotonergic crisis",
+        body:"An MAOI plus a releasing stimulant floods monoamines that can't be broken down — blood pressure can spike dangerously.",
+        detail:"MAOIs also react with tyramine in aged cheese, cured meat and red wine."});
     return {ids,mind,ves:Math.max(.12,ves),brakeOff,d2up,inflammation,synthImpaired,gutHit,
+      sero,ne,pfcDA,flood,oxid,sedate,dissoc,d2block,mu,plast,sero2c,circ,feltTags,warnings,
       dominant: PRIORITY.find(p=>active.has(p)) || "healthy",
       flow: flowScore(mind)};
   }
@@ -1492,9 +1695,17 @@ const CONCEPTS=[
   }
 
   /* ---- mind-state text ---- */
-  function moodLabel(m){
+  function moodLabel(m, st){
     if(active.size===0 && profile.phase==="none" && !(profile.sex==="female"&&profile.pill))
       return ["Available","#e8850c","clear and ready — motivation on tap, shoulders down"];
+    // agent-driven states take priority when their signature dominates
+    if(st){
+      const euph = (st.flood>=.55 && m.mood>=58 && !st.sedate) || (st.mu && m.mood>=64) || (st.feltTags.includes("euphoria") && m.mood>=62);
+      if(st.dissoc) return ["Dissociated","#7d5fc0","unreal and depersonalised — watching yourself from behind glass"];
+      if(euph) return ["Euphoric","#e8850c","lit up — everything glows, effortless and huge (a spike, not a floor)"];
+      if(st.sedate && m.agitation<42 && m.mood>=40) return ["Sedated","#5f6d7c","heavy-lidded and slowed — the world turned right down"];
+      if((st.sero2c||st.d2block) && st.flood<.4 && m.agitation<52) return ["Blunted","#7d8794","padded from the highs and the lows — steadier, but muffled"];
+    }
     const hiAr=m.agitation>54, loMood=m.mood<45, hiMood=m.mood>62, loAr=m.agitation<32, vLoAr=m.agitation<24, vLoMood=m.mood<32;
     // shutdown / numb — arousal collapsed with mood floor (dorsal-vagal)
     if(vLoAr && vLoMood && m.motivation<38) return ["Shut down","#5f6d7c","body gone quiet — numb and distant, moving through molasses"];
@@ -1570,11 +1781,30 @@ const CONCEPTS=[
     "Content":[{q:"My crown is called content: a crown it is that seldom kings enjoy.",a:"Shakespeare — ‘Henry VI, Part 3’"},
       {q:"I have learned, in whatsoever state I am, therewith to be content.",a:"Philippians 4:11 (KJV)"}],
     "Off-baseline":[{q:"The time is out of joint.",a:"Shakespeare — ‘Hamlet’"},
-      {q:"Something is out of tune.",a:"after Shakespeare — ‘Hamlet’"}]
+      {q:"Something is out of tune.",a:"after Shakespeare — ‘Hamlet’"}],
+    "Euphoric":[{q:"I was much too far out all my life, and not waving but drowning.",a:"Stevie Smith (the warning under the glow)"},
+      {q:"O for a beaker full of the warm South… that I might drink, and leave the world unseen.",a:"John Keats — ‘Ode to a Nightingale’"}],
+    "Dissociated":[{q:"I am not what I am.",a:"Shakespeare — ‘Othello’"},
+      {q:"And I have felt a presence that disturbs me with the joy of elevated thoughts.",a:"William Wordsworth — ‘Tintern Abbey’"}],
+    "Sedated":[{q:"A drowsy numbness pains my sense, as though of hemlock I had drunk.",a:"John Keats — ‘Ode to a Nightingale’"},
+      {q:"Sleep that knits up the ravell'd sleave of care.",a:"Shakespeare — ‘Macbeth’"}],
+    "Blunted":[{q:"I have measured out my life with coffee spoons.",a:"T. S. Eliot — ‘Prufrock’"},
+      {q:"We are the hollow men… shape without form, shade without colour.",a:"T. S. Eliot — ‘The Hollow Men’"}]
   };
   let _qWord="", _qIdx=0;
-  function feltCues(m){
+  function feltCues(m, st){
     const c=[];
+    // agent-signature cues first
+    if(st){
+      if(st.feltTags.includes("euphoria")||st.flood>=.55) c.push(["✸","bright bloom — euphoria","#e8850c"]);
+      if(st.feltTags.includes("crash")) c.push(["▾","anhedonic trough — the crash","#e0295a"]);
+      if(st.dissoc) c.push(["◍","depersonalised haze","#7d5fc0"]);
+      if(st.sedate) c.push(["◗","dampened, turned-down field","#5f6d7c"]);
+      if(st.sero2c||st.d2block) c.push(["▦","muted colour — blunting","#7d8794"]);
+      if(st.feltTags.includes("dependence")) c.push(["◑","wanting without liking","#e0295a"]);
+      if(st.plast) c.push(["❋","a plastic window — open to change","#26b389"]);
+    }
+    if(c.length>=4) return c.slice(0,4);
     if(m.motivation<40) c.push(["◔","heavy to start","#e8850c"]);
     if(m.mood<46) c.push(["▽","colour drained","#7d8794"]);
     if(m.agitation>56) c.push(["≈","wired, scanning","#e0295a"]);
@@ -1624,12 +1854,18 @@ const CONCEPTS=[
       f.style.background=mt.col;
       v.textContent=Math.round(val);
     });
-    const [word,col,body]=moodLabel(m);
+    const [word,col,body]=moodLabel(m, st);
     const mw=$("moodWord"); mw.textContent=word; mw.style.color=col;
     const mb=$("moodBody"); if(mb) mb.textContent=body||"";
+    // dangerous-interaction warnings
+    const wb=$("warnBox");
+    if(wb){ const ws=st.warnings||[];
+      if(ws.length){ wb.hidden=false; wb.innerHTML=ws.map(w=>
+        '<div class="warn"><span class="warn-i">⚠</span><div><b>'+w.label+'</b><span>'+w.body+' <i>'+w.detail+'</i></span></div></div>').join(""); }
+      else { wb.hidden=true; wb.innerHTML=""; } }
     $("feltLine").textContent=feltSentence(m);
     // felt-cue glyphs
-    const fc=$("feltCues"); if(fc){ fc.innerHTML=""; feltCues(m).forEach(([g,t,c])=>{ const s=document.createElement("span");
+    const fc=$("feltCues"); if(fc){ fc.innerHTML=""; feltCues(m, st).forEach(([g,t,c])=>{ const s=document.createElement("span");
       s.className="fcue"; s.style.setProperty("--fcc",c); s.innerHTML='<span class="g">'+g+'</span>'+t; fc.appendChild(s); }); }
     // a classic line matched to the state
     const arr=STATE_QUOTES[word], sq=$("stateQuote");
@@ -1746,6 +1982,30 @@ const CONCEPTS=[
   function infl(on){$("inflMark").style.transition="opacity .5s"; $("inflMark").style.opacity=on?1:0;}
   function note(id,txt,col){const e=$(id); if(e){e.textContent=txt; e.style.fill=col||"";}}
 
+  function hexA(h,a){const n=parseInt(h.slice(1),16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
+  // pick a signature tint from the composite so every agent visibly changes the synapse
+  function fieldFx(st){
+    const hasAgent = st.ids.some(id=>INF[id] && INF[id].cat && INF[id].cat!=="lifestyle");
+    if(st.dissoc)        return {c:"#9b3fd4",op:.34,label:"dissociation — depersonalised haze"};
+    if(st.flood>=.5)     return {c:"#e8850c",op:.38,label:"cleft flooded — dopamine everywhere"};
+    if(st.mu)            return {c:"#b4452e",op:.30,label:"µ-opioid — brake off, 'liking' engaged"};
+    if(st.sedate)        return {c:"#3a6ea5",op:.34,label:"sedation — the whole field turned down"};
+    if(st.sero>=25)      return {c:"#17a6a6",op:.30,label:"serotonin field raised"};
+    if(st.d2block)       return {c:"#6b5a7c",op:.30,label:"D2 blockade — no-go quieted"};
+    if(st.plast)         return {c:"#26b389",op:.26,label:"a plastic window — open to rewiring"};
+    if(st.flood>0||st.ne>=15) return {c:"#e8850c",op:.22,label:"reuptake blocked — signal amplified"};
+    if(st.feltTags.includes("crash")) return {c:"#e0295a",op:.30,label:"depleted — the crash after the flood"};
+    if(hasAgent)         return {c:"#5f6d7c",op:.16,label:"on medication — signalling steadied"};
+    return {c:null,op:0,label:""};
+  }
+  function setFieldFx(st){
+    const fx=fieldFx(st);
+    ["fxCircuit","fx3d"].forEach(id=>{ const el=$(id); if(!el) return;
+      if(fx.c){ el.style.background=hexA(fx.c, fx.op); el.style.opacity=1; } else { el.style.opacity=0; } });
+    [["fxCircuitLbl"],["fx3dLbl"]].forEach(([id])=>{ const el=$(id); if(!el) return;
+      if(fx.label){ el.textContent=fx.label; el.classList.add("show"); } else { el.classList.remove("show"); } });
+  }
+
   function applyState(){
     CUR=composite();
     brake(!CUR.brakeOff); flashBrake(!CUR.brakeOff); brakeWas=!CUR.brakeOff;
@@ -1755,6 +2015,9 @@ const CONCEPTS=[
     note("vesNote", CUR.ves<.6?"stores thin — running low on cargo":"packed into sacs — costs energy", CUR.ves<.6?"#e0295a":"");
     note("synthNote", CUR.synthImpaired?"making less — the supply's under pressure":"the slow first step sets the supply", CUR.synthImpaired?"#e0295a":"");
     note("thLabel","TH", CUR.synthImpaired?"#e0295a":"");
+    // D2 receptor blockade (antipsychotic) overrides the up/normal sizing
+    if(CUR.d2block){ d2size(0.45); note("vesNote","D2 receptors blocked — the 'no-go' signal can't land","#6b5a7c"); }
+    setFieldFx(CUR);
     // banner
     const b=$("banner");
     if(active.size===0){ b.textContent="Healthy baseline — the circuit running as designed."; b.className="banner show healthy"; }
@@ -2084,9 +2347,13 @@ const CONCEPTS=[
     // derived state factors
     function factors(){
       const ves=CUR.ves;
-      const oxLoad=Math.min(1,(1-ves)*1.05 + (active.has("stress")?.12:0) + (active.has("depleted")?.18:0));
-      const burstN=Math.max(3,Math.min(12,Math.round(ves*(CUR.brakeOff?12:8))));
-      return {ves,oxLoad,burstN,brakeOff:CUR.brakeOff,d2up:CUR.d2up,infl:CUR.inflammation};
+      const oxLoad=Math.min(1,(1-ves)*1.05 + (active.has("stress")?.12:0) + (active.has("depleted")?.18:0) + (CUR.oxid||0));
+      // stimulant flood forces extra dopamine into the cleft; sedation thins the burst
+      let burstN=Math.max(3,Math.min(12,Math.round(ves*(CUR.brakeOff?12:8))));
+      if(CUR.flood>0) burstN=Math.min(20,burstN+Math.round(CUR.flood*10));
+      if(CUR.sedate) burstN=Math.max(2,Math.round(burstN*0.55));
+      return {ves,oxLoad,burstN,brakeOff:CUR.brakeOff,d2up:CUR.d2up,infl:CUR.inflammation,
+        flood:CUR.flood,sedate:CUR.sedate,dissoc:CUR.dissoc};
     }
     const lerp=(a,b,t)=>a+(b-a)*t;
     const l3=(a,b,t)=>({x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),z:lerp(a.z,b.z,t)});
